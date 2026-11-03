@@ -68,7 +68,23 @@ const multi = (page, name) => p(page, name)?.multi_select?.map((o) => o.name) ||
 const rel = (page, name) => p(page, name)?.relation?.map((r) => r.id.replace(/-/g, '')) || [];
 const num = (page, name) => (typeof p(page, name)?.number === 'number' ? p(page, name).number : null);
 
+// The Census lookup is picky about Mesilla and highway addresses, so try a few spellings.
 async function geocode(address) {
+  const variants = [
+    address,
+    address.replace(/\bNM-28\b|New Mexico 28/i, 'State Highway 28'),
+    address.replace(/,\s*Mesilla,\s*NM/i, ', Las Cruces, NM'),
+    address.replace(/\s*#\s*\w+|\s*Suite\s*#?\s*\w+/i, ''),
+    address.replace(/\s*\d{5}\s*$/, ''),
+  ];
+  for (const a of [...new Set(variants)]) {
+    const hit = await geocodeOnce(a);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+async function geocodeOnce(address) {
   const u = `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=${encodeURIComponent(address)}&benchmark=Public_AR_Current&format=json`;
   try {
     const res = await fetch(u);
