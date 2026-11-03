@@ -1,0 +1,47 @@
+---
+import { subscribeLink } from '../lib/site.js';
+const path = Astro.url.pathname;
+const nav = [
+  ['/musicians/', 'Musicians'],
+  ['/venues/', 'Venues'],
+  ['/map/', 'Map'],
+  ['/genres/', 'Genres'],
+  ['/search/', 'Search'],
+];
+---
+<header class="site-header" data-pagefind-ignore>
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label="Las Cruces Live, home">
+      <svg viewBox="0 0 40 28" width="40" height="28" aria-hidden="true">
+        <path d="M0 26 L9 12 L13 17 L20 4 L27 15 L31 10 L40 26 Z" fill="#36b3a8" />
+        <circle cx="33" cy="5" r="3" fill="#f4b63e" />
+      </svg>
+      <span>Las Cruces <b>Live</b></span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        {nav.map(([href, label]) => (
+          <li><a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <a class="btn btn-gold get" href={subscribeLink('header')}>Get Thursday's lineup</a>
+  </div>
+</header>
+
+<style>
+  .site-header { background: var(--night); color: var(--cream); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .bar { display: flex; align-items: center; gap: 28px; min-height: 72px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--cream); text-decoration: none; font: 700 1.7rem/1 var(--display); }
+  .brand b { color: var(--gold); font-weight: 900; }
+  nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+  nav a { color: #d9d2e8; text-decoration: none; font-weight: 600; font-size: 0.98rem; }
+  nav a:hover, nav a[aria-current='page'] { color: var(--gold); }
+  .get { margin-left: auto; padding: 11px 16px; font-size: 0.92rem; }
+  @media (max-width: 760px) {
+    .bar { gap: 12px 20px; }
+    nav { order: 3; width: 100%; overflow-x: auto; }
+    nav ul { flex-wrap: nowrap; gap: 18px; padding-bottom: 4px; }
+    .get { padding: 9px 12px; font-size: 0.85rem; }
+  }
+</style>

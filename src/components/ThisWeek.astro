@@ -1,0 +1,23 @@
+---
+// The newsletter hand-off. Shows who/where, never days or times.
+import { issueLink, subscribeLink } from '../lib/site.js';
+const { heading, body, source = 'page' } = Astro.props;
+---
+<aside class="thisweek night on-night" aria-label="Playing this week" data-pagefind-ignore>
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>This week</p>
+  <p class="head">{heading}</p>
+  {body && <p>{body}</p>}
+  <p>Days and times are in Thursday's Live Music issue.</p>
+  <div class="btns">
+    <a class="btn btn-gold" href={issueLink(source)}>See days and times</a>
+    <a class="btn btn-line" href={subscribeLink(source)}>Get it free every Thursday</a>
+  </div>
+</aside>
+
+<style>
+  .thisweek { border-radius: 10px; padding: 28px; display: grid; gap: 12px; }
+  .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--gold) !important; font-weight: 700; font-size: 0.95rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px rgba(244,182,62,.25); }
+  .head { font: 800 clamp(1.6rem, 3vw, 2.2rem)/1.02 var(--display); color: var(--cream) !important; }
+  .btns { margin-top: 6px; }
+</style>

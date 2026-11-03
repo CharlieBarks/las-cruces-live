@@ -1,0 +1,37 @@
+---
+import { SITE, utm, subscribeLink } from '../lib/site.js';
+const year = new Date().getFullYear();
+---
+<footer class="night on-night" data-pagefind-ignore>
+  <div class="wrap grid">
+    <div class="stack">
+      <p class="big">The live music schedule comes out every Thursday at 1 pm.</p>
+      <p>Las Cruces Live is the who's who. Live Love Las Cruces is the when and where, free in your inbox, read by {SITE.subscribers} locals.</p>
+      <div class="btns">
+        <a class="btn btn-gold" href={subscribeLink('footer')}>Subscribe free</a>
+        <a class="btn btn-line" href={utm(SITE.liveMusicUrl, 'footer')}>See this week's shows</a>
+      </div>
+    </div>
+    <ul class="links">
+      <li><a href="/get-listed/">Get listed (free)</a></li>
+      <li><a href="/get-listed/#venues">Sponsor a page</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href={utm(SITE.eventsUrl, 'footer')}>Events calendar</a></li>
+      <li><a href="https://lascrucesarttrail.com">Las Cruces Art Trail</a></li>
+    </ul>
+  </div>
+  <div class="wrap fine">
+    <p>© {year} <a href={utm(SITE.publisherUrl, 'footer')}>Live Love Las Cruces</a>. Made in Las Cruces, New Mexico. Always check with the venue before you head out.</p>
+  </div>
+</footer>
+
+<style>
+  footer { padding: 64px 0 28px; margin-top: 0; }
+  .grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 48px; }
+  .big { font: 800 clamp(1.8rem, 3.6vw, 2.6rem)/1 var(--display); color: var(--cream) !important; max-width: 20ch; }
+  .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; align-content: start; }
+  .links a, .fine a { color: var(--cream); }
+  .links a:hover, .fine a:hover { color: var(--gold); }
+  .fine { margin-top: 48px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); font-size: 0.88rem; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+</style>

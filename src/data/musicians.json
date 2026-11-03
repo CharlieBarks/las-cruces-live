@@ -1,0 +1,3779 @@
+[
+  {
+    "name": "A. Billy Free",
+    "slug": "a-billy-free",
+    "notionId": "36454e00081a81b7bcb7dcba86d4db65",
+    "type": "Solo Artist",
+    "sound": "Hip Hop, R&B, Soul, Electronica, and Jazz.",
+    "genres": [
+      "jazz",
+      "soul-rnb",
+      "alternative",
+      "hip-hop-dj"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Ally Shea",
+    "slug": "ally-shea",
+    "notionId": "36454e00081a814d922ac805a08b1a40",
+    "type": "Solo Artist",
+    "sound": "Indie, Folk Mix",
+    "genres": [
+      "folk",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Animmo",
+    "slug": "animmo",
+    "notionId": "36454e00081a81eabbcefcb8e4439082",
+    "type": "",
+    "sound": "Multi-Genre",
+    "genres": [
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Asiah Thomas & Eric Howell",
+    "slug": "asiah-thomas-and-eric-howell",
+    "notionId": "36454e00081a81d586adc7e63c5b5299",
+    "type": "Band",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Austin Jimmy Murphy",
+    "slug": "austin-jimmy-murphy",
+    "notionId": "36454e00081a81a8bdf1c97c1d99abd2",
+    "type": "Solo Artist",
+    "sound": "Blues, Jazz, Country, Americana",
+    "genres": [
+      "americana",
+      "blues",
+      "country",
+      "jazz"
+    ],
+    "links": {
+      "website": "https://jamesrobertmurphy.com",
+      "facebook": "https://www.facebook.com/AustinJimmyMurphy/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Back in the Saddle",
+    "slug": "back-in-the-saddle",
+    "notionId": "36454e00081a812494b3d6f8f21a95b4",
+    "type": "Band",
+    "sound": "Classic Rock, Country, Blues",
+    "genres": [
+      "blues",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Banjo Joe & Danielle",
+    "slug": "banjo-joe-and-danielle",
+    "notionId": "36454e00081a81519ecdcbaf6f9c96ec",
+    "type": "Band",
+    "sound": "Bluegrass Duo",
+    "genres": [
+      "americana",
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Bar Jay Bar",
+    "slug": "bar-jay-bar",
+    "notionId": "36454e00081a81ba8398ebb308060e8f",
+    "type": "Band",
+    "sound": "Folk, Country, Americana",
+    "genres": [
+      "americana",
+      "country",
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Benny Bassett",
+    "slug": "benny-bassett",
+    "notionId": "36454e00081a81458660f303c2a3958d",
+    "type": "Solo Artist",
+    "sound": "Singer-songwriter, Acoustic Rock",
+    "genres": [
+      "rock",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "https://www.bennybassett.com",
+      "facebook": "https://www.facebook.com/bennybassettmusic",
+      "instagram": "https://www.instagram.com/benny_bassett",
+      "youtube": "https://www.youtube.com/c/bennybassett"
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Benny Rivas",
+    "slug": "benny-rivas",
+    "notionId": "36454e00081a818eb409fe329e8291df",
+    "type": "Solo Artist",
+    "sound": "Americana, Acoustic",
+    "genres": [
+      "americana",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "https://benjyrivas.com/",
+      "facebook": "https://www.facebook.com/BenjyRivas1",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "BJ Ramirez",
+    "slug": "bj-ramirez",
+    "notionId": "36454e00081a81ab8fe4fbc75d7156f5",
+    "type": "",
+    "sound": "Solo Guitar, Americana",
+    "genres": [
+      "americana",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/stringfelloemusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Black Jack",
+    "slug": "black-jack",
+    "notionId": "36454e00081a811384ddccb0afd5b1fd",
+    "type": "",
+    "sound": "Blues, Rock, Country",
+    "genres": [
+      "blues",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Blues Boys",
+    "slug": "blues-boys",
+    "notionId": "36454e00081a810faffed1dc7d87cb5d",
+    "type": "Band",
+    "sound": "Blues",
+    "genres": [
+      "blues"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Boss Hogg",
+    "slug": "boss-hogg",
+    "notionId": "36454e00081a81be9646ce41d43bd112",
+    "type": "",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Brandon Perrault",
+    "slug": "brandon-perrault",
+    "notionId": "36454e00081a81fba6fecfa983f3a1c5",
+    "type": "Solo Artist",
+    "sound": "Tex-Mex, Country, Soft Rock, Jazz",
+    "genres": [
+      "country",
+      "jazz",
+      "rock",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Burt Ferguson",
+    "slug": "burt-ferguson",
+    "notionId": "36454e00081a819198f8fca77302e374",
+    "type": "",
+    "sound": "Americana",
+    "genres": [
+      "americana"
+    ],
+    "links": {
+      "website": "https://linktr.ee/burtferguson",
+      "facebook": "https://www.facebook.com/burt.ferguson.9",
+      "instagram": "https://instagram.com/burtfergusonmusic",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Cactus Creek",
+    "slug": "cactus-creek",
+    "notionId": "36454e00081a81718195c2e1b8f93bdc",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Caliente",
+    "slug": "caliente",
+    "notionId": "36454e00081a819da19fd901a7b5ff91",
+    "type": "Band",
+    "sound": "Spanish",
+    "genres": [
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/LasCrucesCaliente",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Calista",
+    "slug": "calista",
+    "notionId": "36454e00081a81b8b03cc56368abfe52",
+    "type": "Solo Artist",
+    "sound": "Soulful, Easy-Listening",
+    "genres": [
+      "soul-rnb",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/calistasing",
+      "instagram": "https://www.instagram.com/calistamusic_/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Captain Klaus",
+    "slug": "captain-klaus",
+    "notionId": "36454e00081a81cd8fe8ef36cc5457c1",
+    "type": "Solo Artist",
+    "sound": "Western Goth, Baltic Country, Singer Songwriter",
+    "genres": [
+      "country",
+      "singer-songwriter",
+      "metal-punk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "CatFishFry",
+    "slug": "catfishfry",
+    "notionId": "36454e00081a81e5a287e5b3afba7c85",
+    "type": "Band",
+    "sound": "Blues",
+    "genres": [
+      "blues"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/catfish.fry",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Cautivo Norteño",
+    "slug": "cautivo-norteno",
+    "notionId": "36454e00081a81d298a3f3d780c00411",
+    "type": "Band",
+    "sound": "Norteño, Regional Mexican",
+    "genres": [
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Chief Danny Boy",
+    "slug": "chief-danny-boy",
+    "notionId": "36454e00081a816c8132f3a471f0682c",
+    "type": "Solo Artist",
+    "sound": "Singer Songwriter, Folk, Country, Americana",
+    "genres": [
+      "americana",
+      "country",
+      "folk",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Chris Baker",
+    "slug": "chris-baker",
+    "notionId": "36454e00081a81088f56f555bbd32670",
+    "type": "Solo Artist",
+    "sound": "Country, Blues, Americana",
+    "genres": [
+      "americana",
+      "blues",
+      "country"
+    ],
+    "links": {
+      "website": "https://www.chrisbaker-music.com/upcoming-shows.html",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/chrisbakermusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Christopher Escarcega",
+    "slug": "christopher-escarcega",
+    "notionId": "36454e00081a81cf91f2d5cbc26a2f0d",
+    "type": "Solo Artist",
+    "sound": "Rock, Jazz, Blues, Folk",
+    "genres": [
+      "blues",
+      "jazz",
+      "rock",
+      "folk"
+    ],
+    "links": {
+      "website": "https://christachio.wixsite.com/christachio",
+      "facebook": "https://www.facebook.com/Christachioh",
+      "instagram": "https://www.instagram.com/christachio/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Christopher Gennari",
+    "slug": "christopher-gennari",
+    "notionId": "36454e00081a811d9f08d05143b2d021",
+    "type": "Solo Artist",
+    "sound": "Singer-Songwriter, High Desert Cosmic Americana, Banjo",
+    "genres": [
+      "americana",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "https://linktr.ee/BanjoHolic",
+      "facebook": "https://www.facebook.com/VanjoHolic/",
+      "instagram": "https://www.instagram.com/vanjoholic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "CL Smith",
+    "slug": "cl-smith",
+    "notionId": "36454e00081a810aa34bc4e41a4b4ea2",
+    "type": "Solo Artist",
+    "sound": "Folk, Rock, Blues, Country, Rockabilly",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "folk",
+      "rockabilly"
+    ],
+    "links": {
+      "website": "https://cmadamsmusic.com",
+      "facebook": "https://www.facebook.com/clsmithsolo",
+      "instagram": "https://www.instagram.com/clsmithsolo",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Clinton Wilcox",
+    "slug": "clinton-wilcox",
+    "notionId": "36454e00081a816d9a6bc7d55896857f",
+    "type": "",
+    "sound": "Piano-Driven Classics, Modern Pop/Rock",
+    "genres": [
+      "rock",
+      "singer-songwriter",
+      "pop",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "CM Adams",
+    "slug": "cm-adams",
+    "notionId": "36454e00081a81558c40ccc3abb2f595",
+    "type": "Solo Artist",
+    "sound": "Folk, Rock, Blues, & Country",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "folk"
+    ],
+    "links": {
+      "website": "https://cmadamsmusic.com",
+      "facebook": "https://www.facebook.com/cmadamsmusic",
+      "instagram": "https://www.instagram.com/cmadamsmusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Conjunto Rodeo",
+    "slug": "conjunto-rodeo",
+    "notionId": "36454e00081a8126b14be636ca0975f5",
+    "type": "Band",
+    "sound": "Norteño",
+    "genres": [
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Continuous Skyy",
+    "slug": "continuous-skyy",
+    "notionId": "36454e00081a8190982ee7fc77240ba1",
+    "type": "Solo Artist",
+    "sound": "Dreamy Fusion",
+    "genres": [
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Cory Phillips",
+    "slug": "cory-phillips",
+    "notionId": "36454e00081a8182b682c6590b01d959",
+    "type": "Solo Artist",
+    "sound": "Acoustic Soul Singer/Guitarist",
+    "genres": [
+      "singer-songwriter",
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/coryphillipsmusic/",
+      "instagram": "",
+      "youtube": "https://www.youtube.com/@sexthirstylovehunger/"
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Creosote",
+    "slug": "creosote",
+    "notionId": "36454e00081a81228b50f6afe6e472ab",
+    "type": "Band",
+    "sound": "Desert Rock Power Duo",
+    "genres": [
+      "rock"
+    ],
+    "links": {
+      "website": "https://creosote1.bandcamp.com/album/unbroken-snow",
+      "facebook": "https://www.facebook.com/p/Creosote-Desert-Rock-100077316341985/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "CW Ayon",
+    "slug": "cw-ayon",
+    "notionId": "36454e00081a81a3982ce4d41f545964",
+    "type": "Solo Artist",
+    "sound": "High Desert Country Blues and Boogie",
+    "genres": [
+      "blues",
+      "country"
+    ],
+    "links": {
+      "website": "https://cwayon.com/shows",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dallas David Ochoa",
+    "slug": "dallas-david-ochoa",
+    "notionId": "36454e00081a817d829cc2a891e73b09",
+    "type": "Solo Artist",
+    "sound": "Indie Rock, Funk, Pop, Acoustic Guitar",
+    "genres": [
+      "rock",
+      "singer-songwriter",
+      "funk-disco",
+      "pop",
+      "alternative"
+    ],
+    "links": {
+      "website": "https://dallasdavidochoa.com",
+      "facebook": "https://www.facebook.com/DallasDavidOchoa",
+      "instagram": "https://www.instagram.com/dallasdavidochoa/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Damian Luna",
+    "slug": "damian-luna",
+    "notionId": "36454e00081a81588916e1cbad93926f",
+    "type": "Solo Artist",
+    "sound": "Outlaw Country, Tex-Mex",
+    "genres": [
+      "country",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "https://www.damianluna.live/gigs",
+      "facebook": "https://www.facebook.com/damian.olivas.7/",
+      "instagram": "https://www.instagram.com/damluna_/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dan Owen",
+    "slug": "dan-owen",
+    "notionId": "36454e00081a81ad94c4e77049fe92d4",
+    "type": "Solo Artist",
+    "sound": "Folksy Originals And Mountain Folk Classics",
+    "genres": [
+      "americana",
+      "folk",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/dan.owen.77770",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dana Cooper",
+    "slug": "dana-cooper",
+    "notionId": "36454e00081a818c9695d66b44450200",
+    "type": "Solo Artist",
+    "sound": "Americana, Folk",
+    "genres": [
+      "americana",
+      "folk"
+    ],
+    "links": {
+      "website": "https://www.danacoopermusic.com",
+      "facebook": "https://www.facebook.com/profile.php?id=100071047601833",
+      "instagram": "https://www.instagram.com/danacoopermusic/",
+      "youtube": "https://www.youtube.com/@danacooper6716"
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Daniel Sanchez",
+    "slug": "daniel-sanchez",
+    "notionId": "36454e00081a81688f6dc2fcabf7aaaf",
+    "type": "Solo Artist",
+    "sound": "Rock, Pop, R&B",
+    "genres": [
+      "rock",
+      "soul-rnb",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/danichezmusic/",
+      "instagram": "https://www.instagram.com/danichezmusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dark Canyon Fire",
+    "slug": "dark-canyon-fire",
+    "notionId": "36454e00081a815ca831f84f569f1179",
+    "type": "Band",
+    "sound": "Father & Son Guitar Duo",
+    "genres": [
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/dark_canyon_fire/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dealers Choice",
+    "slug": "dealers-choice",
+    "notionId": "36454e00081a817f922ae3e55f1e261a",
+    "type": "",
+    "sound": "Country, Classic Rock",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Death Benefits",
+    "slug": "death-benefits",
+    "notionId": "36454e00081a81b28762e6df0309b4d9",
+    "type": "Band",
+    "sound": "Slamming Death Metal",
+    "genres": [
+      "metal-punk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Designated Mind",
+    "slug": "designated-mind",
+    "notionId": "36454e00081a816d8884ff0b5d5bdfff",
+    "type": "Band",
+    "sound": "Classic Rock, Originals",
+    "genres": [
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/designatedmind",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Desirae Price",
+    "slug": "desirae-price",
+    "notionId": "36454e00081a811a8820d5274e86fa14",
+    "type": "Solo Artist",
+    "sound": "Indie, Acoustic, Singer Songwriter",
+    "genres": [
+      "singer-songwriter",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/desiraepricemusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Desperados",
+    "slug": "desperados",
+    "notionId": "36454e00081a81958ee2e33a94cb6dfe",
+    "type": "Band",
+    "sound": "Country, Western Swing",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dosage",
+    "slug": "dosage",
+    "notionId": "36454e00081a81c2ab87d529aaa97414",
+    "type": "Band",
+    "sound": "Alternative Rock",
+    "genres": [
+      "rock",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Down by Fore",
+    "slug": "down-by-fore",
+    "notionId": "36454e00081a811f8871cf311d5c4581",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dream Merchants",
+    "slug": "dream-merchants",
+    "notionId": "36454e00081a819cb317c96118ae9a68",
+    "type": "Band",
+    "sound": "R&B, Funk, Blues, Classic Rock",
+    "genres": [
+      "blues",
+      "rock",
+      "soul-rnb",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dusty Low",
+    "slug": "dusty-low",
+    "notionId": "36454e00081a8176918ed545fd5131ef",
+    "type": "Solo Artist",
+    "sound": "Americana, Rock, Country",
+    "genres": [
+      "americana",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/dustylowmusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dzaki Sukarno",
+    "slug": "dzaki-sukarno",
+    "notionId": "36454e00081a818db7b4f27e442cdb93",
+    "type": "Solo Artist",
+    "sound": "Country Singer & Songwriter",
+    "genres": [
+      "country",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "https://dzakisukarno.com",
+      "facebook": "https://www.facebook.com/officialdzakisukarno/",
+      "instagram": "",
+      "youtube": "https://music.youtube.com/channel/UCNVkL_QbglwCeMoOHjViJNA"
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Era Snow",
+    "slug": "era-snow",
+    "notionId": "36454e00081a8172a8caf2e8bfc0c125",
+    "type": "Solo Artist",
+    "sound": "Sultry, Soothing, Acoustic-Electric Guitar",
+    "genres": [
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Exito",
+    "slug": "exito",
+    "notionId": "36454e00081a81029766c538a4197ea1",
+    "type": "",
+    "sound": "Tejano",
+    "genres": [
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/p/Exito-Band-100068943250435/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Flat Blak",
+    "slug": "flat-blak",
+    "notionId": "36454e00081a812f91a7ec4d33347a15",
+    "type": "Band",
+    "sound": "Rock & Roll Tribute",
+    "genres": [
+      "rock"
+    ],
+    "links": {
+      "website": "https://www.flatblak.net",
+      "facebook": "https://www.facebook.com/theflatblakband",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Frank Zona Band",
+    "slug": "frank-zona-band",
+    "notionId": "36454e00081a8124a133de40ed388ed0",
+    "type": "Band",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Frankie Bandin & Angela Padilla",
+    "slug": "frankie-bandin-and-angela-padilla",
+    "notionId": "36454e00081a81b398e4c78b552815fe",
+    "type": "Band",
+    "sound": "Country, Spanish, Top 40 hits",
+    "genres": [
+      "country",
+      "pop",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Frequencia",
+    "slug": "frequencia",
+    "notionId": "36454e00081a81459084f6f83893c2f2",
+    "type": "",
+    "sound": "Spanish, Spanish Rock",
+    "genres": [
+      "rock",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Frontera Bugalú",
+    "slug": "frontera-bugalu",
+    "notionId": "36454e00081a813c9fb8da79abc48ca3",
+    "type": "Band",
+    "sound": "Latin, Cumbia",
+    "genres": [
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Fungi Mungle",
+    "slug": "fungi-mungle",
+    "notionId": "36454e00081a81dcbcf1d642a26bcb3e",
+    "type": "Band",
+    "sound": "70s, Disco, Funk, Classic Rock",
+    "genres": [
+      "rock",
+      "funk-disco",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Gabe Casual",
+    "slug": "gabe-casual",
+    "notionId": "36454e00081a81eea8ffcd4196f381c2",
+    "type": "Solo Artist",
+    "sound": "Ska",
+    "genres": [
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Ghetto Vaquero Band",
+    "slug": "ghetto-vaquero-band",
+    "notionId": "36454e00081a811f827acfec90ca1c70",
+    "type": "Band",
+    "sound": "Country, Tex-Mex",
+    "genres": [
+      "country",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Grady Hodnett",
+    "slug": "grady-hodnett",
+    "notionId": "36454e00081a817db3dacd5a32854258",
+    "type": "Solo Artist",
+    "sound": "Country, Americana",
+    "genres": [
+      "americana",
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/grady.hodnett",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Groove Runner",
+    "slug": "groove-runner",
+    "notionId": "36454e00081a81c987eacdba0ff3f722",
+    "type": "",
+    "sound": "Motown, Classic Soul",
+    "genres": [
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Guitar Slim",
+    "slug": "guitar-slim",
+    "notionId": "36454e00081a8176813cdd19368223b1",
+    "type": "Solo Artist",
+    "sound": "Blues",
+    "genres": [
+      "blues"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Guss",
+    "slug": "guss",
+    "notionId": "36454e00081a8176b71cd35856dbfed7",
+    "type": "Solo Artist",
+    "sound": "90's Alternative Indie",
+    "genres": [
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/guss_lcnm/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Hard Knocks Blues Band",
+    "slug": "hard-knocks-blues-band",
+    "notionId": "36454e00081a81e8adccfbd3d0903a9d",
+    "type": "Band",
+    "sound": "Blues",
+    "genres": [
+      "blues"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Highway FM",
+    "slug": "highway-fm",
+    "notionId": "36454e00081a81568efcd502b10f0b1d",
+    "type": "Band",
+    "sound": "Country, Classic Rock, Rock",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/highway.fm.2024/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Illusion",
+    "slug": "illusion",
+    "notionId": "36454e00081a8192bd55f503f4ffea29",
+    "type": "",
+    "sound": "Tejano, Country, Oldies, Rock, Spanish",
+    "genres": [
+      "country",
+      "rock",
+      "tejano-norteno",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jack Hansen",
+    "slug": "jack-hansen",
+    "notionId": "36454e00081a81a7ada9f0eef16ec357",
+    "type": "Solo Artist",
+    "sound": "Rock, Pop, Jazz, Fingerstyle Guitar",
+    "genres": [
+      "jazz",
+      "rock",
+      "singer-songwriter",
+      "pop"
+    ],
+    "links": {
+      "website": "https://www.jackhansenguitar.com",
+      "facebook": "https://www.facebook.com/kcajthekashmirman",
+      "instagram": "https://www.instagram.com/jackhansenguitar/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jackal",
+    "slug": "jackal",
+    "notionId": "36454e00081a8119b7cde05fb6212c48",
+    "type": "",
+    "sound": "Folk",
+    "genres": [
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jacob Acosta",
+    "slug": "jacob-acosta",
+    "notionId": "36454e00081a81088a2cd2c560d66562",
+    "type": "Solo Artist",
+    "sound": "Desert Soul",
+    "genres": [
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jada Bryant",
+    "slug": "jada-bryant",
+    "notionId": "3de54e00081a817bada9ef9fe40049b1",
+    "type": "Solo Artist",
+    "sound": "DJ",
+    "genres": [
+      "hip-hop-dj"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jam Quartet",
+    "slug": "jam-quartet",
+    "notionId": "36454e00081a81aaa836fbb24ebfb739",
+    "type": "Band",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "James Bullard",
+    "slug": "james-bullard",
+    "notionId": "36454e00081a811292e3de76a760fa08",
+    "type": "Solo Artist",
+    "sound": "Blues, Classic Rock",
+    "genres": [
+      "blues",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jamie O’Hara",
+    "slug": "jamie-ohara",
+    "notionId": "36454e00081a81f58f6deeecd6703590",
+    "type": "Solo Artist",
+    "sound": "Bluesy, Jazzy, Funky, Rock 'n Roll Vibes",
+    "genres": [
+      "blues",
+      "jazz",
+      "rock",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/ohtunes",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Jezzika Sax",
+    "slug": "jezzika-sax",
+    "notionId": "36454e00081a81788029e2e21bd13028",
+    "type": "Solo Artist",
+    "sound": "Jazz, Cumbia, Latin, Tejano",
+    "genres": [
+      "jazz",
+      "latin",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "https://jezzikasax.com/",
+      "facebook": "https://www.facebook.com/jessica.flores.56679/",
+      "instagram": "https://www.instagram.com/saxwithclass/",
+      "youtube": "https://www.youtube.com/@jmflowers071"
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "John Anderson",
+    "slug": "john-anderson",
+    "notionId": "36454e00081a81d19530e48643afa380",
+    "type": "Solo Artist",
+    "sound": "Rock, Country, Blues, Acoustic",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/john.t.andersoniii",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Joshua Lucero",
+    "slug": "joshua-lucero",
+    "notionId": "36454e00081a81128356e59f88c8be7f",
+    "type": "Solo Artist",
+    "sound": "Rock, Jazz, Blues, Folk",
+    "genres": [
+      "blues",
+      "jazz",
+      "rock",
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Julia Cozby",
+    "slug": "julia-cozby",
+    "notionId": "36454e00081a81448d65cabc1388b2fa",
+    "type": "Solo Artist",
+    "sound": "Country, Blues, Americana",
+    "genres": [
+      "americana",
+      "blues",
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Julio Ortiz",
+    "slug": "julio-ortiz",
+    "notionId": "36454e00081a81dab3d7df1a2a896334",
+    "type": "Solo Artist",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Kat Crosby and the Rhythm Gators",
+    "slug": "kat-crosby-and-the-rhythm-gators",
+    "notionId": "36454e00081a81ca8490e6337efc050c",
+    "type": "Band",
+    "sound": "Blues",
+    "genres": [
+      "blues"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/people/Kat-Crosby-and-the-Rhythm-Gators/100035517026683/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Keith Burnstein",
+    "slug": "keith-burnstein",
+    "notionId": "36454e00081a81a1ac54c1ded206c91d",
+    "type": "Solo Artist",
+    "sound": "Singer-Songwriter, Pianist",
+    "genres": [
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Kicks Band",
+    "slug": "kicks-band",
+    "notionId": "36454e00081a8126a007dcbf3332aea6",
+    "type": "Band",
+    "sound": "Oldies, Country, Pop, Latin",
+    "genres": [
+      "country",
+      "pop",
+      "latin",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Kissing Leia",
+    "slug": "kissing-leia",
+    "notionId": "36454e00081a815b8ad0f2cc459c42b7",
+    "type": "Band",
+    "sound": "80’s Rock & Variety",
+    "genres": [
+      "rock",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/LincolnsLie/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "La Mezcla",
+    "slug": "la-mezcla",
+    "notionId": "36454e00081a81629e44d5d27c27c5a8",
+    "type": "Band",
+    "sound": "Latin, Jazz, Afro-Caribbean, Son Jarocho",
+    "genres": [
+      "jazz",
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Line 5",
+    "slug": "line-5",
+    "notionId": "36454e00081a81f6a6d2d300a117904c",
+    "type": "",
+    "sound": "Classic Rock, Country",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Los Brewthers",
+    "slug": "los-brewthers",
+    "notionId": "36454e00081a817b946cfd3fe107a39e",
+    "type": "Band",
+    "sound": "Cumbia, Reggae, Variety",
+    "genres": [
+      "latin",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Los Chile Rellenos",
+    "slug": "los-chile-rellenos",
+    "notionId": "36454e00081a814785d7d14a7835ba1c",
+    "type": "Band",
+    "sound": "Oldies, Tejano",
+    "genres": [
+      "tejano-norteno",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Los Tocayos con Japhy Ryder",
+    "slug": "los-tocayos-con-japhy-ryder",
+    "notionId": "36454e00081a81e7993df6f0e4beebc9",
+    "type": "Band",
+    "sound": "Folk-Country Duo, Blues",
+    "genres": [
+      "blues",
+      "country",
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Lozano Brothers",
+    "slug": "lozano-brothers",
+    "notionId": "36454e00081a81f389b4c70dfdfe8cdb",
+    "type": "Band",
+    "sound": "Classic Rock, 80's Rock, Country",
+    "genres": [
+      "country",
+      "rock",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Luke Garcia",
+    "slug": "luke-garcia",
+    "notionId": "36454e00081a81178d0ad0c883d785ed",
+    "type": "Solo Artist",
+    "sound": "Americana, Acoustic Guitar, Singer Songwriter",
+    "genres": [
+      "americana",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/luke_garcia__/",
+      "youtube": "https://www.youtube.com/watch?v=J-YiLAZS3C4"
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Lush Life",
+    "slug": "lush-life",
+    "notionId": "36454e00081a81c28b15e8e099a53b46",
+    "type": "",
+    "sound": "Jazz, Boleros",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "https://www.reverbnation.com/lushlifequintet/songs",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/lushlifequintet/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Mammoth Cults",
+    "slug": "mammoth-cults",
+    "notionId": "36454e00081a81c49944efaeadbcd0dc",
+    "type": "Band",
+    "sound": "Alternative Blues",
+    "genres": [
+      "blues",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/officialmammothcults/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Manny Lozano",
+    "slug": "manny-lozano",
+    "notionId": "36454e00081a81f89462c160249318bb",
+    "type": "Solo Artist",
+    "sound": "Jazz, Spanish Black Metal, Cumbia",
+    "genres": [
+      "jazz",
+      "latin",
+      "metal-punk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Mark Coker",
+    "slug": "mark-coker",
+    "notionId": "36454e00081a8139b7d1e77d494431a8",
+    "type": "Solo Artist",
+    "sound": "Classic Country, Rock, Blues",
+    "genres": [
+      "blues",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Matthew Mercado",
+    "slug": "matthew-mercado",
+    "notionId": "36454e00081a8118a8bdfdb12bbdbad0",
+    "type": "Solo Artist",
+    "sound": "Singer Songwriter, Americana-Acoustic Solos, Country, Blues, Soul",
+    "genres": [
+      "americana",
+      "blues",
+      "country",
+      "singer-songwriter",
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Matthew Palmer",
+    "slug": "matthew-palmer",
+    "notionId": "36454e00081a81bdaa24ebc9fcde2906",
+    "type": "Solo Artist",
+    "sound": "Blues, Folk, Rock, Singer Songwriter",
+    "genres": [
+      "blues",
+      "rock",
+      "folk",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "https://theguitarfeller.com",
+      "facebook": "https://www.facebook.com/guitarfeller",
+      "instagram": "https://www.instagram.com/guitarfeller97/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Mazter4",
+    "slug": "mazter4",
+    "notionId": "36454e00081a810096d6d38179120334",
+    "type": "",
+    "sound": "Cumbia",
+    "genres": [
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Michael Paul Alvillar",
+    "slug": "michael-paul-alvillar",
+    "notionId": "36454e00081a815c813bfad36536409e",
+    "type": "Solo Artist",
+    "sound": "Acoustic, Folk, Pop",
+    "genres": [
+      "folk",
+      "singer-songwriter",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/michael.paul.musiclc/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "MIke Sunjka",
+    "slug": "mike-sunjka",
+    "notionId": "36454e00081a81b19e03ed7bf2153eb2",
+    "type": "Solo Artist",
+    "sound": "Acoustic Jazz, Latin, Pop",
+    "genres": [
+      "jazz",
+      "singer-songwriter",
+      "pop",
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Monochrome Jazz Quartet",
+    "slug": "monochrome-jazz-quartet",
+    "notionId": "36454e00081a8112b627e3c2dd39d520",
+    "type": "Band",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Moonshine Railroad",
+    "slug": "moonshine-railroad",
+    "notionId": "36454e00081a81a5bb4ed1cc9d3d0d72",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Morgan Brothers",
+    "slug": "morgan-brothers",
+    "notionId": "36454e00081a819dad43df3f9fd3043e",
+    "type": "Band",
+    "sound": "Classic Rock, Folk, Blues",
+    "genres": [
+      "blues",
+      "rock",
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "My Fault Band",
+    "slug": "my-fault-band",
+    "notionId": "36454e00081a817799eceac86ba963c2",
+    "type": "Band",
+    "sound": "Live classic rock, country and rock music",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "My Fault Jazz Band",
+    "slug": "my-fault-jazz-band",
+    "notionId": "36454e00081a812d92b7efc1027c460a",
+    "type": "Band",
+    "sound": "Jazz, Funk, Fusion, Rock & Roll",
+    "genres": [
+      "jazz",
+      "rock",
+      "funk-disco",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/my_fault_lc/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Myke Miller",
+    "slug": "myke-miller",
+    "notionId": "36454e00081a8147949df5fd1e6eec36",
+    "type": "Solo Artist",
+    "sound": "Folk, Rock, Americana",
+    "genres": [
+      "americana",
+      "rock",
+      "folk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Nat Reeves & Friends",
+    "slug": "nat-reeves-and-friends",
+    "notionId": "36454e00081a8133bdb4e0eee0866851",
+    "type": "Band",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Neil Haverstick",
+    "slug": "neil-haverstick",
+    "notionId": "36454e00081a812aa3e9e4206970a465",
+    "type": "Solo Artist",
+    "sound": "Blues, Jazz",
+    "genres": [
+      "blues",
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Nick Brower",
+    "slug": "nick-brower",
+    "notionId": "36454e00081a81a48839dc0b780a4161",
+    "type": "Solo Artist",
+    "sound": "Songwriter, Cellist",
+    "genres": [
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/nickbrower_/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Nicole Osborne",
+    "slug": "nicole-osborne",
+    "notionId": "36454e00081a81dabc48c3e33b1204cb",
+    "type": "Solo Artist",
+    "sound": "Pop/rock/soul originals",
+    "genres": [
+      "rock",
+      "soul-rnb",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/NicoleOsbornMusic",
+      "instagram": "https://www.instagram.com/nicoleosbornmusic/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Nikki deMilliano & Isaac Arellano",
+    "slug": "nikki-demilliano-and-isaac-arellano",
+    "notionId": "36454e00081a81179677d46ecb44fe74",
+    "type": "Band",
+    "sound": "Classic Country, Classic Rock",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "https://575bandlcnm.com",
+      "facebook": "https://www.facebook.com/profile.php?id=100083343552540",
+      "instagram": "https://www.instagram.com/maynikki5/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "NV",
+    "slug": "nv",
+    "notionId": "36454e00081a81929e0bddce0b0f29b6",
+    "type": "",
+    "sound": "Funk Rock/Alt Rock Originals",
+    "genres": [
+      "rock",
+      "funk-disco",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Organo Ambiente",
+    "slug": "organo-ambiente",
+    "notionId": "36454e00081a8174bcd1fb0504e61fa7",
+    "type": "Band",
+    "sound": "Latin, Jazz",
+    "genres": [
+      "jazz",
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Orlando Madrid",
+    "slug": "orlando-madrid",
+    "notionId": "36454e00081a810cb131fc2bb5c9cc78",
+    "type": "Solo Artist",
+    "sound": "Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/orlando.madrid.9",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Oscar Ayala",
+    "slug": "oscar-ayala",
+    "notionId": "36454e00081a8174b6c3e03760ffaaf8",
+    "type": "Solo Artist",
+    "sound": "Latin Pop, Norteño",
+    "genres": [
+      "pop",
+      "latin",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Outbound Lights",
+    "slug": "outbound-lights",
+    "notionId": "36454e00081a8100b0efe7f5c554edc9",
+    "type": "Band",
+    "sound": "Alternative Rock",
+    "genres": [
+      "rock",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Outcats",
+    "slug": "outcats",
+    "notionId": "36454e00081a810390c0d51be0c2c8d6",
+    "type": "Band",
+    "sound": "Blues",
+    "genres": [
+      "blues"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Papa Blue & The King Bees",
+    "slug": "papa-blue-and-the-king-bees",
+    "notionId": "36454e00081a818ab6eaf97f86ace6bf",
+    "type": "Band",
+    "sound": "Blues, Roots, Rock",
+    "genres": [
+      "americana",
+      "blues",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Pizza Bones",
+    "slug": "pizza-bones",
+    "notionId": "36454e00081a8108bea1c12f638cb200",
+    "type": "Band",
+    "sound": "Bluesy, Jazzy, Funky, Rock 'n Roll Vibes",
+    "genres": [
+      "blues",
+      "jazz",
+      "rock",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/profile.php?id=100063931452013",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Planet I Love You",
+    "slug": "planet-i-love-you",
+    "notionId": "36454e00081a8101ac40caaa3783c569",
+    "type": "Band",
+    "sound": "Pop, Rock",
+    "genres": [
+      "rock",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Randy Lynch",
+    "slug": "randy-lynch",
+    "notionId": "36454e00081a8179b3bdccffdc9d4411",
+    "type": "Solo Artist",
+    "sound": "Pop, Rock, Country",
+    "genres": [
+      "country",
+      "rock",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/randy_lynch_music/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rick Haffey",
+    "slug": "rick-haffey",
+    "notionId": "36454e00081a811eacf5dcf4e7eea8f9",
+    "type": "Solo Artist",
+    "sound": "Rockabilly",
+    "genres": [
+      "rock",
+      "rockabilly"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rio Grande Revelers",
+    "slug": "rio-grande-revelers",
+    "notionId": "36454e00081a8160a718ebf8b28dbd1b",
+    "type": "Band",
+    "sound": "Dixieland Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/RGRevelers",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rockabilly Strangers",
+    "slug": "rockabilly-strangers",
+    "notionId": "36454e00081a81afa612e791a11647e3",
+    "type": "Band",
+    "sound": "Rockabilly, Blues, Rock & Roll, Old Country",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "rockabilly"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/rockabillystrangers",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rudy Boy Experiment",
+    "slug": "rudy-boy-experiment",
+    "notionId": "36454e00081a8115ba55e2a31ecec9be",
+    "type": "Band",
+    "sound": "High-Energy Blues, Rock, Soul",
+    "genres": [
+      "blues",
+      "rock",
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rudy Saenz",
+    "slug": "rudy-saenz",
+    "notionId": "36454e00081a8145b0f6f58d7446d121",
+    "type": "Solo Artist",
+    "sound": "Rock, Blues, Country",
+    "genres": [
+      "blues",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rus, Dennis & Friends",
+    "slug": "rus-dennis-and-friends",
+    "notionId": "36454e00081a819dac57d29cf8314005",
+    "type": "Band",
+    "sound": "Old Country, Fiddle",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sage Gentlewing",
+    "slug": "sage-gentlewing",
+    "notionId": "36454e00081a81a7ac92d95f8ad09ce2",
+    "type": "Solo Artist",
+    "sound": "Americana, Blues, Jazz, Country",
+    "genres": [
+      "americana",
+      "blues",
+      "country",
+      "jazz"
+    ],
+    "links": {
+      "website": "https://www.sagegentlewing.com/performance-calendar",
+      "facebook": "https://www.facebook.com/SageGW",
+      "instagram": "https://www.instagram.com/gentlewingsage/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Santana Garcia",
+    "slug": "santana-garcia",
+    "notionId": "36454e00081a81ffaf07f7c9e551eb9b",
+    "type": "Solo Artist",
+    "sound": "Acoustic Guitar",
+    "genres": [
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Satisfied Band",
+    "slug": "satisfied-band",
+    "notionId": "36454e00081a81de8c0def452b0ecf13",
+    "type": "Band",
+    "sound": "Americana, Country, Tejano, Norteño",
+    "genres": [
+      "americana",
+      "country",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Saxattitude",
+    "slug": "saxattitude",
+    "notionId": "36454e00081a81c780ede336ab0465e5",
+    "type": "",
+    "sound": "Jazz, Pop, Dance",
+    "genres": [
+      "jazz",
+      "funk-disco",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sebastien Lescombes",
+    "slug": "sebastien-lescombes",
+    "notionId": "36454e00081a816f9139faf54e6f27b2",
+    "type": "Solo Artist",
+    "sound": "American songbook+, instrumental (piano)",
+    "genres": [
+      "jazz",
+      "singer-songwriter"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Shilling & Co.",
+    "slug": "shilling-and-co",
+    "notionId": "36454e00081a81c582f6f0a56292608a",
+    "type": "Band",
+    "sound": "80’s Pop, Classic Rock",
+    "genres": [
+      "rock",
+      "pop",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Silver Bullet Band",
+    "slug": "silver-bullet-band",
+    "notionId": "36454e00081a814d83abd41cea8584ca",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/p/Tudy-Romero-The-Silver-Bullet-Band-100059725044793/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sister Black Lagoon",
+    "slug": "sister-black-lagoon",
+    "notionId": "36454e00081a813c8bdefab42c8a523e",
+    "type": "Band",
+    "sound": "Alternative Rock, Pop, Electronic",
+    "genres": [
+      "rock",
+      "pop",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Skivi Meredith",
+    "slug": "skivi-meredith",
+    "notionId": "36454e00081a81789488c9fe1f2b43e3",
+    "type": "Solo Artist",
+    "sound": "Pop, Soul, Classic Rock",
+    "genres": [
+      "rock",
+      "soul-rnb",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Small Business Band",
+    "slug": "small-business-band",
+    "notionId": "36454e00081a81ab89c2e4aca4cfb725",
+    "type": "Band",
+    "sound": "Americana",
+    "genres": [
+      "americana"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sons of Soul",
+    "slug": "sons-of-soul",
+    "notionId": "36454e00081a818f858ef681ceadba52",
+    "type": "Band",
+    "sound": "Soul",
+    "genres": [
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Stephanie Rigesti",
+    "slug": "stephanie-rigesti",
+    "notionId": "36454e00081a811e9c63f431066bb066",
+    "type": "Solo Artist",
+    "sound": "Soulful",
+    "genres": [
+      "soul-rnb"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Stevie Chavez",
+    "slug": "stevie-chavez",
+    "notionId": "36454e00081a81f0a5f6d386902c289f",
+    "type": "Solo Artist",
+    "sound": "Spanish",
+    "genres": [
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Stoney Blue Fish",
+    "slug": "stoney-blue-fish",
+    "notionId": "36454e00081a81feb0fef4ecd32e7ae1",
+    "type": "Band",
+    "sound": "Funk, Rock, Blues",
+    "genres": [
+      "blues",
+      "rock",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/stoneybluefish/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Suavecito",
+    "slug": "suavecito",
+    "notionId": "36454e00081a81af953bc021dcd8d94a",
+    "type": "Band",
+    "sound": "Smooth Santana Tribute Band",
+    "genres": [
+      "rock",
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/profile.php?id=61560115867845",
+      "instagram": "https://www.instagram.com/suavecitotheband",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Suthern Blend Band",
+    "slug": "suthern-blend-band",
+    "notionId": "36454e00081a815abfe2e4f740ae507d",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sweet Nadine",
+    "slug": "sweet-nadine",
+    "notionId": "36454e00081a81cb9619f20cdade6426",
+    "type": "Solo Artist",
+    "sound": "Classic Rock, Blues, Country, Dance, Spanish",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "funk-disco",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/SweetNadineBlues",
+      "instagram": "https://www.instagram.com/SweetNadine1325",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Taylor Paul",
+    "slug": "taylor-paul",
+    "notionId": "36454e00081a8107ae61f6f6718e9680",
+    "type": "Solo Artist",
+    "sound": "Singer-Songwriter, Indie Rock",
+    "genres": [
+      "rock",
+      "singer-songwriter",
+      "alternative"
+    ],
+    "links": {
+      "website": "https://taylorpaul.net/shows",
+      "facebook": "https://www.facebook.com/taylorpaulofficial",
+      "instagram": "https://www.instagram.com/taylord3",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Tejas",
+    "slug": "tejas",
+    "notionId": "36454e00081a810e9a48c3e2c9ff2160",
+    "type": "",
+    "sound": "Tejano, Country, Classic Rock, Spanish",
+    "genres": [
+      "country",
+      "rock",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Teledrama",
+    "slug": "teledrama",
+    "notionId": "36454e00081a81a6a7f9c3d9d63030a9",
+    "type": "Band",
+    "sound": "Rock/Alternative Rock",
+    "genres": [
+      "rock",
+      "alternative"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Tequila Nights",
+    "slug": "tequila-nights",
+    "notionId": "36454e00081a81e79169ee009c62fc43",
+    "type": "Band",
+    "sound": "Country, Traditional Country, 90s Country",
+    "genres": [
+      "country",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The 575 Band",
+    "slug": "the-575-band",
+    "notionId": "36454e00081a819a86e8f0f76650fa42",
+    "type": "Band",
+    "sound": "Classic Country, Classic Rock",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "https://575bandlcnm.com",
+      "facebook": "https://www.facebook.com/profile.php?id=100083343552540",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Band",
+    "slug": "the-band",
+    "notionId": "36454e00081a81678e66ee0928f953cb",
+    "type": "Band",
+    "sound": "Dance, Cumbias, Country, Tejano, Top 40, R&B",
+    "genres": [
+      "country",
+      "soul-rnb",
+      "funk-disco",
+      "pop",
+      "latin",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "https://thebandoflascruces.com/home",
+      "facebook": "https://www.facebook.com/TheBandOfLasCruces",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Consequences",
+    "slug": "the-consequences",
+    "notionId": "36454e00081a810f8c36f8ce0ee5ada4",
+    "type": "Band",
+    "sound": "High Desert Cosmic Americana",
+    "genres": [
+      "americana"
+    ],
+    "links": {
+      "website": "https://linktr.ee/ConsequencesBand",
+      "facebook": "https://www.facebook.com/consequencesmusic",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Derrick Lee Group",
+    "slug": "the-derrick-lee-group",
+    "notionId": "36454e00081a81ce8c11f86fb5818e94",
+    "type": "Band",
+    "sound": "Contemporary Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Detour",
+    "slug": "the-detour",
+    "notionId": "36454e00081a8177a75bd2eed82a79f0",
+    "type": "Band",
+    "sound": "Classic Rock, Country",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Ghetto Blasters",
+    "slug": "the-ghetto-blasters",
+    "notionId": "36454e00081a819d9644f97f07c70bb5",
+    "type": "Band",
+    "sound": "Dance, Rock, Funk, Disco, Soul",
+    "genres": [
+      "rock",
+      "soul-rnb",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/theghettoblasterlc",
+      "instagram": "https://www.instagram.com/theghettoblasterband",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Loco Motion Style",
+    "slug": "the-loco-motion-style",
+    "notionId": "36454e00081a8100b402f014f5a3f73f",
+    "type": "Band",
+    "sound": "Variety",
+    "genres": [
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Lowbourne",
+    "slug": "the-lowbourne",
+    "notionId": "36454e00081a81ef9021c94598380b83",
+    "type": "Band",
+    "sound": "Irish, Pop, Rock, Country",
+    "genres": [
+      "country",
+      "rock",
+      "pop"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Mixx Band",
+    "slug": "the-mixx-band",
+    "notionId": "36454e00081a81feaf08c0bafd6a208b",
+    "type": "Band",
+    "sound": "Soul, Funk",
+    "genres": [
+      "soul-rnb",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/TheMixxofep3/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Music Factory",
+    "slug": "the-music-factory",
+    "notionId": "36454e00081a8199b963e387bce94d1d",
+    "type": "Band",
+    "sound": "Tejano, Country, Norteñas",
+    "genres": [
+      "country",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Retroz",
+    "slug": "the-retroz",
+    "notionId": "36454e00081a81abb823f7a80b98c2f7",
+    "type": "Band",
+    "sound": "Classic Rock, Disco, Dance, Country",
+    "genres": [
+      "country",
+      "rock",
+      "funk-disco"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/theretrozep",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Urly Burds",
+    "slug": "the-urly-burds",
+    "notionId": "36454e00081a81c5a53bf167b538a697",
+    "type": "Band",
+    "sound": "Folk, Rock, Reggae, Blues",
+    "genres": [
+      "blues",
+      "rock",
+      "folk",
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Velvet Radio",
+    "slug": "the-velvet-radio",
+    "notionId": "36454e00081a81699728fe7037d19563",
+    "type": "Band",
+    "sound": "Rock, Metal, Emo, Punk",
+    "genres": [
+      "rock",
+      "alternative",
+      "metal-punk"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/thevelvetradio915/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Vick Walker Band",
+    "slug": "the-vick-walker-band",
+    "notionId": "36454e00081a81bebf62f2eb3920dcbc",
+    "type": "Band",
+    "sound": "Classic Country, Rock & Roll, Americana",
+    "genres": [
+      "americana",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/thevickwalkerband/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Tim Thompson",
+    "slug": "tim-thompson",
+    "notionId": "36454e00081a81f6ac7fe0f400e07d83",
+    "type": "Solo Artist",
+    "sound": "Americana",
+    "genres": [
+      "americana"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/tim.thompson.167",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Tony Montano",
+    "slug": "tony-montano",
+    "notionId": "36454e00081a81f1af9dea4a205e34c5",
+    "type": "Solo Artist",
+    "sound": "Dixieland Jazz",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Tony Montano & Sonny Padilla",
+    "slug": "tony-montano-and-sonny-padilla",
+    "notionId": "36454e00081a811c9f9afe585d4c33da",
+    "type": "Band",
+    "sound": "Jazz, Dixieland",
+    "genres": [
+      "jazz"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Topa Chica",
+    "slug": "topa-chica",
+    "notionId": "3de54e00081a8197a0d6fecca2dc6a6b",
+    "type": "",
+    "sound": "",
+    "genres": [],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Tracy & Tina Turbeville",
+    "slug": "tracy-and-tina-turbeville",
+    "notionId": "36454e00081a81f8b4e4d9046773fd3e",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Travis James Manning",
+    "slug": "travis-james-manning",
+    "notionId": "36454e00081a81a08510c69a8d0d2cd8",
+    "type": "Solo Artist",
+    "sound": "Singer-Songwriter, Folk, Rock, Country, Blues, Pop",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "folk",
+      "singer-songwriter",
+      "pop"
+    ],
+    "links": {
+      "website": "https://www.travisjamesmanning.com/",
+      "facebook": "https://www.facebook.com/travisjamesmanning",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Triple Jack",
+    "slug": "triple-jack",
+    "notionId": "36454e00081a8150a139c9a619ed5d6d",
+    "type": "Band",
+    "sound": "Classic Rock",
+    "genres": [
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Triple Shot",
+    "slug": "triple-shot",
+    "notionId": "36454e00081a818f8e68dd56bdd13a49",
+    "type": "Band",
+    "sound": "1970's to now, Americana",
+    "genres": [
+      "americana",
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Unforgettable",
+    "slug": "unforgettable",
+    "notionId": "36454e00081a81829111cbed602c4256",
+    "type": "",
+    "sound": "",
+    "genres": [],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Unlyshed",
+    "slug": "unlyshed",
+    "notionId": "36454e00081a8168995be67e5e61664e",
+    "type": "Band",
+    "sound": "Rock, Country, Cumbias, Tex-Mex, Blues",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "latin",
+      "tejano-norteno"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Urly Burds",
+    "slug": "urly-burds",
+    "notionId": "36454e00081a8146a107ce3c8552894d",
+    "type": "Band",
+    "sound": "Oldies",
+    "genres": [
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Vic Walker Band",
+    "slug": "vic-walker-band",
+    "notionId": "36454e00081a8141b626e07351e137a6",
+    "type": "Band",
+    "sound": "Country, Rock",
+    "genres": [
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "West Texas Band",
+    "slug": "west-texas-band",
+    "notionId": "36454e00081a81babf95e427abaf4903",
+    "type": "Band",
+    "sound": "Country, Blues, Rock",
+    "genres": [
+      "blues",
+      "country",
+      "rock"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Whiskey River",
+    "slug": "whiskey-river",
+    "notionId": "36454e00081a810d88d3faa1d0d74ad3",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/WHISKEYRIVERBANDEPTX",
+      "instagram": "https://www.instagram.com/whiskey_river_band_eptx",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Wildcard",
+    "slug": "wildcard",
+    "notionId": "36454e00081a8186acf2db9b12a904d6",
+    "type": "",
+    "sound": "Variety",
+    "genres": [
+      "oldies-variety"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "https://www.instagram.com/wildcard_lascruces/",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Wolf Pack",
+    "slug": "wolf-pack",
+    "notionId": "36454e00081a81128422d33977f3511e",
+    "type": "Band",
+    "sound": "Country, Rock, Blues, Latin, Acoustic Guitar",
+    "genres": [
+      "blues",
+      "country",
+      "rock",
+      "singer-songwriter",
+      "latin"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/wolfpacklg/",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Yarbrough Band",
+    "slug": "yarbrough-band",
+    "notionId": "36454e00081a81e88bd2fbbbe840a96f",
+    "type": "Band",
+    "sound": "Country",
+    "genres": [
+      "country"
+    ],
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": "",
+      "youtube": ""
+    },
+    "members": [],
+    "memberOf": [],
+    "tier": "free",
+    "siteStatus": "Approved"
+  }
+]

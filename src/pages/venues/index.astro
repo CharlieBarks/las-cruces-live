@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { venues, AREAS, venueWeek } from '../../lib/site.js';
+const groups = Object.entries(AREAS)
+  .map(([k, a]) => ({ k, a, list: venues.filter((v) => v.area === k) }))
+  .filter((g) => g.list.length);
+---
+<Layout title="Live Music Venues" description={`${venues.length} places to hear live music in Las Cruces, Mesilla, the South Valley wineries and Hatch, grouped by neighborhood.`}>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / Venues</p>
+    <header class="top stack">
+      <h1>Where to hear live music</h1>
+      <p class="lede">{venues.length} stages, patios and dance floors, by neighborhood. <a href="/map/">See them on the map.</a></p>
+      <nav class="jump" aria-label="Neighborhoods">
+        {groups.map((g) => <a class="tag" href={`#${g.k}`}>{g.a.name}</a>)}
+      </nav>
+    </header>
+    {groups.map((g) => (
+      <section class="area" id={g.k}>
+        <div class="area-head">
+          <h2>{g.a.name}</h2>
+          <p>{g.a.blurb}</p>
+        </div>
+        <ul class="vlist">
+          {g.list.map((v) => {
+            const w = venueWeek(v);
+            return (
+              <li>
+                <a href={`/venues/${v.slug}/`}>{v.name}</a>
+                <span class="addr">{v.address ? v.address.replace(/,\s*NM\s*\d{5}$/, '') : ''}</span>
+                {w.shows > 0 && <span class="playing">{w.shows} {w.shows === 1 ? 'show' : 'shows'} this week</span>}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Layout>
+
+<style>
+  .top { padding: 18px 0 32px; }
+  .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .area { display: grid; grid-template-columns: minmax(220px, 1fr) 2fr; gap: 32px; padding: 32px 0; border-top: 2px solid var(--ink); scroll-margin-top: 20px; }
+  .area:last-child { padding-bottom: 80px; }
+  .area-head p { margin-top: 10px; color: var(--muted); }
+  .vlist { list-style: none; margin: 0; padding: 0; }
+  .vlist li { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .vlist a { font: 700 1.5rem/1.05 var(--display); color: var(--ink); text-decoration: none; }
+  .vlist a:hover { color: var(--turq); }
+  .addr { grid-column: 1; color: var(--muted); font-size: 0.92rem; }
+  .vlist .playing { grid-column: 2; grid-row: 1; }
+  @media (max-width: 760px) { .area { grid-template-columns: 1fr; gap: 12px; } }
+</style>

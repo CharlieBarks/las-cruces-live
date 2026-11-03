@@ -1,0 +1,20 @@
+{
+  // Cloudflare Worker that serves lascruceslive.com.
+  // Cloudflare runs `npm run build` then `npx wrangler deploy` on every push to main.
+  "name": "las-cruces-live",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "previews": {},
+  "routes": [
+    { "pattern": "lascruceslive.com", "custom_domain": true },
+    { "pattern": "www.lascruceslive.com", "custom_domain": true }
+  ],
+  "env": {
+    // Private preview for approving listings. Build with LIVE_PREVIEW=1, deploy with `npx wrangler deploy --env preview`.
+    "preview": { "name": "las-cruces-live-preview", "workers_dev": true, "routes": [] }
+  }
+}

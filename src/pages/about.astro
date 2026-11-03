@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SITE, utm, subscribeLink, musicians, venues } from '../lib/site.js';
+---
+<Layout title="About" description="Las Cruces Live is the who's who of the Las Cruces music scene, from Live Love Las Cruces.">
+  <div class="wrap narrow">
+    <p class="crumbs"><a href="/">Home</a> / About</p>
+    <div class="stack body">
+      <h1>Hi, I'm Charlie.</h1>
+      <p class="lede">I publish <a href={utm(SITE.publisherUrl, 'about')}>Live Love Las Cruces</a>, and every Thursday I put out the Live Music issue.</p>
+      <p>When I started listing every show in town, readers were floored. Nobody knew there were 50-plus live shows happening in Las Cruces in a single week. The music was always here. It just needed a spotlight.</p>
+      <p>Las Cruces Live is that spotlight. It's the who's who: {musicians.length} local acts and {venues.length} places to hear them, so you can find a new favorite band, see what they sound like and look them up.</p>
+      <p>The when and where still lives in the Thursday issue, free in your inbox at 1 pm.</p>
+      <div class="btns">
+        <a class="btn btn-chile" href={subscribeLink('about')}>Get the Thursday issue</a>
+        <a class="btn btn-line" href="/get-listed/">Add or fix a listing</a>
+      </div>
+      <p class="small">Something wrong or missing? Email <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> and I'll fix it.</p>
+    </div>
+  </div>
+</Layout>
+<style>
+  .narrow { max-width: 760px; }
+  .body { padding: 18px 0 88px; }
+  .body .btns { margin: 8px 0; }
+  .small { font-size: 0.95rem; color: var(--muted); }
+</style>

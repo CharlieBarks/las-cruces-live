@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ActList from '../../components/ActList.astro';
+import ThisWeek from '../../components/ThisWeek.astro';
+import { genres, genreBySlug, isPlaying, SPONSORS } from '../../lib/site.js';
+
+export function getStaticPaths() {
+  return genres.map((g) => ({ params: { slug: g.slug } }));
+}
+const g = genreBySlug(Astro.params.slug);
+const hot = g.acts.filter(isPlaying);
+const sponsor = SPONSORS.genres[g.slug];
+const title = `${g.name} in Las Cruces`;
+---
+<Layout title={`${title}: Local Bands & Musicians`} description={`${g.acts.length} local ${g.name.toLowerCase()} acts in Las Cruces and Mesilla, NM, and which of them are playing this week.`} searchable>
+  <div class="wrap">
+    <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/genres/">Genres</a> / {g.name}</p>
+    <header class="top">
+      <div class="stack">
+        <h1>{title}</h1>
+        <p class="lede">{g.acts.length} local acts. {hot.length > 0 ? `${hot.length} of them are playing this week.` : ''}</p>
+        {sponsor && <p class="sponsor">Presented by <a href={sponsor.url}>{sponsor.name}</a></p>}
+      </div>
+      {hot.length > 0 && (
+        <ThisWeek heading={`${hot.length} ${g.name.toLowerCase()} ${hot.length === 1 ? 'act is' : 'acts are'} on stage this week.`} source={`genre_${g.slug}`} />
+      )}
+    </header>
+    <div class="list"><ActList acts={g.acts} /></div>
+  </div>
+</Layout>
+
+<style>
+  .top { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: end; padding: 18px 0 36px; }
+  .sponsor { color: var(--muted); font-size: 0.95rem; }
+  .list { padding-bottom: 80px; }
+  @media (max-width: 860px) { .top { grid-template-columns: 1fr; } }
+</style>

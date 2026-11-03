@@ -1,0 +1,82 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ThisWeek from '../../components/ThisWeek.astro';
+import VenueMap from '../../components/VenueMap.astro';
+import { venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, listJoin, venueJsonLd } from '../../lib/site.js';
+
+export function getStaticPaths() {
+  return venues.map((v) => ({ params: { slug: v.slug } }));
+}
+const v = venueBySlug(Astro.params.slug);
+const area = AREAS[v.area];
+const w = venueWeek(v);
+const acts = w.acts.map(musicianBySlug).filter(Boolean);
+const LINKS = [['website', 'Website'], ['facebook', 'Facebook'], ['instagram', 'Instagram']];
+const links = LINKS.filter(([k]) => v.links[k]);
+const nearby = venues.filter((x) => x.area === v.area && x.slug !== v.slug).slice(0, 6);
+const others = w.unlisted ?? Math.max(0, w.shows - acts.length);
+const heading = acts.length
+  ? `${listJoin(acts.map((a) => a.name))}${others > 0 ? `, plus ${others} more ${others === 1 ? 'show' : 'shows'}` : ''}.`
+  : `${w.shows} ${w.shows === 1 ? 'show' : 'shows'} at ${v.name} this week.`;
+---
+<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week.`} jsonLd={[venueJsonLd(v)]} searchable>
+  <div class="wrap">
+    <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
+    <article class="grid">
+      <div class="main stack">
+        {w.shows > 0 && <p class="playing">Live music this week</p>}
+        <h1>{v.name}</h1>
+        <p class="kind"><a href={`/venues/#${v.area}`}>{area?.name}</a></p>
+        <dl class="facts">
+          {v.address && <><dt>Address</dt><dd>{v.address}<br /><a href={mapsLink(v)} rel="noopener">Get directions</a></dd></>}
+          {v.phone && <><dt>Phone</dt><dd><a href={`tel:${v.phone.replace(/[^\d+]/g, '')}`}>{v.phone}</a></dd></>}
+        </dl>
+        {links.length > 0 && <div class="btns">{links.map(([k, n]) => <a class="btn btn-line" href={v.links[k]} rel="noopener">{n}</a>)}</div>}
+        {v.lat && v.lng && <div class="mini"><VenueMap list={[v]} height="280px" /></div>}
+      </div>
+      <div class="side stack">
+        {w.shows > 0 ? (
+          <ThisWeek heading={heading} source={`venue_${v.slug}`} />
+        ) : (
+          <ThisWeek heading={`See who's playing ${v.name}.`} body="Every Thursday the Live Music issue lists the week's shows here and all over town." source={`venue_${v.slug}`} />
+        )}
+        {acts.length > 0 && (
+          <div class="acts-here" data-pagefind-ignore>
+            <p class="label">Meet this week's acts</p>
+            <ul>{acts.map((a) => <li><a href={`/musicians/${a.slug}/`}>{a.name}</a></li>)}</ul>
+          </div>
+        )}
+        <aside class="claim" data-pagefind-ignore>
+          <p class="claim-head">Run this venue?</p>
+          <p>Add photos, your regular music nights and a featured pin on the map. Sponsor spots are open too.</p>
+          <a href="/get-listed/#venues">See venue options</a>
+        </aside>
+      </div>
+    </article>
+    {nearby.length > 0 && (
+      <section class="nearby" data-pagefind-ignore>
+        <h2>More in {area?.name}</h2>
+        <ul>{nearby.map((x) => <li><a href={`/venues/${x.slug}/`}>{x.name}</a></li>)}</ul>
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
+  h1 { font-size: clamp(3rem, 7.5vw, 6rem); }
+  .kind { font-size: 1.15rem; }
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 10px 20px; margin: 8px 0 0; padding-top: 18px; border-top: 2px solid var(--ink); }
+  dt { font-weight: 700; } dd { margin: 0; }
+  .mini { margin-top: 12px; }
+  .acts-here .label { font-weight: 700; margin-bottom: 6px; }
+  .acts-here ul { list-style: none; padding: 0; margin: 0; }
+  .acts-here li { border-bottom: 1px solid var(--line); }
+  .acts-here a { display: block; padding: 8px 0; font: 700 1.35rem/1.1 var(--display); color: var(--ink); text-decoration: none; }
+  .acts-here a:hover { color: var(--turq); }
+  .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 8px; }
+  .claim-head { font: 800 1.5rem/1 var(--display); }
+  .nearby { padding-bottom: 72px; }
+  .nearby ul { columns: 3 220px; padding-left: 18px; margin-top: 14px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } }
+</style>

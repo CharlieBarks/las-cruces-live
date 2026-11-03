@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { genres, isPlaying } from '../../lib/site.js';
+---
+<Layout title="Music by Genre" description="Las Cruces musicians and bands by genre: blues, country, cumbia, Tejano, jazz, rock, Americana and more.">
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / Genres</p>
+    <header class="top stack">
+      <h1>What do you feel like hearing?</h1>
+      <p class="lede">Most local acts play more than one style, so you'll see some of them in a few places.</p>
+    </header>
+    <ul class="glist">
+      {genres.map((g) => {
+        const hot = g.acts.filter(isPlaying).length;
+        return (
+          <li>
+            <a href={`/genres/${g.slug}/`}>{g.name}</a>
+            <span>{g.acts.length} acts{hot > 0 && <em class="playing">{hot} playing this week</em>}</span>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</Layout>
+
+<style>
+  .top { padding: 18px 0 32px; }
+  .glist { list-style: none; margin: 0 0 80px; padding: 0; border-top: 2px solid var(--ink); }
+  .glist li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .glist a { font: 800 clamp(1.9rem, 4vw, 2.8rem)/1 var(--display); color: var(--ink); text-decoration: none; }
+  .glist a:hover { color: var(--turq); }
+  .glist span { color: var(--muted); display: flex; gap: 16px; align-items: center; }
+  .glist em { font-style: normal; }
+</style>

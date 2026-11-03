@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import VenueMap from '../components/VenueMap.astro';
+import { venues, genres, venueWeek, thisWeek, SPONSORS } from '../lib/site.js';
+const unmapped = venues.filter((v) => !v.lat || !v.lng);
+const weekGenres = genres.filter((g) => venues.some((v) => venueWeek(v).acts.length && g.acts.some((a) => venueWeek(v).acts.includes(a.slug))));
+const sponsor = SPONSORS.map;
+---
+<Layout title="Live Music Venue Map" description="Map of every live music venue in Las Cruces, Mesilla and the Mesilla Valley. Gold pins have shows this week.">
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / Map</p>
+    <header class="top">
+      <div class="stack">
+        <h1>The venue map</h1>
+        <p class="lede">Gold pins have live music this week. Tap one to see who's playing.</p>
+      </div>
+      {sponsor && <p class="sponsor">Map presented by <a href={sponsor.url}>{sponsor.name}</a></p>}
+    </header>
+    <VenueMap filters>
+      <form slot="filters" class="map-filters">
+        <label>Sound
+          <select name="genre">
+            <option value="">Any genre</option>
+            {weekGenres.map((g) => <option value={g.slug}>{g.name}</option>)}
+          </select>
+        </label>
+        {thisWeek.shows > 0 && <label class="check"><input type="checkbox" name="hot" /> Only venues with shows this week</label>}
+        <output aria-live="polite"></output>
+      </form>
+    </VenueMap>
+    {unmapped.length > 0 && (
+      <section class="unmapped">
+        <h2>Not on the map yet</h2>
+        <p class="muted">Pop-ups, presenters and places still waiting on an address.</p>
+        <ul>{unmapped.map((v) => <li><a href={`/venues/${v.slug}/`}>{v.name}</a></li>)}</ul>
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .top { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; padding: 18px 0 24px; }
+  .sponsor { color: var(--muted); font-size: 0.92rem; }
+  .map-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; padding: 14px 16px; background: var(--paper); border-bottom: 1px solid var(--line); font-weight: 600; }
+  .map-filters select { margin-left: 8px; font: 500 1rem var(--text); padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  .check { display: inline-flex; align-items: center; gap: 8px; }
+  .check input { width: 18px; height: 18px; accent-color: var(--chile); }
+  output { margin-left: auto; color: var(--muted); font-weight: 400; font-size: 0.92rem; }
+  .unmapped { padding: 48px 0 72px; }
+  .unmapped ul { columns: 3 220px; padding-left: 18px; margin-top: 14px; }
+  .muted { color: var(--muted); margin-top: 6px; }
+</style>

@@ -1,0 +1,733 @@
+[
+  {
+    "name": "Alma d'arte Charter High School",
+    "slug": "alma-darte-charter-high-school",
+    "notionId": "a3a62a1c10974aabbd6f2ef343212dee",
+    "address": "",
+    "area": "around",
+    "phone": "575-541-0145",
+    "links": {
+      "website": "https://www.almadarte.org",
+      "facebook": "https://www.facebook.com/AlmaDarteCharterHighSchool",
+      "instagram": "https://www.instagram.com/alma.d.arte.charterhs/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Amaro Winery",
+    "slug": "amaro-winery",
+    "notionId": "2b52545dbec6407e93ee51bf4421aa19",
+    "address": "402 S Melendres St, Las Cruces, NM 88005",
+    "area": "downtown",
+    "phone": "",
+    "links": {
+      "website": "https://amarowinery.com",
+      "facebook": "https://www.facebook.com/AmaroWinery/events",
+      "instagram": "https://www.instagram.com/amarowinery"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Blue Moon Bar & Grill",
+    "slug": "blue-moon-bar-and-grill",
+    "notionId": "a8e104211f61453ea249537abda672c3",
+    "address": "13060 N Valley Dr, Las Cruces, NM 88007",
+    "area": "north",
+    "phone": "(575) 649-3747",
+    "links": {
+      "website": "https://www.bluemoonnm.com/",
+      "facebook": "https://www.facebook.com/BlueMoonBarNM/events",
+      "instagram": "https://www.instagram.com/bmbargrill/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Borderland Arts Foundation",
+    "slug": "borderland-arts-foundation",
+    "notionId": "518e3d88992d476ab1156f52e32fb830",
+    "address": "",
+    "area": "around",
+    "phone": "",
+    "links": {
+      "website": "https://borderlandartsfoundation.org/events-1",
+      "facebook": "https://www.facebook.com/profile.php?id=61550117107248&sk=events",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Casa El Camino",
+    "slug": "casa-el-camino",
+    "notionId": "5b82006e524a447d914c316c628d7c36",
+    "address": "109 E Corpening St, La Mesa, NM 88044",
+    "area": "south",
+    "phone": "575-448-7115",
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/profile.php?id=100093300322350",
+      "instagram": "https://www.instagram.com/casaelcamino"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Champagne Ranch LLC - Hatch",
+    "slug": "champagne-ranch-llc-hatch",
+    "notionId": "b0de08c3fb47450aa7a30475a095e032",
+    "address": "",
+    "area": "around",
+    "phone": "",
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/ChampagneRanchNM/events",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Chopes Bar & Cafe",
+    "slug": "chopes-bar-and-cafe",
+    "notionId": "c9634d7a164245d384fd8437a6d77282",
+    "address": "16145 NM-28, La Mesa, NM 88044",
+    "area": "south",
+    "phone": "(575) 233-3420",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "D.H. Lescombes Winery & Bistro",
+    "slug": "d-h-lescombes-winery-and-bistro",
+    "notionId": "10eb2b024f664cffb34ab89302673a1e",
+    "address": "1720 Avenida de Mesilla, Las Cruces, NM 88005",
+    "area": "mesilla",
+    "phone": "(575) 524-2408",
+    "links": {
+      "website": "https://lescombeswinery.com/locations/las-cruces/",
+      "facebook": "https://www.facebook.com/DHLescombesWineryBistroLC/events",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Downtown Blues Coffee",
+    "slug": "downtown-blues-coffee",
+    "notionId": "6551e08b84dd4e03b698057195b9e312",
+    "address": "130 S Main St, Las Cruces, NM 88001",
+    "area": "downtown",
+    "phone": "(575) 523-8828",
+    "links": {
+      "website": "https://downtownbluescoffee.com/other-high-spirited-activity/",
+      "facebook": "https://www.facebook.com/downtownbluescoffeeLC",
+      "instagram": "https://www.instagram.com/downtownbluescoffee"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Dry Point Distillers",
+    "slug": "dry-point-distillers",
+    "notionId": "45b159552fac42139db7fb1a9e9e8703",
+    "address": "1680 Calle De Alvarez # C, Las Cruces, NM 88005",
+    "area": "mesilla",
+    "phone": "575-652-3414",
+    "links": {
+      "website": "https://www.drypointdistillersnm.com",
+      "facebook": "https://www.facebook.com/people/Dry-Point-Distillers-of-Las-Cruces/61555683263028/",
+      "instagram": "https://www.instagram.com/drypointdistillers/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "El Patio Cantina",
+    "slug": "el-patio-cantina",
+    "notionId": "f6c34657c88944139cd862f0a995b1d2",
+    "address": "",
+    "area": "around",
+    "phone": "",
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/el.patio.376",
+      "instagram": "https://www.instagram.com/el_patio_mesilla/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Elephant Ranch",
+    "slug": "elephant-ranch",
+    "notionId": "8e7a100d64e5413593202365103f842b",
+    "address": "3995 W Picacho Ave, Las Cruces, NM 88007",
+    "area": "west",
+    "phone": "575-526-9284",
+    "links": {
+      "website": "https://www.elephantranchbar.com",
+      "facebook": "https://www.facebook.com/elephantranchbar/events",
+      "instagram": "https://www.instagram.com/elephantranchbar/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Grapevine Plaza",
+    "slug": "grapevine-plaza",
+    "notionId": "6dc8f69a1068480599635c8e7dd6f5d9",
+    "address": "3900 W Picacho Ave, Las Cruces, NM 88005",
+    "area": "west",
+    "phone": "575-888-0247",
+    "links": {
+      "website": "https://www.grapevineplaza.net/",
+      "facebook": "https://www.facebook.com/GrapevinePlaza2020",
+      "instagram": "https://www.instagram.com/grapevineplaza/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Grounded Cafe",
+    "slug": "grounded-cafe",
+    "notionId": "3e338b52382641baa181dca6c31c6c81",
+    "address": "300 N Main St, Las Cruces, NM 88001",
+    "area": "downtown",
+    "phone": "(575) 571-4047",
+    "links": {
+      "website": "https://thegroundedlounge.com/events-2/",
+      "facebook": "https://www.facebook.com/grounded.lounge/events",
+      "instagram": "https://www.instagram.com/grounded.lounge/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Hacienda de Mesilla",
+    "slug": "hacienda-de-mesilla",
+    "notionId": "fa13af0903074657b1b5a5f9cc716d77",
+    "address": "1891 Avenida de Mesilla, Mesilla, NM 88046",
+    "area": "mesilla",
+    "phone": "575-652-4953",
+    "links": {
+      "website": "https://www.haciendademesilla.com/",
+      "facebook": "https://www.facebook.com/profile.php?id=100063992675466",
+      "instagram": "https://www.instagram.com/haciendademesilla"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Icebox 28 Beer Garden",
+    "slug": "icebox-28-beer-garden",
+    "notionId": "f0e1ceb5bb8e40c6bf7959f95e7bda74",
+    "address": "10092 New Mexico 28, Anthony, NM 88021",
+    "area": "south",
+    "phone": "(575) 528-8567",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Icebox BoneYard Cantina",
+    "slug": "icebox-boneyard-cantina",
+    "notionId": "c59b6d0c32af485caa7341091af3dd05",
+    "address": "139 N Main St, Las Cruces, NM 88001",
+    "area": "downtown",
+    "phone": "(575) 800-5967",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Icebox Brewing Picacho",
+    "slug": "icebox-brewing-picacho",
+    "notionId": "5215730a82ba447db9998b63f174a4c5",
+    "address": "2825 W Picacho Ave, Las Cruces, NM 88007",
+    "area": "west",
+    "phone": "(575) 526-7129",
+    "links": {
+      "website": "https://iceboxbrewing.com/",
+      "facebook": "https://www.facebook.com/iceboxbrewing/events",
+      "instagram": "https://www.instagram.com/iceboxbrewing"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "La Posta de Mesilla",
+    "slug": "la-posta-de-mesilla",
+    "notionId": "71a75582529c4d1fb350b10e51d54b6e",
+    "address": "2410 Calle De San Albino, Mesilla, NM 88046",
+    "area": "mesilla",
+    "phone": "(575) 524-3524",
+    "links": {
+      "website": "https://www.lapostademesilla.com",
+      "facebook": "https://www.facebook.com/lapostademesilla",
+      "instagram": "https://www.instagram.com/lapostademesilla/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Little Toad Creek",
+    "slug": "little-toad-creek",
+    "notionId": "f010270a93c743048a0116978a52c2d6",
+    "address": "119 N Main St, Las Cruces, NM 88001",
+    "area": "downtown",
+    "phone": "(575) 556-9934",
+    "links": {
+      "website": "https://www.littletoadcreek.com/events-2",
+      "facebook": "https://www.facebook.com/lascruceslittletoadcreek/events",
+      "instagram": "https://www.instagram.com/littletoadcreeklascruces"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Madelyn’s Mesilla",
+    "slug": "madelyns-mesilla",
+    "notionId": "00a29101520d43f7b8a7c4a073f26017",
+    "address": "2488 Calle De Guadalupe, Mesilla, NM 88005",
+    "area": "mesilla",
+    "phone": "(575) 319-4549",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Mesilla Valley Jazz & Blues Society",
+    "slug": "mesilla-valley-jazz-and-blues-society",
+    "notionId": "ac1eeeb4e61a41f7a7a708abd9edba3c",
+    "address": "",
+    "area": "around",
+    "phone": "",
+    "links": {
+      "website": "https://www.mvjazzblues.net/happenings",
+      "facebook": "https://www.facebook.com/MVJBS/events",
+      "instagram": "https://www.instagram.com/mesillavalleyjazzbluessociety/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Monster House Lounge",
+    "slug": "monster-house-lounge",
+    "notionId": "8dd4125108eb42989fb1d0e6973eaae4",
+    "address": "1275 W Picacho Ave, Las Cruces, NM 88005",
+    "area": "west",
+    "phone": "",
+    "links": {
+      "website": "https://monsterhousedispensary.com/events/",
+      "facebook": "https://www.facebook.com/profile.php?id=100095370600223",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "NM Vintage Wines",
+    "slug": "nm-vintage-wines",
+    "notionId": "88e6d12009b24eb0864aa30a0c71e71b",
+    "address": "2310 Avenida de Mesilla, Mesilla, NM 88046",
+    "area": "mesilla",
+    "phone": "575-523-9463",
+    "links": {
+      "website": "https://nmvintagewines.com",
+      "facebook": "https://www.facebook.com/NMVintageWinesBeersCigars/events",
+      "instagram": "https://www.instagram.com/nmvintagewines"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "NMSU Golf Course",
+    "slug": "nmsu-golf-course",
+    "notionId": "52edb692d80b48938572c15a61cef50c",
+    "address": "",
+    "area": "around",
+    "phone": "",
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/NMSUGOLF",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "NMSU Pan American Center",
+    "slug": "nmsu-pan-american-center",
+    "notionId": "8d0b66d71d834ab5a5e338dca7f34870",
+    "address": "1810 E University Ave, Las Cruces, NM 88003",
+    "area": "university",
+    "phone": "575-646-4413",
+    "links": {
+      "website": "https://panam.nmsu.edu/",
+      "facebook": "https://www.facebook.com/PanAmCenter/events/",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Palacio Bar",
+    "slug": "palacio-bar",
+    "notionId": "d59231b9472845bb82f360b5cafb0c75",
+    "address": "2600 Avenida de Mesilla, Mesilla, NM 88046",
+    "area": "mesilla",
+    "phone": "575-525-2910",
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/PalacioBar1936",
+      "instagram": "https://www.instagram.com/official_palaciobar/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Picacho Hills Country Club",
+    "slug": "picacho-hills-country-club",
+    "notionId": "53a18a5d9d154a9594854fe0a67a7f25",
+    "address": "6861 Via Campestre, Las Cruces, NM 88007",
+    "area": "west",
+    "phone": "575-523-8641",
+    "links": {
+      "website": "https://www.picachohills.com/event-calendar",
+      "facebook": "https://www.facebook.com/PicachoHillsCC/events",
+      "instagram": "https://www.instagram.com/picachohills"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Picacho Peak Brewing Co",
+    "slug": "picacho-peak-brewing-co",
+    "notionId": "442b510414804dec8946425aabf95051",
+    "address": "3900 W Picacho Ave, Las Cruces, NM 88007",
+    "area": "west",
+    "phone": "575-647-4797",
+    "links": {
+      "website": "https://picachopeakbrewing.com/",
+      "facebook": "https://www.facebook.com/PicachoPeakBrewingCompany/events",
+      "instagram": "https://www.instagram.com/picachopeakbrewing/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Rio Grande Winery",
+    "slug": "rio-grande-winery",
+    "notionId": "0a37549448a4484f88446c7a07e722aa",
+    "address": "5321 NM-28, Las Cruces, NM 88005",
+    "area": "south",
+    "phone": "575-201-3744",
+    "links": {
+      "website": "https://www.riograndewinery.com/pages/events",
+      "facebook": "https://www.facebook.com/RioGrandeWinery/events",
+      "instagram": "https://www.instagram.com/riograndewinery/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Salud de Mesilla",
+    "slug": "salud-de-mesilla",
+    "notionId": "20b1a8b167aa42a789d41b74542243e3",
+    "address": "",
+    "area": "around",
+    "phone": "575-323-3548",
+    "links": {
+      "website": "https://www.saludmesilla.com",
+      "facebook": "https://www.facebook.com/saludmesilla/events",
+      "instagram": "https://www.instagram.com/salud_mesilla"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sombra Antigua Vineyard and Winery",
+    "slug": "sombra-antigua-vineyard-and-winery",
+    "notionId": "6806c83ccacc4995aa0b79b82a5a0d94",
+    "address": "430 La Vina Rd, Anthony, NM 88021",
+    "area": "south",
+    "phone": "915-241-4349",
+    "links": {
+      "website": "https://www.sombraantigua.com/music-events",
+      "facebook": "https://www.facebook.com/SAwinery",
+      "instagram": "https://www.instagram.com/sombraantigua/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Sparky's Burgers, BBQ & Espresso",
+    "slug": "sparkys-burgers-bbq-and-espresso",
+    "notionId": "36be6eadb04c47d3aeefd86f4a50dfa7",
+    "address": "115 Franklin St, Hatch, NM 87937",
+    "area": "hatch",
+    "phone": "(575) 267-4222",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Bean at Josefina’s",
+    "slug": "the-bean-at-josefinas",
+    "notionId": "455f6ea36efd446ba0179bcd36314b9e",
+    "address": "2261 Calle De Guadalupe, Mesilla, NM 88046",
+    "area": "mesilla",
+    "phone": "575-652-3337",
+    "links": {
+      "website": "https://www.thebeanatjosefinas.com",
+      "facebook": "https://www.facebook.com/Thebeanatjosefinas/",
+      "instagram": "https://www.instagram.com/the_bean_at_josefinas/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Game 1",
+    "slug": "the-game-1",
+    "notionId": "4f8b37f3045645a4a3917e05bffcd21b",
+    "address": "2605 S Espina St, Las Cruces, NM 88001",
+    "area": "university",
+    "phone": "(575) 524-4263",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Game 2",
+    "slug": "the-game-2",
+    "notionId": "f4d9ca2a33f04bd089942ee77e3bf75f",
+    "address": "4131 Northrise Dr, Las Cruces, NM 88011",
+    "area": "east",
+    "phone": "(575) 373-4263",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Hood",
+    "slug": "the-hood",
+    "notionId": "fed3f9d111b54941a454150d720bcbf3",
+    "address": "3206 Harrelson St, Las Cruces, NM 88005",
+    "area": "west",
+    "phone": "(575) 639-1175",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Pecan Grill & Brewery",
+    "slug": "the-pecan-grill-and-brewery",
+    "notionId": "fdb0b2bff4c34b44be11b6b6a51a3628",
+    "address": "500 S Telshor Blvd, Las Cruces, NM 88011",
+    "area": "east",
+    "phone": "575-521-1099",
+    "links": {
+      "website": "https://pecangrill.com/",
+      "facebook": "https://www.facebook.com/pecangrill/events",
+      "instagram": "https://www.instagram.com/pecangrill/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "The Range",
+    "slug": "the-range",
+    "notionId": "bacd0b3ee1734838a0e4164bcbf999f3",
+    "address": "3217 El Camino Real Rd, Las Cruces, NM 88007",
+    "area": "north",
+    "phone": "(575) 201-3075",
+    "links": {
+      "website": "",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Truth or Consequences Brewery",
+    "slug": "truth-or-consequences-brewery",
+    "notionId": "ed527b469ddc4cc3a4c41596feedc18c",
+    "address": "2001 E Lohman Ave Suite #115, Las Cruces, NM 88001",
+    "area": "east",
+    "phone": "575-222-4986",
+    "links": {
+      "website": "https://www.torc.beer/",
+      "facebook": "https://www.facebook.com/torcbrewingcolascruces/events",
+      "instagram": "https://www.instagram.com/torcbrewingco"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Valley Pizza",
+    "slug": "valley-pizza",
+    "notionId": "340513f792624c56b1eeb4eb3075fc0a",
+    "address": "3100 W Picacho Ave, Las Cruces, NM 88007",
+    "area": "west",
+    "phone": "575-541-4545",
+    "links": {
+      "website": "https://www.valleypizzalascruces.com",
+      "facebook": "https://www.facebook.com/valleypizza",
+      "instagram": "https://www.instagram.com/valleypizzallc/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Whiskey Dicks",
+    "slug": "whiskey-dicks",
+    "notionId": "1c9876bb51894fffac018ed2d56af68a",
+    "address": "",
+    "area": "around",
+    "phone": "575-556-9897",
+    "links": {
+      "website": "",
+      "facebook": "https://www.facebook.com/whiskeydickslascruces/events",
+      "instagram": "https://www.instagram.com/whiskeydickslascruces/"
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  },
+  {
+    "name": "Zin Valle Vineyards",
+    "slug": "zin-valle-vineyards",
+    "notionId": "8dd5244696b14b39829fd4cf25921758",
+    "address": "7315 Canutillo-La Union Rd, Canutillo, TX 79835",
+    "area": "south",
+    "phone": "(915) 877-4544",
+    "links": {
+      "website": "https://www.zinvalle.com/events",
+      "facebook": "",
+      "instagram": ""
+    },
+    "lat": null,
+    "lng": null,
+    "tier": "free",
+    "siteStatus": "Approved"
+  }
+]

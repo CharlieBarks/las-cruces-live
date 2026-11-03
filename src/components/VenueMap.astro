@@ -1,0 +1,91 @@
+---
+// Leaflet map of venues. Pins with shows this week glow gold; tapping one shows who's playing
+// (names only) and hands off to the Thursday issue for days and times.
+import { venues, venueWeek, musicianBySlug, AREAS, issueLink, subscribeLink } from '../lib/site.js';
+const { list = venues, height = '70vh', filters = false } = Astro.props;
+const points = list.filter((v) => v.lat && v.lng).map((v) => {
+  const w = venueWeek(v);
+  const acts = w.acts.map(musicianBySlug).filter(Boolean);
+  return {
+    name: v.name, slug: v.slug, lat: v.lat, lng: v.lng, area: AREAS[v.area]?.name || '',
+    shows: w.shows, unlisted: w.unlisted ?? 0, acts: acts.map((a) => ({ name: a.name, slug: a.slug })),
+    genres: [...new Set(acts.flatMap((a) => a.genres))],
+  };
+});
+const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin') };
+---
+<div class="map-shell" data-pagefind-ignore>
+  {filters && <slot name="filters" />}
+  <div class="venue-map" style={`height:${height}`} data-points={JSON.stringify(points)} data-links={JSON.stringify(links)} role="region" aria-label="Map of live music venues in Las Cruces and Mesilla"></div>
+  <noscript><p class="nojs">Turn on JavaScript to see the map. Every venue page has its address and a directions link.</p></noscript>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+  const L = (window as any).L;
+  document.querySelectorAll<HTMLElement>('.venue-map').forEach((el) => {
+    const points = JSON.parse(el.dataset.points || '[]');
+    const links = JSON.parse(el.dataset.links || '{}');
+    const map = L.map(el, { scrollWheelZoom: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19, subdomains: 'abcd',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    }).addTo(map);
+
+    const el$ = (tag: string, text?: string, cls?: string) => { const n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; };
+    const markers = points.map((p: any) => {
+      const hot = p.shows > 0;
+      const m = L.circleMarker([p.lat, p.lng], {
+        radius: hot ? 11 : 8, weight: 3, color: hot ? '#1d1735' : '#ffffff', fillColor: hot ? '#f4b63e' : '#0a6f6b', fillOpacity: 1,
+      });
+      const box = el$('div', undefined, 'pin');
+      const a = el$('a', p.name, 'pin-name') as HTMLAnchorElement; a.href = `/venues/${p.slug}/`; box.appendChild(a);
+      if (p.area) box.appendChild(el$('div', p.area, 'pin-area'));
+      if (hot) {
+        const names = p.acts.map((x: any) => x.name);
+        const others = p.unlisted;
+        let line = names.length ? `This week: ${names.join(', ')}` : `This week: ${p.shows} ${p.shows === 1 ? 'show' : 'shows'}`;
+        if (names.length && others > 0) line += ` and ${others} more ${others === 1 ? 'show' : 'shows'}`;
+        box.appendChild(el$('p', line, 'pin-week'));
+        const b = el$('a', 'Get days and times', 'pin-btn') as HTMLAnchorElement; b.href = links.issue; box.appendChild(b);
+        const s = el$('a', 'Or get the lineup free every Thursday', 'pin-sub') as HTMLAnchorElement; s.href = links.subscribe; box.appendChild(s);
+      }
+      m.bindPopup(box, { maxWidth: 280 });
+      m.addTo(map);
+      return { m, p };
+    });
+    if (points.length) map.fitBounds(points.map((p: any) => [p.lat, p.lng]), { padding: [30, 30], maxZoom: 15 });
+    else map.setView([32.3199, -106.7637], 11);
+
+    // Filters (map page): genre of this week's acts, and "shows this week"
+    const form = el.closest('.map-shell')?.querySelector('form');
+    if (form) {
+      const apply = () => {
+        const genre = (form.querySelector('[name=genre]') as HTMLSelectElement).value;
+        const hotOnly = (form.querySelector('[name=hot]') as HTMLInputElement).checked;
+        let n = 0;
+        markers.forEach(({ m, p }: any) => {
+          const show = (!hotOnly || p.shows > 0) && (!genre || p.genres.includes(genre));
+          if (show) { if (!map.hasLayer(m)) m.addTo(map); n++; } else map.removeLayer(m);
+        });
+        const out = form.querySelector('output'); if (out) out.textContent = `${n} ${n === 1 ? 'venue' : 'venues'} on the map`;
+      };
+      form.addEventListener('change', apply);
+      apply();
+    }
+  });
+</script>
+
+<style is:global>
+  .map-shell { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #dfe9e6; }
+  .venue-map { width: 100%; }
+  .nojs { padding: 20px; }
+  .pin { font-family: var(--text); display: grid; gap: 4px; }
+  .pin-name { font: 800 1.35rem/1 var(--display); color: var(--ink) !important; text-decoration: none; }
+  .pin-area { color: var(--muted); font-size: 0.85rem; }
+  .pin-week { margin: 6px 0 4px !important; font-size: 0.95rem; color: var(--ink); }
+  .pin-btn { display: inline-block; background: var(--gold); color: var(--night) !important; font-weight: 700; padding: 9px 12px; border-radius: 6px; text-decoration: none; justify-self: start; }
+  .pin-sub { font-size: 0.85rem; color: var(--turq) !important; }
+</style>

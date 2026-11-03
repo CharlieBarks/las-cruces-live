@@ -1,0 +1,73 @@
+/* Las Cruces Live
+   Night sky over the Organ Mountains, New Mexico turquoise, red chile and stage-light gold.
+   Display: Big Shoulders Display (gig-poster condensed). Text: Public Sans. */
+:root {
+  --night: #1d1735;
+  --night-2: #2b2450;
+  --sky: #e6f1ee;
+  --paper: #f6faf8;
+  --ink: #1d1735;
+  --muted: #4d4866;
+  --turq: #0a6f6b;
+  --turq-bright: #36b3a8;
+  --chile: #b01f2c;
+  --gold: #f4b63e;
+  --cream: #f5efe2;
+  --line: rgba(29, 23, 53, 0.16);
+  --display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;
+  --text: 'Public Sans Variable', system-ui, sans-serif;
+  --wrap: 1180px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--sky); color: var(--ink); font: 400 1.0625rem/1.6 var(--text); }
+img { max-width: 100%; display: block; }
+a { color: var(--turq); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--chile); }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+
+h1, h2, h3 { font-family: var(--display); line-height: 0.95; margin: 0; letter-spacing: 0.005em; }
+h1 { font-weight: 800; font-size: clamp(2.8rem, 7vw, 5.6rem); }
+h2 { font-weight: 800; font-size: clamp(2rem, 4.2vw, 3.1rem); }
+h3 { font-weight: 700; font-size: 1.6rem; }
+p { margin: 0; max-width: 66ch; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 clamp(18px, 4vw, 40px); }
+.section { padding: clamp(48px, 7vw, 88px) 0; }
+.lede { font-size: 1.2rem; color: var(--muted); }
+.stack > * + * { margin-top: 16px; }
+
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 12px; top: 12px; z-index: 10; background: var(--gold); color: var(--ink); padding: 8px 14px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Buttons: red chile for the newsletter, outlined for everything else */
+.btn { display: inline-flex; align-items: center; gap: 8px; font: 700 1rem/1 var(--text); padding: 14px 20px; border-radius: 6px; text-decoration: none; border: 2px solid transparent; cursor: pointer; }
+.btn-chile { background: var(--chile); color: #fff; }
+.btn-chile:hover { background: #8f1622; color: #fff; }
+.btn-gold { background: var(--gold); color: var(--night); }
+.btn-gold:hover { background: #ffd27a; color: var(--night); }
+.btn-line { border-color: currentColor; color: var(--ink); background: transparent; }
+.btn-line:hover { color: var(--turq); }
+.on-night .btn-line { color: var(--cream); }
+.on-night .btn-line:hover { color: var(--gold); }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* "Playing this week" marker */
+.playing { display: inline-flex; align-items: center; gap: 6px; font: 700 0.8rem/1 var(--text); color: var(--chile); white-space: nowrap; }
+.playing::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--chile); box-shadow: 0 0 0 3px rgba(176, 31, 44, 0.18); }
+
+.tag { display: inline-block; font-size: 0.85rem; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); text-decoration: none; background: var(--paper); }
+a.tag:hover { border-color: var(--turq); color: var(--turq); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.crumbs { font-size: 0.9rem; color: var(--muted); padding-top: 28px; }
+.crumbs a { color: var(--muted); }
+
+.night { background: var(--night); color: var(--cream); }
+.night p { color: #cfc8de; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

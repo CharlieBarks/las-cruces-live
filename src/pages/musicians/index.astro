@@ -1,0 +1,97 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ActList from '../../components/ActList.astro';
+import { musicians, genres, playingActs, thisWeek } from '../../lib/site.js';
+---
+<Layout title="Local Musicians & Bands" description={`All ${musicians.length} local musicians and bands in Las Cruces and Mesilla, NM. Filter by genre, bands or solo artists, and see who's playing this week.`}>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / Musicians</p>
+    <header class="top stack">
+      <h1>Local musicians and bands</h1>
+      <p class="lede">{musicians.length} acts who play the Mesilla Valley. Pick a sound, or type a name.</p>
+    </header>
+
+    <form class="filters" role="search" onsubmit="return false" data-pagefind-ignore>
+      <label class="search">
+        <span class="sr-only">Search by name or sound</span>
+        <input type="search" id="q" placeholder="Search by name or sound, like “cumbia” or “Calista”" autocomplete="off" />
+      </label>
+      <fieldset class="row">
+        <legend class="sr-only">Act type</legend>
+        <button type="button" class="chip" data-type="all" aria-pressed="true">All</button>
+        <button type="button" class="chip" data-type="band" aria-pressed="false">Bands</button>
+        <button type="button" class="chip" data-type="solo" aria-pressed="false">Solo artists</button>
+        {thisWeek.shows > 0 && <button type="button" class="chip hot" id="playing" aria-pressed="false">Playing this week ({playingActs.length})</button>}
+      </fieldset>
+      <fieldset class="row genres">
+        <legend class="sr-only">Genre</legend>
+        <button type="button" class="chip" data-genre="" aria-pressed="true">Every genre</button>
+        {genres.map((g) => <button type="button" class="chip" data-genre={g.slug} aria-pressed="false">{g.name}</button>)}
+      </fieldset>
+    </form>
+
+    <p class="count" id="count" aria-live="polite">{musicians.length} acts</p>
+    <div class="list"><ActList acts={musicians} filterable /></div>
+    <p class="empty" id="empty" hidden>No acts match that. Try another genre, or <a href="/get-listed/">tell me who's missing</a>.</p>
+  </div>
+</Layout>
+
+<script>
+  const items = [...document.querySelectorAll<HTMLLIElement>('.acts li')];
+  const q = document.getElementById('q') as HTMLInputElement;
+  const count = document.getElementById('count')!;
+  const empty = document.getElementById('empty')!;
+  const playingBtn = document.getElementById('playing');
+  const state = { type: 'all', genre: '', playing: false, q: '' };
+
+  // Deep links: /musicians/?genre=blues&playing=1
+  const params = new URLSearchParams(location.search);
+  if (params.get('genre')) state.genre = params.get('genre')!;
+  if (params.get('playing') === '1') state.playing = true;
+  if (params.get('q')) { state.q = params.get('q')!; q.value = state.q; }
+
+  function render() {
+    const words = state.q.toLowerCase().trim();
+    let shown = 0;
+    for (const li of items) {
+      const d = li.dataset;
+      const ok = (state.type === 'all' || d.type === state.type)
+        && (!state.genre || (d.genres || '').split(' ').includes(state.genre))
+        && (!state.playing || d.playing === '1')
+        && (!words || (d.name || '').includes(words) || (d.sound || '').includes(words));
+      li.hidden = !ok;
+      if (ok) shown++;
+    }
+    count.textContent = `${shown} ${shown === 1 ? 'act' : 'acts'}`;
+    empty.hidden = shown > 0;
+    document.querySelectorAll<HTMLButtonElement>('[data-type]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.type === state.type)));
+    document.querySelectorAll<HTMLButtonElement>('[data-genre]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.genre === state.genre)));
+    playingBtn?.setAttribute('aria-pressed', String(state.playing));
+    const p = new URLSearchParams();
+    if (state.genre) p.set('genre', state.genre);
+    if (state.playing) p.set('playing', '1');
+    if (state.q) p.set('q', state.q);
+    history.replaceState(null, '', p.toString() ? `?${p}` : location.pathname);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-type]').forEach((b) => b.addEventListener('click', () => { state.type = b.dataset.type!; render(); }));
+  document.querySelectorAll<HTMLButtonElement>('[data-genre]').forEach((b) => b.addEventListener('click', () => { state.genre = b.dataset.genre!; render(); }));
+  playingBtn?.addEventListener('click', () => { state.playing = !state.playing; render(); });
+  q.addEventListener('input', () => { state.q = q.value; render(); });
+  render();
+</script>
+
+<style>
+  .top { padding: 18px 0 28px; }
+  .filters { display: grid; gap: 14px; margin-bottom: 18px; }
+  .search input { width: 100%; font: 400 1.1rem var(--text); padding: 15px 16px; border: 2px solid var(--ink); border-radius: 6px; background: var(--paper); color: var(--ink); }
+  .row { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: 600 0.92rem/1 var(--text); padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .chip:hover { border-color: var(--turq); }
+  .chip[aria-pressed='true'] { background: var(--turq); border-color: var(--turq); color: #fff; }
+  .chip.hot { border-color: var(--chile); color: var(--chile); }
+  .chip.hot[aria-pressed='true'] { background: var(--chile); color: #fff; }
+  .count { color: var(--muted); font-size: 0.95rem; margin-bottom: 8px; }
+  .list { padding-bottom: 72px; }
+  .empty { padding-bottom: 72px; }
+</style>

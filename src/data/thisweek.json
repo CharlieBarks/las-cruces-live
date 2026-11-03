@@ -1,0 +1,193 @@
+{
+  "issueTitle": "Live Music This Week in Las Cruces: October 29, 2026",
+  "issueUrl": "https://livelovelascruces.com/p/live-music-this-week-in-las-cruces-october-29-2026",
+  "issueDate": "2026-10-29",
+  "shows": 54,
+  "acts": {
+    "chris-baker": [
+      "madelyns-mesilla",
+      "blue-moon-bar-and-grill"
+    ],
+    "saxattitude": [
+      "palacio-bar",
+      "madelyns-mesilla"
+    ],
+    "santana-garcia": [
+      "madelyns-mesilla"
+    ],
+    "austin-jimmy-murphy": [
+      "casa-el-camino"
+    ],
+    "cw-ayon": [
+      "amaro-winery"
+    ],
+    "cm-adams": [
+      "the-game-1",
+      "la-posta-de-mesilla"
+    ],
+    "taylor-paul": [
+      "the-game-2",
+      "nm-vintage-wines"
+    ],
+    "papa-blue-and-the-king-bees": [
+      "nm-vintage-wines"
+    ],
+    "the-band": [
+      "palacio-bar"
+    ],
+    "wildcard": [],
+    "calista": [
+      "madelyns-mesilla"
+    ],
+    "sons-of-soul": [],
+    "pizza-bones": [
+      "sparkys-burgers-bbq-and-espresso"
+    ],
+    "the-575-band": [
+      "sombra-antigua-vineyard-and-winery"
+    ],
+    "triple-jack": [
+      "sombra-antigua-vineyard-and-winery"
+    ],
+    "the-retroz": [
+      "zin-valle-vineyards",
+      "sombra-antigua-vineyard-and-winery"
+    ],
+    "kicks-band": [],
+    "flat-blak": [
+      "nm-vintage-wines"
+    ],
+    "the-ghetto-blasters": [
+      "the-game-1"
+    ],
+    "animmo": [
+      "palacio-bar"
+    ],
+    "era-snow": [],
+    "frank-zona-band": [
+      "zin-valle-vineyards"
+    ]
+  },
+  "venues": {
+    "madelyns-mesilla": {
+      "shows": 6,
+      "unlisted": 2,
+      "acts": [
+        "chris-baker",
+        "santana-garcia",
+        "saxattitude",
+        "calista"
+      ]
+    },
+    "palacio-bar": {
+      "shows": 3,
+      "unlisted": 0,
+      "acts": [
+        "saxattitude",
+        "the-band",
+        "animmo"
+      ]
+    },
+    "nm-vintage-wines": {
+      "shows": 5,
+      "unlisted": 2,
+      "acts": [
+        "papa-blue-and-the-king-bees",
+        "flat-blak",
+        "taylor-paul"
+      ]
+    },
+    "rio-grande-winery": {
+      "shows": 3,
+      "unlisted": 3,
+      "acts": []
+    },
+    "casa-el-camino": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "austin-jimmy-murphy"
+      ]
+    },
+    "amaro-winery": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "cw-ayon"
+      ]
+    },
+    "the-game-1": {
+      "shows": 2,
+      "unlisted": 0,
+      "acts": [
+        "cm-adams",
+        "the-ghetto-blasters"
+      ]
+    },
+    "the-game-2": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "taylor-paul"
+      ]
+    },
+    "grounded-cafe": {
+      "shows": 1,
+      "unlisted": 1,
+      "acts": []
+    },
+    "valley-pizza": {
+      "shows": 2,
+      "unlisted": 2,
+      "acts": []
+    },
+    "chopes-bar-and-cafe": {
+      "shows": 1,
+      "unlisted": 1,
+      "acts": []
+    },
+    "sparkys-burgers-bbq-and-espresso": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "pizza-bones"
+      ]
+    },
+    "sombra-antigua-vineyard-and-winery": {
+      "shows": 4,
+      "unlisted": 0,
+      "acts": [
+        "the-575-band",
+        "triple-jack",
+        "the-retroz"
+      ]
+    },
+    "zin-valle-vineyards": {
+      "shows": 2,
+      "unlisted": 0,
+      "acts": [
+        "the-retroz",
+        "frank-zona-band"
+      ]
+    },
+    "picacho-peak-brewing-co": {
+      "shows": 2,
+      "unlisted": 2,
+      "acts": []
+    },
+    "la-posta-de-mesilla": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "cm-adams"
+      ]
+    },
+    "blue-moon-bar-and-grill": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "chris-baker"
+      ]
+    }
+  }
+}

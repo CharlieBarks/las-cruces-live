@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Search" description="Search Las Cruces musicians, bands, venues and genres." noindex>
+  <div class="wrap">
+    <p class="crumbs"><a href="/">Home</a> / Search</p>
+    <header class="top stack">
+      <h1>Search</h1>
+      <p class="lede">Try a band, a venue or a sound, like “cumbia”, “Mesilla” or “Calista”.</p>
+    </header>
+    <div id="search"></div>
+  </div>
+</Layout>
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script is:inline src="/pagefind/pagefind-ui.js"></script>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', () => {
+    const ui = new PagefindUI({ element: '#search', showSubResults: false, showImages: false, resetStyles: false, translations: { placeholder: 'Search musicians, venues and genres' } });
+    const q = new URLSearchParams(location.search).get('q');
+    if (q) ui.triggerSearch(q);
+  });
+</script>
+<style is:global>
+  .top { padding: 18px 0 24px; }
+  #search { padding-bottom: 88px; --pagefind-ui-primary: #0a6f6b; --pagefind-ui-text: #1d1735; --pagefind-ui-background: #f6faf8; --pagefind-ui-border: #1d1735; --pagefind-ui-tag: #e6f1ee; --pagefind-ui-border-width: 2px; --pagefind-ui-border-radius: 6px; --pagefind-ui-font: 'Public Sans Variable', system-ui, sans-serif; }
+  #search .pagefind-ui__result-link { font-family: 'Big Shoulders Display Variable', sans-serif; font-weight: 800; font-size: 1.6rem; }
+</style>

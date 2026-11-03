@@ -1,0 +1,40 @@
+---
+// Poster-style list of acts. Used on the musicians page, genre pages and "more like this".
+import { isPlaying, typeLabel, genreName } from '../lib/site.js';
+const { acts, filterable = false } = Astro.props;
+---
+<ol class="acts">
+  {acts.map((m) => (
+    <li
+      data-name={m.name.toLowerCase()}
+      data-sound={(m.sound || '').toLowerCase()}
+      data-genres={m.genres.join(' ')}
+      data-type={m.type === 'Band' ? 'band' : m.type === 'Solo Artist' ? 'solo' : 'other'}
+      data-playing={isPlaying(m) ? '1' : '0'}
+      {...(filterable ? {} : {})}
+    >
+      <a href={`/musicians/${m.slug}/`}>
+        <span class="name">{m.name}</span>
+        <span class="meta">
+          {typeLabel(m) && <span>{typeLabel(m)}</span>}
+          {m.genres.length > 0 && <span>{m.genres.slice(0, 3).map(genreName).join(', ')}</span>}
+        </span>
+        {isPlaying(m) && <span class="playing">Playing this week</span>}
+      </a>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .acts { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+  .acts li { border-bottom: 1px solid var(--line); }
+  .acts a { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; align-items: baseline; gap: 6px 24px; padding: 14px 4px; text-decoration: none; color: var(--ink); }
+  .acts a:hover .name { color: var(--turq); }
+  .name { font: 700 clamp(1.45rem, 2.4vw, 1.9rem)/1 var(--display); }
+  .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 0.95rem; }
+  .meta span + span::before { content: '/'; margin-right: 14px; color: var(--line); }
+  @media (max-width: 680px) {
+    .acts a { grid-template-columns: 1fr auto; }
+    .meta { grid-column: 1 / -1; grid-row: 2; }
+  }
+</style>
