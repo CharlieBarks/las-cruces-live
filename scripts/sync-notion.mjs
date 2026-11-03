@@ -80,7 +80,17 @@ async function geocode(address) {
 
 async function main() {
   if (!TOKEN) {
-    console.log('sync-notion: no NOTION_TOKEN, using the data already in src/data/');
+    // No Notion access: keep the saved data, but still put venues on the map.
+    const file = path.join(DATA_DIR, 'venues.json');
+    const saved = JSON.parse(await fs.readFile(file, 'utf8'));
+    let placed = 0;
+    for (const v of saved) {
+      if ((v.lat && v.lng) || !v.address) continue;
+      const g = await geocode(v.address);
+      if (g) { v.lat = g.lat; v.lng = g.lng; placed++; }
+    }
+    await fs.writeFile(file, JSON.stringify(saved, null, 2));
+    console.log(`sync-notion: no NOTION_TOKEN, using the data already in src/data/ (placed ${placed} venues on the map)`);
     return;
   }
   const [mStatus, vStatus, vLat] = await Promise.all([
