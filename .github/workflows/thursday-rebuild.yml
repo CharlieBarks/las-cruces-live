@@ -1,0 +1,23 @@
+# Rebuilds the site after the Thursday Live Music issue goes out (1 pm Mountain),
+# so "Playing this week" badges and map pins switch to the new issue on their own.
+# It pushes a tiny timestamp commit; Cloudflare rebuilds on every push to main.
+name: Thursday rebuild
+on:
+  schedule:
+    - cron: '30 22 * * 4'   # Thursday 3:30 pm MST / 4:30 pm MDT
+    - cron: '0 14 * * 5'    # Friday 7 am MST, backup in case the issue went out late
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .last-rebuild
+          git config user.name "Las Cruces Live bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add .last-rebuild
+          git commit -m "Weekly rebuild for the Thursday issue"
+          git push
