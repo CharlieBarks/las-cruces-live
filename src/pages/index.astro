@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Stage from '../components/Stage.astro';
 import { SITE, musicians, venues, genres, playingActs, thisWeek, venueWeek, issueLink, subscribeLink, AREAS, SPONSORS } from '../lib/site.js';
 
 const busy = venues
@@ -18,32 +19,37 @@ const sponsor = SPONSORS.home;
   jsonLd={[{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.url, potentialAction: { '@type': 'SearchAction', target: `${SITE.url}/search/?q={q}`, 'query-input': 'required name=q' } }]}
 >
   <section class="hero night on-night">
-    <div class="wrap">
-      <h1>Every band, singer and stage in Las Cruces.</h1>
-      <p class="sub">{musicians.length} local acts and {venues.length} places to hear them, from Hatch to the Texas line.</p>
+    <Stage />
+    <div class="wrap inner">
+      <h1>Live music every night in Las Cruces.</h1>
+      <p class="sub">{musicians.length} local acts and {venues.length} stages, from Hatch to the Texas line.</p>
 
-      <p class="sr-only">The full lineup of local acts follows. Acts playing this week are highlighted.</p>
-      <ul class="wall" aria-label="Local acts">
-        {musicians.map((m) => (
-          <li class={playing.has(m.slug) ? 'on' : undefined}>
-            <a href={`/musicians/${m.slug}/`}>{m.name}</a>
-          </li>
-        ))}
-      </ul>
-
-      {thisWeek.shows > 0 ? (
-        <div class="cta">
-          <p class="cta-head"><span class="glow">{playingActs.length} of them</span> are on stage this week, in {thisWeek.shows} shows across the valley.</p>
-          <p>Days and times land in Thursday's Live Music issue.</p>
+      {playingActs.length > 0 ? (
+        <div class="poster">
+          <p class="poster-top">This week's lineup</p>
+          <ul class="lineup" id="lineup" aria-label="Acts playing this week">
+            {playingActs.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a></li>)}
+          </ul>
+          <script is:inline>
+            // New order and new headliners on every visit.
+            (function () {
+              var ul = document.getElementById('lineup');
+              if (!ul) return;
+              var items = Array.prototype.slice.call(ul.children);
+              for (var i = items.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = items[i]; items[i] = items[j]; items[j] = t; }
+              items.forEach(function (li, k) { li.className = k < 3 ? 'head' : k < 9 ? 'mid' : ''; ul.appendChild(li); });
+            })();
+          </script>
+          <p class="poster-foot">Days and times for all {thisWeek.shows} shows are in Thursday's Live Music issue.</p>
           <div class="btns">
             <a class="btn btn-gold" href={issueLink('home_hero')}>See this week's days and times</a>
             <a class="btn btn-line" href={subscribeLink('home_hero')}>Get it free every Thursday</a>
           </div>
         </div>
       ) : (
-        <div class="cta">
-          <p class="cta-head">Want to know who's playing where?</p>
-          <p>The week's live music lands every Thursday at 1 pm, free.</p>
+        <div class="poster">
+          <p class="poster-top">Who's playing this week?</p>
+          <p class="poster-foot">The week's live music lands every Thursday at 1 pm, free.</p>
           <div class="btns"><a class="btn btn-gold" href={subscribeLink('home_hero')}>Get the Thursday issue</a></div>
         </div>
       )}
@@ -104,26 +110,27 @@ const sponsor = SPONSORS.home;
 </Layout>
 
 <style>
-  .hero { padding: clamp(40px, 6vw, 72px) 0 clamp(48px, 7vw, 80px); position: relative; overflow: hidden; }
-  .hero h1 { color: var(--cream); max-width: 19ch; text-wrap: balance; }
-  .sub { margin-top: 16px; font-size: 1.2rem; }
+  .hero { padding: clamp(44px, 6vw, 76px) 0 clamp(120px, 14vw, 180px); position: relative; overflow: hidden; }
+  .inner { position: relative; z-index: 1; text-align: center; display: grid; justify-items: center; }
+  .hero h1 { color: var(--cream); max-width: 16ch; text-wrap: balance; }
+  .sub { margin-top: 14px; font-size: 1.15rem; }
 
-  /* The lineup poster: every act, this week's in gold */
-  .wall { list-style: none; margin: 40px 0 0; padding: 28px 0; border-top: 2px solid rgba(245,239,226,.25); border-bottom: 2px solid rgba(245,239,226,.25);
-    display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 0; font-family: var(--display); text-transform: uppercase; line-height: 1.15; text-align: justify; }
-  .wall li { font-size: clamp(0.95rem, 1.5vw, 1.2rem); font-weight: 600; letter-spacing: 0.02em; }
-  .wall li::after { content: '✦'; color: var(--turq-bright); margin: 0 0.55em; font-size: 0.6em; vertical-align: 0.2em; }
-  .wall li:last-child::after { content: none; }
-  .wall a { color: rgba(245,239,226,.55); text-decoration: none; }
-  .wall a:hover { color: var(--cream); }
-  .wall li.on { font-size: clamp(1.35rem, 2.6vw, 2.1rem); font-weight: 900; }
-  .wall li.on a { color: var(--gold); }
-  .wall li.on a:hover { color: #ffd27a; }
-
-  .cta { margin-top: 32px; display: grid; gap: 10px; }
-  .cta-head { font: 800 clamp(1.7rem, 3.4vw, 2.5rem)/1.02 var(--display); color: var(--cream) !important; max-width: 26ch; }
-  .glow { color: var(--gold); }
-  .cta .btns { margin-top: 8px; }
+  /* Gig-poster lineup: this week's acts, reshuffled with new headliners on every visit */
+  .poster { margin-top: 36px; width: 100%; max-width: 980px; padding: 28px clamp(16px, 4vw, 44px) 32px;
+    border: 2px solid rgba(244, 182, 62, 0.55); border-radius: 4px; background: rgba(20, 16, 38, 0.55); display: grid; justify-items: center; gap: 14px; }
+  .poster-top { font: 700 1.05rem var(--text); color: var(--turq-bright) !important; letter-spacing: 0.04em; }
+  .lineup { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 0;
+    font-family: var(--display); text-transform: uppercase; line-height: 1.08; }
+  .lineup li { font-size: clamp(1.05rem, 1.8vw, 1.45rem); font-weight: 700; }
+  .lineup li.mid { font-size: clamp(1.4rem, 2.6vw, 2.1rem); font-weight: 800; }
+  .lineup li.head { font-size: clamp(2rem, 4.6vw, 3.6rem); font-weight: 900; width: 100%; }
+  .lineup li:not(.head)::after { content: '✦'; color: var(--turq-bright); margin: 0 0.55em; font-size: 0.55em; vertical-align: 0.25em; }
+  .lineup a { color: var(--cream); text-decoration: none; }
+  .lineup li.head a { color: var(--gold); }
+  .lineup li.mid a { color: #ffd98a; }
+  .lineup a:hover { color: #fff; }
+  .poster-foot { margin-top: 6px; }
+  .poster .btns { justify-content: center; }
 
   .sponsor { padding-top: 14px; font-size: 0.9rem; color: var(--muted); }
 

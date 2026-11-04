@@ -1,14 +1,40 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ActList from '../../components/ActList.astro';
+import Stage from '../../components/Stage.astro';
 import { musicians, genres, playingActs, thisWeek } from '../../lib/site.js';
 ---
 <Layout title="Local Musicians & Bands" description={`All ${musicians.length} local musicians and bands in Las Cruces and Mesilla, NM. Filter by genre, bands or solo artists, and see who's playing this week.`}>
+  <section class="wallband night on-night">
+    <Stage />
+    <div class="wrap inner">
+      <p class="crumbs"><a href="/">Home</a> / Musicians</p>
+      <h1>Every act in the valley</h1>
+      <p class="sub">{musicians.length} local musicians and bands. Here are a few. Reload for more.</p>
+      <ul class="wall" id="wall" aria-label="A few local acts">
+        {musicians.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a></li>)}
+      </ul>
+      <script is:inline>
+        // Show ~40 acts at random, with 6 random ones in the spotlight. Different every visit.
+        (function () {
+          var ul = document.getElementById('wall');
+          if (!ul) return;
+          var items = Array.prototype.slice.call(ul.children);
+          for (var i = items.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = items[i]; items[i] = items[j]; items[j] = t; }
+          var keep = items.slice(0, 40);
+          items.slice(40).forEach(function (li) { li.remove(); });
+          // Spotlight 6 of them, scattered through the list.
+          var picks = keep.map(function (_, k) { return k; }).sort(function () { return Math.random() - 0.5; }).slice(0, 6);
+          keep.forEach(function (li, k) { li.className = picks.indexOf(k) > -1 ? 'lit' : ''; ul.appendChild(li); });
+        })();
+      </script>
+    </div>
+  </section>
+
   <div class="wrap">
-    <p class="crumbs"><a href="/">Home</a> / Musicians</p>
     <header class="top stack">
-      <h1>Local musicians and bands</h1>
-      <p class="lede">{musicians.length} acts who play the Mesilla Valley. Pick a sound, or type a name.</p>
+      <h2>Find an act</h2>
+      <p class="lede">Pick a sound, or type a name.</p>
     </header>
 
     <form class="filters" role="search" onsubmit="return false" data-pagefind-ignore>
@@ -82,7 +108,21 @@ import { musicians, genres, playingActs, thisWeek } from '../../lib/site.js';
 </script>
 
 <style>
-  .top { padding: 18px 0 28px; }
+  .wallband { position: relative; overflow: hidden; padding: 0 0 clamp(110px, 12vw, 160px); }
+  .inner { position: relative; z-index: 1; }
+  .wallband .crumbs a, .wallband .crumbs { color: #cfc8de; }
+  .wallband h1 { color: var(--cream); margin-top: 18px; }
+  .sub { margin-top: 12px; font-size: 1.15rem; }
+  .wall { list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 0;
+    font-family: var(--display); text-transform: uppercase; line-height: 1.15; }
+  .wall li { font-size: clamp(1.05rem, 1.7vw, 1.4rem); font-weight: 600; }
+  .wall li::after { content: '✦'; color: var(--turq-bright); margin: 0 0.55em; font-size: 0.55em; vertical-align: 0.25em; }
+  .wall li:last-child::after { content: none; }
+  .wall a { color: rgba(245,239,226,.6); text-decoration: none; }
+  .wall a:hover { color: var(--cream); }
+  .wall li.lit { font-size: clamp(1.5rem, 2.8vw, 2.3rem); font-weight: 900; }
+  .wall li.lit a { color: var(--gold); }
+  .top { padding: 40px 0 24px; }
   .filters { display: grid; gap: 14px; margin-bottom: 18px; }
   .search input { width: 100%; font: 400 1.1rem var(--text); padding: 15px 16px; border: 2px solid var(--ink); border-radius: 6px; background: var(--paper); color: var(--ink); }
   .row { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }

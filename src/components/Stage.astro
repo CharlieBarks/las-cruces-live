@@ -1,0 +1,27 @@
+---
+// Night-stage backdrop: two stage-light beams over the Organ Mountains skyline.
+// Pass photo="/images/hero.jpg" to lay a real show photo underneath, tinted to the site colors.
+const { photo } = Astro.props;
+---
+<div class="stage" aria-hidden="true" style={photo ? `--photo:url(${photo})` : undefined} data-photo={photo ? '1' : undefined}>
+  <span class="beam left"></span>
+  <span class="beam right"></span>
+  <svg class="ridge" viewBox="0 0 1440 220" preserveAspectRatio="none">
+    <path d="M0 220 L0 170 L120 150 L210 160 L300 120 L360 135 L430 92 L470 110 L505 62 L530 96 L552 40 L575 88 L596 30 L618 80 L640 22 L662 76 L684 44 L708 90 L742 70 L790 112 L860 96 L940 130 L1030 118 L1120 144 L1220 132 L1330 156 L1440 148 L1440 220 Z" />
+  </svg>
+</div>
+
+<style>
+  .stage { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+  .stage[data-photo]::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(rgba(29, 23, 53, 0.72), rgba(29, 23, 53, 0.9)), var(--photo) center / cover no-repeat;
+  }
+  .beam { position: absolute; top: -10%; width: 46%; height: 120%; filter: blur(2px); opacity: 0.55; }
+  .beam.left { left: 4%; transform: rotate(-14deg); transform-origin: top center;
+    background: linear-gradient(180deg, rgba(244, 182, 62, 0.55), rgba(244, 182, 62, 0) 70%); clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); }
+  .beam.right { right: 4%; transform: rotate(14deg); transform-origin: top center;
+    background: linear-gradient(180deg, rgba(54, 179, 168, 0.5), rgba(54, 179, 168, 0) 70%); clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); }
+  .ridge { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 150px; fill: #141026; }
+  @media (max-width: 700px) { .ridge { height: 80px; } .beam { width: 80%; } }
+</style>
