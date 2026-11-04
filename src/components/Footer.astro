@@ -20,6 +20,12 @@ const year = new Date().getFullYear();
       <li><a href="https://lascrucesarttrail.com">Las Cruces Art Trail</a></li>
     </ul>
   </div>
+  <div class="wrap brand-row">
+    <a class="lllc" href={utm(SITE.publisherUrl, 'footer_logo')} aria-label="Live Love Las Cruces">
+      <span>A project of</span>
+      <img src="/lllc-logo-on-dark.png" alt="Live Love Las Cruces" width="280" height="70" loading="lazy" />
+    </a>
+  </div>
   <div class="wrap fine">
     <p>© {year} <a href={utm(SITE.publisherUrl, 'footer')}>Live Love Las Cruces</a>. Made in Las Cruces, New Mexico. Always check with the venue before you head out.</p>
   </div>
@@ -32,6 +38,10 @@ const year = new Date().getFullYear();
   .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; align-content: start; }
   .links a, .fine a { color: var(--cream); }
   .links a:hover, .fine a:hover { color: var(--gold); }
-  .fine { margin-top: 48px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); font-size: 0.88rem; }
+  .brand-row { margin-top: 48px; }
+  .lllc { display: inline-flex; flex-direction: column; gap: 6px; text-decoration: none; color: #cfc8de; font-size: 0.85rem; }
+  .lllc img { width: 280px; height: auto; margin: -12px 0 -10px -8px; }
+  .lllc:hover span { color: var(--gold); }
+  .fine { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.12); font-size: 0.88rem; }
   @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
 </style>
