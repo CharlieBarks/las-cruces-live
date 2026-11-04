@@ -32,7 +32,7 @@ const heading = acts.length
           {v.phone && <><dt>Phone</dt><dd><a href={`tel:${v.phone.replace(/[^\d+]/g, '')}`}>{v.phone}</a></dd></>}
         </dl>
         {links.length > 0 && <div class="btns">{links.map(([k, n]) => <a class="btn btn-line" href={v.links[k]} rel="noopener">{n}</a>)}</div>}
-        {v.lat && v.lng && <div class="mini"><VenueMap list={[v]} height="280px" /></div>}
+        {v.lat && v.lng && <div class="mini"><VenueMap list={[v]} height="300px" zoom={14} /></div>}
       </div>
       <div class="side stack">
         {w.shows > 0 ? (

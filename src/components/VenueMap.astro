@@ -1,89 +1,154 @@
 ---
-// Leaflet map of venues. Pins with shows this week glow gold; tapping one shows who's playing
-// (names only) and hands off to the Thursday issue for days and times.
+// Venue map: OpenFreeMap "Liberty" style (free, no key), recolored to match the site.
+// Pins with shows this week glow gold; tapping one shows who's playing (names only)
+// and hands off to the Thursday issue for days and times.
 import { venues, venueWeek, musicianBySlug, AREAS, issueLink, subscribeLink } from '../lib/site.js';
-const { list = venues, height = '70vh', filters = false } = Astro.props;
+const { list = venues, height = '70vh', filters = false, zoom } = Astro.props;
 const points = list.filter((v) => v.lat && v.lng).map((v) => {
   const w = venueWeek(v);
   const acts = w.acts.map(musicianBySlug).filter(Boolean);
   return {
     name: v.name, slug: v.slug, lat: v.lat, lng: v.lng, area: AREAS[v.area]?.name || '',
-    shows: w.shows, unlisted: w.unlisted ?? 0, acts: acts.map((a) => ({ name: a.name, slug: a.slug })),
-    genres: [...new Set(acts.flatMap((a) => a.genres))],
+    shows: w.shows, unlisted: w.unlisted ?? 0, acts: acts.map((a) => a.name),
+    genres: `,${[...new Set(acts.flatMap((a) => a.genres))].join(',')},`,
   };
 });
 const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin') };
 ---
 <div class="map-shell" data-pagefind-ignore>
   {filters && <slot name="filters" />}
-  <div class="venue-map" style={`height:${height}`} data-points={JSON.stringify(points)} data-links={JSON.stringify(links)} role="region" aria-label="Map of live music venues in Las Cruces and Mesilla"></div>
+  <div
+    class="venue-map"
+    style={`height:${height}`}
+    data-points={JSON.stringify(points)}
+    data-links={JSON.stringify(links)}
+    data-zoom={zoom ?? ''}
+    role="region"
+    aria-label="Map of live music venues in Las Cruces and Mesilla"
+  ></div>
   <noscript><p class="nojs">Turn on JavaScript to see the map. Every venue page has its address and a directions link.</p></noscript>
 </div>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-
 <script>
-  const L = (window as any).L;
+  import { Map, Popup, NavigationControl } from 'maplibre-gl';
+  import 'maplibre-gl/dist/maplibre-gl.css';
+
+  // Site palette
+  const C = {
+    land: '#f4efe4', park: '#dfe9d6', water: '#8fcfc6', waterLine: '#5fb3a8',
+    ink: '#1d1735', muted: '#5b5675', road: '#ffffff', roadCase: '#e3dccd', major: '#f7d9a0', majorCase: '#e6b866',
+    gold: '#f4b63e', turq: '#0a6f6b',
+  };
+  // The heart of town. The map opens here; Hatch and the wine country are a zoom-out away.
+  const CORE: [[number, number], [number, number]] = [[-106.835, 32.255], [-106.715, 32.345]];
+
+  function recolor(map: Map) {
+    for (const layer of map.getStyle().layers || []) {
+      const id = layer.id;
+      const set = (prop: string, val: any) => { try { map.setPaintProperty(id, prop, val); } catch {} };
+      if (layer.type === 'background') set('background-color', C.land);
+      else if (layer.type === 'fill' && /water/.test(id)) set('fill-color', C.water);
+      else if (layer.type === 'line' && /waterway|water/.test(id)) set('line-color', C.waterLine);
+      else if (layer.type === 'fill' && /park|wood|grass|landcover|landuse/.test(id)) set('fill-color', C.park);
+      else if (layer.type === 'line' && /road|highway|street|bridge|tunnel/.test(id) && !/rail|path|track|aeroway/.test(id)) {
+        const major = /motorway|trunk|primary/.test(id);
+        set('line-color', /casing/.test(id) ? (major ? C.majorCase : C.roadCase) : (major ? C.major : C.road));
+      } else if (layer.type === 'symbol' && /label|place|poi|road/.test(id)) {
+        set('text-color', /^label_(city|town|village)/.test(id) ? C.ink : C.muted);
+        set('text-halo-color', '#ffffff');
+        set('text-halo-width', 1.6);
+      }
+    }
+  }
+
   document.querySelectorAll<HTMLElement>('.venue-map').forEach((el) => {
     const points = JSON.parse(el.dataset.points || '[]');
     const links = JSON.parse(el.dataset.links || '{}');
-    const map = L.map(el, { scrollWheelZoom: false });
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
-
-    const el$ = (tag: string, text?: string, cls?: string) => { const n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; };
-    const markers = points.map((p: any) => {
-      const hot = p.shows > 0;
-      const m = L.circleMarker([p.lat, p.lng], {
-        radius: hot ? 11 : 8, weight: 3, color: hot ? '#1d1735' : '#ffffff', fillColor: hot ? '#f4b63e' : '#0a6f6b', fillOpacity: 1,
-      });
-      const box = el$('div', undefined, 'pin');
-      const a = el$('a', p.name, 'pin-name') as HTMLAnchorElement; a.href = `/venues/${p.slug}/`; box.appendChild(a);
-      if (p.area) box.appendChild(el$('div', p.area, 'pin-area'));
-      if (hot) {
-        const names = p.acts.map((x: any) => x.name);
-        const others = p.unlisted;
-        let line = names.length ? `This week: ${names.join(', ')}` : `This week: ${p.shows} ${p.shows === 1 ? 'show' : 'shows'}`;
-        if (names.length && others > 0) line += ` and ${others} more ${others === 1 ? 'show' : 'shows'}`;
-        box.appendChild(el$('p', line, 'pin-week'));
-        const b = el$('a', 'Get days and times', 'pin-btn') as HTMLAnchorElement; b.href = links.issue; box.appendChild(b);
-        const s = el$('a', 'Or get the lineup free every Thursday', 'pin-sub') as HTMLAnchorElement; s.href = links.subscribe; box.appendChild(s);
-      }
-      m.bindPopup(box, { maxWidth: 280 });
-      m.addTo(map);
-      return { m, p };
+    const single = points.length === 1;
+    const map = new Map({
+      container: el,
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      ...(single ? { center: [points[0].lng, points[0].lat], zoom: Number(el.dataset.zoom) || 14 } : { bounds: CORE }),
+      scrollZoom: false,
+      cooperativeGestures: true,
+      attributionControl: { compact: true },
     });
-    if (points.length) map.fitBounds(points.map((p: any) => [p.lat, p.lng]), { padding: [30, 30], maxZoom: 15 });
-    else map.setView([32.3199, -106.7637], 11);
+    map.addControl(new NavigationControl({ showCompass: false }), 'top-left');
 
-    // Filters (map page): genre of this week's acts, and "shows this week"
-    const form = el.closest('.map-shell')?.querySelector('form');
-    if (form) {
-      const apply = () => {
-        const genre = (form.querySelector('[name=genre]') as HTMLSelectElement).value;
-        const hotOnly = (form.querySelector('[name=hot]') as HTMLInputElement).checked;
-        let n = 0;
-        markers.forEach(({ m, p }: any) => {
-          const show = (!hotOnly || p.shows > 0) && (!genre || p.genres.includes(genre));
-          if (show) { if (!map.hasLayer(m)) m.addTo(map); n++; } else map.removeLayer(m);
-        });
-        const out = form.querySelector('output'); if (out) out.textContent = `${n} ${n === 1 ? 'venue' : 'venues'} on the map`;
-      };
-      form.addEventListener('change', apply);
-      apply();
-    }
+    map.on('load', () => {
+      recolor(map);
+      map.addSource('venues', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: points.map((p: any, i: number) => ({
+            type: 'Feature', id: i,
+            geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
+            properties: { i, hot: p.shows > 0 ? 1 : 0, g: p.genres },
+          })),
+        },
+      });
+      // Pins sit above streets but below town names, so "Las Cruces" and "Mesilla" stay readable.
+      const firstPlace = (map.getStyle().layers || []).find((l) => /^label_(city|town|village|state|country)/.test(l.id))?.id;
+      map.addLayer({
+        id: 'venue-pins', type: 'circle', source: 'venues',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, ['case', ['==', ['get', 'hot'], 1], 6, 4], 14, ['case', ['==', ['get', 'hot'], 1], 12, 8]],
+          'circle-color': ['case', ['==', ['get', 'hot'], 1], C.gold, C.turq],
+          'circle-stroke-color': ['case', ['==', ['get', 'hot'], 1], C.ink, '#ffffff'],
+          'circle-stroke-width': ['case', ['==', ['get', 'hot'], 1], 2.5, 2],
+        },
+      }, firstPlace);
+
+      const popup = new Popup({ closeButton: true, maxWidth: '290px', offset: 12 });
+      const make = (tag: string, text?: string, cls?: string) => { const n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; };
+      map.on('click', 'venue-pins', (e: any) => {
+        const p = points[e.features[0].properties.i];
+        const box = make('div', undefined, 'pin');
+        const a = make('a', p.name, 'pin-name') as HTMLAnchorElement; a.href = `/venues/${p.slug}/`; box.appendChild(a);
+        if (p.area) box.appendChild(make('div', p.area, 'pin-area'));
+        if (p.shows > 0) {
+          let line = p.acts.length ? `This week: ${p.acts.join(', ')}` : `This week: ${p.shows} ${p.shows === 1 ? 'show' : 'shows'}`;
+          if (p.acts.length && p.unlisted > 0) line += ` and ${p.unlisted} more ${p.unlisted === 1 ? 'show' : 'shows'}`;
+          box.appendChild(make('p', line, 'pin-week'));
+          const b = make('a', 'Get days and times', 'pin-btn') as HTMLAnchorElement; b.href = links.issue; box.appendChild(b);
+          const s = make('a', 'Or get the lineup free every Thursday', 'pin-sub') as HTMLAnchorElement; s.href = links.subscribe; box.appendChild(s);
+        } else {
+          const v = make('a', 'See the venue', 'pin-sub') as HTMLAnchorElement; v.href = `/venues/${p.slug}/`; box.appendChild(v);
+        }
+        popup.setLngLat([p.lng, p.lat]).setDOMContent(box).addTo(map);
+      });
+      map.on('mouseenter', 'venue-pins', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'venue-pins', () => { map.getCanvas().style.cursor = ''; });
+
+      // Filters (map page): sound of this week's acts, and "shows this week"
+      const form = el.closest('.map-shell')?.querySelector('form');
+      if (form) {
+        const apply = () => {
+          const genre = (form.querySelector('[name=genre]') as HTMLSelectElement).value;
+          const hot = (form.querySelector('[name=hot]') as HTMLInputElement | null)?.checked;
+          const conds: any[] = [];
+          if (hot) conds.push(['==', ['get', 'hot'], 1]);
+          if (genre) conds.push(['in', `,${genre},`, ['get', 'g']]);
+          map.setFilter('venue-pins', conds.length ? ['all', ...conds] : null);
+          const n = points.filter((p: any) => (!hot || p.shows > 0) && (!genre || p.genres.includes(`,${genre},`))).length;
+          const out = form.querySelector('output'); if (out) out.textContent = `${n} ${n === 1 ? 'venue' : 'venues'} on the map`;
+        };
+        form.addEventListener('change', apply);
+        apply();
+      }
+    });
   });
 </script>
 
 <style is:global>
-  .map-shell { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #dfe9e6; }
+  .map-shell { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #f4efe4; }
   .venue-map { width: 100%; }
   .nojs { padding: 20px; }
+  .maplibregl-popup-content { border-radius: 10px; padding: 16px 18px; box-shadow: 0 6px 24px rgba(29, 23, 53, 0.22); }
+  .maplibregl-popup-close-button { font-size: 20px; padding: 2px 8px; }
   .pin { font-family: var(--text); display: grid; gap: 4px; }
-  .pin-name { font: 800 1.35rem/1 var(--display); color: var(--ink) !important; text-decoration: none; }
+  .pin-name { font: 800 1.35rem/1 var(--display); color: var(--ink) !important; text-decoration: none; padding-right: 18px; }
   .pin-area { color: var(--muted); font-size: 0.85rem; }
   .pin-week { margin: 6px 0 4px !important; font-size: 0.95rem; color: var(--ink); }
   .pin-btn { display: inline-block; background: var(--gold); color: var(--night) !important; font-weight: 700; padding: 9px 12px; border-radius: 6px; text-decoration: none; justify-self: start; }
