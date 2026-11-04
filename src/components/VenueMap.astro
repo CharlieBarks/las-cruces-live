@@ -29,9 +29,12 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
   <noscript><p class="nojs">Turn on JavaScript to see the map. Every venue page has its address and a directions link.</p></noscript>
 </div>
 
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
+<script is:inline src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+
 <script>
-  import { Map, Popup, NavigationControl } from 'maplibre-gl';
-  import 'maplibre-gl/dist/maplibre-gl.css';
+  // MapLibre 5 loads above as one file (its map-drawing helper is built in).
+  const { Map, Popup, NavigationControl } = (window as any).maplibregl;
 
   // Site palette
   const C = {
@@ -42,8 +45,8 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
   // The heart of town. The map opens here; Hatch and the wine country are a zoom-out away.
   const CORE: [[number, number], [number, number]] = [[-106.835, 32.255], [-106.715, 32.345]];
 
-  function recolor(map: Map) {
-    for (const layer of map.getStyle().layers || []) {
+  function recolor(map: any) {
+    for (const layer of (map.getStyle().layers || []) as any[]) {
       const id = layer.id;
       const set = (prop: string, val: any) => { try { map.setPaintProperty(id, prop, val); } catch {} };
       if (layer.type === 'background') set('background-color', C.land);
@@ -89,7 +92,7 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
         },
       });
       // Pins sit above streets but below town names, so "Las Cruces" and "Mesilla" stay readable.
-      const firstPlace = (map.getStyle().layers || []).find((l) => /^label_(city|town|village|state|country)/.test(l.id))?.id;
+      const firstPlace = ((map.getStyle().layers || []) as any[]).find((l) => /^label_(city|town|village|state|country)/.test(l.id))?.id;
       map.addLayer({
         id: 'venue-pins', type: 'circle', source: 'venues',
         paint: {
