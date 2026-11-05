@@ -1,14 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { SITE, utm } from '../lib/site.js';
-const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}`;
+const mail = (subject, body) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}${body ? `&body=${encodeURIComponent(body)}` : ''}`;
 ---
 <Layout title="Get Listed" description="Free listings for Las Cruces musicians, bands and live music venues, plus affordable upgrades and sponsor spots.">
   <div class="wrap">
     <p class="crumbs"><a href="/">Home</a> / Get listed</p>
     <header class="top stack">
       <h1>Get on the lineup</h1>
-      <p class="lede">If you play music or host it in the Mesilla Valley, you get a free listing. Always. The upgrades are for folks who want a little more.</p>
+      <p class="lede">If you play music or host it in the Mesilla Valley, you get a free listing. Always. Paid upgrades for folks who want a little more are coming soon.</p>
     </header>
 
     <aside class="shows-note" id="shows">
@@ -34,6 +34,7 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
           <a class="btn btn-line" href={mail('Las Cruces Live: add or update my free listing')}>Add or fix my listing</a>
         </div>
         <div class="plan featured">
+          <p class="soon">Coming soon</p>
           <p class="plan-name">Booking-ready page</p>
           <p class="price">$5 a month or $49 a year</p>
           <ul>
@@ -45,7 +46,8 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
             <li>A monthly count of page views and link clicks</li>
           </ul>
           <p class="note">Founding Musicians: the first 25 get a full year free.</p>
-          <a class="btn btn-chile" href={mail('Las Cruces Live: Founding Musician')}>Claim a founding spot</a>
+          <p>We're putting the finishing touches on this one. Get on the early list and you'll hear first, with your founding spot saved.</p>
+          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Musician spot', 'Act or band name:\nBest way to reach you:\n')}>Save me a founding spot</a>
         </div>
       </div>
     </section>
@@ -64,6 +66,7 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
           <a class="btn btn-line" href={mail('Las Cruces Live: venue listing')}>Add or fix my venue</a>
         </div>
         <div class="plan featured">
+          <p class="soon">Coming soon</p>
           <p class="plan-name">Featured venue</p>
           <p class="price">From $29 a month</p>
           <ul>
@@ -73,7 +76,8 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
             <li>Top spot in your neighborhood list</li>
           </ul>
           <p class="note">Founding Venues: the first 10 get 3 months free.</p>
-          <a class="btn btn-chile" href={mail('Las Cruces Live: Founding Venue')}>Become a founding venue</a>
+          <p>Featured pages launch shortly. Raise your hand now and I'll hold one of the 10 founding spots for you.</p>
+          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Venue spot', 'Venue name:\nYour name:\nBest way to reach you:\n')}>Hold a founding spot for my venue</a>
         </div>
       </div>
 
@@ -107,6 +111,7 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
   .plan-name { font: 800 1.9rem/1 var(--display); }
   .price { font-weight: 700; color: var(--turq); }
   .plan ul, .sponsors ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .soon { font: 700 0.8rem/1 var(--text); text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: var(--turq); padding: 6px 10px; border-radius: 999px; }
   .note { font-weight: 600; color: var(--chile); }
   .sponsors { margin-top: 40px; display: grid; gap: 12px; justify-items: start; max-width: 70ch; }
   @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
