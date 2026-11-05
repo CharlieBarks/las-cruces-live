@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import VenueMap from '../../components/VenueMap.astro';
-import { venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, listJoin, venueJsonLd } from '../../lib/site.js';
+import { SITE, utm, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, listJoin, venueJsonLd } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return venues.map((v) => ({ params: { slug: v.slug } }));
@@ -46,6 +46,9 @@ const heading = acts.length
             <ul>{acts.map((a) => <li><a href={`/musicians/${a.slug}/`}>{a.name}</a></li>)}</ul>
           </div>
         )}
+        <aside class="shows-cta" data-pagefind-ignore>
+          <p><strong>Got shows coming up?</strong> <a href={utm(SITE.eventsUrl, `venue_${v.slug}`)} rel="noopener">Make sure we know about it: add it to the Events Calendar →</a></p>
+        </aside>
         <aside class="claim" data-pagefind-ignore>
           <p class="claim-head">Run this venue?</p>
           <p>Add photos, your regular music nights and a featured pin on the map. Sponsor spots are open too.</p>
@@ -74,6 +77,7 @@ const heading = acts.length
   .acts-here li { border-bottom: 1px solid var(--line); }
   .acts-here a { display: block; padding: 8px 0; font: 700 1.35rem/1.1 var(--display); color: var(--ink); text-decoration: none; }
   .acts-here a:hover { color: var(--turq); }
+  .shows-cta { padding: 14px 18px; border-left: 4px solid var(--chile); background: var(--paper); border-radius: 8px; }
   .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 8px; }
   .claim-head { font: 800 1.5rem/1 var(--display); }
   .nearby { padding-bottom: 72px; }

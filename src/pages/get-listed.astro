@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { SITE } from '../lib/site.js';
+import { SITE, utm } from '../lib/site.js';
 const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}`;
 ---
 <Layout title="Get Listed" description="Free listings for Las Cruces musicians, bands and live music venues, plus affordable upgrades and sponsor spots.">
@@ -10,6 +10,13 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
       <h1>Get on the lineup</h1>
       <p class="lede">If you play music or host it in the Mesilla Valley, you get a free listing. Always. The upgrades are for folks who want a little more.</p>
     </header>
+
+    <aside class="shows-note" id="shows">
+      <p class="shows-head">Heads up: your listing doesn't add your shows.</p>
+      <p>Every week we dig through Instagram, Facebook and venue websites hunting for live music, and we still miss stuff. If your gig isn't on our radar, it isn't in the Thursday Live Music issue.</p>
+      <p>The surest way in? Add your shows to the LLLC Events Calendar. It takes two minutes, and {SITE.subscribers} locals read the newsletter they feed. Got a regular weekly gig? Add it once as a recurring event and you're set.</p>
+      <a class="btn btn-chile" href={utm(SITE.eventsUrl, 'getlisted_shows')} rel="noopener">Add my shows to the calendar</a>
+    </aside>
 
     <section class="block" id="musicians">
       <h2>Musicians and bands</h2>
@@ -89,6 +96,8 @@ const mail = (subject) => `mailto:${SITE.contactEmail}?subject=${encodeURICompon
 
 <style>
   .top { padding: 18px 0 24px; }
+  .shows-note { margin: 0 0 36px; padding: 24px 28px; border-left: 6px solid var(--chile); border-radius: 10px; background: var(--paper); display: grid; gap: 10px; justify-items: start; max-width: 70ch; }
+  .shows-head { font: 800 1.7rem/1.05 var(--display); }
   .block { padding: 36px 0; border-top: 2px solid var(--ink); }
   .block:last-child { padding-bottom: 88px; }
   .block > h2 { margin-bottom: 24px; }

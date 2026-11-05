@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import ActList from '../../components/ActList.astro';
-import { musicians, musicianBySlug, isPlaying, playingVenues, typeLabel, genreName, listJoin, musicianJsonLd } from '../../lib/site.js';
+import { SITE, utm, musicians, musicianBySlug, isPlaying, playingVenues, typeLabel, genreName, listJoin, musicianJsonLd } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return musicians.map((m) => ({ params: { slug: m.slug } }));
@@ -72,6 +72,9 @@ const description = `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from 
             source={`musician_${m.slug}`}
           />
         )}
+        <aside class="shows-cta" data-pagefind-ignore>
+          <p><strong>Playing a show?</strong> <a href={utm(SITE.eventsUrl, `musician_${m.slug}`)} rel="noopener">Make sure we know about it: add it to the Events Calendar →</a></p>
+        </aside>
         <aside class="claim" data-pagefind-ignore>
           <p class="claim-head">Is this you?</p>
           <p>Your free listing is live. Upgrade to add photos, a song player, your story and a booking form that emails you directly.</p>
@@ -99,6 +102,7 @@ const description = `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from 
   .sound figcaption { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
   .links { margin-top: 8px; }
   .muted { color: var(--muted); }
+  .shows-cta { padding: 14px 18px; border-left: 4px solid var(--chile); background: var(--paper); border-radius: 8px; }
   .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 8px; }
   .claim-head { font: 800 1.5rem/1 var(--display); }
   .more { padding-bottom: 72px; }
