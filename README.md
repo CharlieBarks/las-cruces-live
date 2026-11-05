@@ -29,11 +29,13 @@ Optional fields the site already understands once you add them:
 Genres: if the Genres checklist is filled in, it wins. Otherwise the site reads the free-text Genre field
 (e.g. "Classic Rock, Country, Blues") and sorts the act into the site's genre pages. Rules: `scripts/lib/shape.mjs`.
 
-## "Playing this week"
+## "Playing this week & next"
 
 Before each build, `scripts/sync-lineup.mjs` reads the newest Beehiiv post tagged **Live Music** and matches
-act and venue names against the directory. Musicians get a "Playing this week" badge, venues get a show count,
-and map pins turn gold. Badges switch off by themselves when the issue is more than 7 days old.
+act and venue names against the directory. The issue covers two weeks (Thursday to Wednesday; the second week is web-only), and every show keeps the date
+from the day heading above it ("Thursday, November 05th"). Musicians get a "Playing this week", "Playing next week"
+or "Playing this week & next" badge, venues get a show count, and map pins turn gold. Past shows drop off at
+each build, and everything switches off by itself two weeks after the issue date.
 
 If an act in the newsletter doesn't get a badge, its name in the issue doesn't match the directory closely enough
 (e.g. "Christopher Smith Escarcega" vs "Christopher Escarcega"). Use the same name in both places.

@@ -1,7 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { SITE, utm } from '../lib/site.js';
-const mail = (subject, body) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}${body ? `&body=${encodeURIComponent(body)}` : ''}`;
+const mail = (subject, body, bcc) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}${bcc ? `&bcc=${encodeURIComponent(bcc)}` : ''}${body ? `&body=${encodeURIComponent(body)}` : ''}`;
+// Early-list emails also go to Grok Bot, which logs them in Notion and sends the reply.
+const GROKBOT = 'charlie-p9916j@mail.grokbot.com';
 ---
 <Layout title="Get Listed" description="Free listings for Las Cruces musicians, bands and live music venues, plus affordable upgrades and sponsor spots.">
   <div class="wrap">
@@ -28,7 +30,7 @@ const mail = (subject, body) => `mailto:${SITE.contactEmail}?subject=${encodeURI
             <li>Your page with your name, genres and your sound in your own words</li>
             <li>Website and social links</li>
             <li>Band members linked to each other's pages</li>
-            <li>A “Playing this week” badge whenever you're in the Thursday issue</li>
+            <li>A “Playing this week” (or “next week”) badge whenever you're in the Thursday issue</li>
             <li>Listed alphabetically. Nobody pays to cut the line.</li>
           </ul>
           <a class="btn btn-line" href={mail('Las Cruces Live: add or update my free listing')}>Add or fix my listing</a>
@@ -47,7 +49,7 @@ const mail = (subject, body) => `mailto:${SITE.contactEmail}?subject=${encodeURI
           </ul>
           <p class="note">Founding Musicians: the first 25 get a full year free.</p>
           <p>We're putting the finishing touches on this one. Get on the early list and you'll hear first, with your founding spot saved.</p>
-          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Musician spot', 'Act or band name:\nBest way to reach you:\n')}>Save me a founding spot</a>
+          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Musician spot', 'Act or band name:\nBest way to reach you:\n', GROKBOT)}>Save me a founding spot</a>
         </div>
       </div>
     </section>
@@ -77,7 +79,7 @@ const mail = (subject, body) => `mailto:${SITE.contactEmail}?subject=${encodeURI
           </ul>
           <p class="note">Founding Venues: the first 10 get 3 months free.</p>
           <p>Featured pages launch shortly. Raise your hand now and I'll hold one of the 10 founding spots for you.</p>
-          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Venue spot', 'Venue name:\nYour name:\nBest way to reach you:\n')}>Hold a founding spot for my venue</a>
+          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Venue spot', 'Venue name:\nYour name:\nBest way to reach you:\n', GROKBOT)}>Hold a founding spot for my venue</a>
         </div>
       </div>
 

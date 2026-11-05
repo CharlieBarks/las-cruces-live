@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { venues, AREAS, venueWeek } from '../../lib/site.js';
+import { venues, AREAS, venueWeek, whenText } from '../../lib/site.js';
 const groups = Object.entries(AREAS)
   .map(([k, a]) => ({ k, a, list: venues.filter((v) => v.area === k) }))
   .filter((g) => g.list.length);
@@ -28,7 +28,7 @@ const groups = Object.entries(AREAS)
               <li>
                 <a href={`/venues/${v.slug}/`}>{v.name}</a>
                 <span class="addr">{v.address ? v.address.replace(/,\s*NM\s*\d{5}$/, '') : ''}</span>
-                {w.shows > 0 && <span class="playing">{w.shows} {w.shows === 1 ? 'show' : 'shows'} this week</span>}
+                {w.shows > 0 && <span class="playing">{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span>}
               </li>
             );
           })}

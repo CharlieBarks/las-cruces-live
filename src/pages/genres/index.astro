@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { genres, isPlaying } from '../../lib/site.js';
+import { genres, isPlaying, groupWhen } from '../../lib/site.js';
 ---
 <Layout title="Music by Genre" description="Las Cruces musicians and bands by genre: blues, country, cumbia, Tejano, jazz, rock, Americana and more.">
   <div class="wrap">
@@ -11,11 +11,12 @@ import { genres, isPlaying } from '../../lib/site.js';
     </header>
     <ul class="glist">
       {genres.map((g) => {
-        const hot = g.acts.filter(isPlaying).length;
+        const hotActs = g.acts.filter(isPlaying);
+        const hot = hotActs.length;
         return (
           <li>
             <a href={`/genres/${g.slug}/`}>{g.name}</a>
-            <span>{g.acts.length} acts{hot > 0 && <em class="playing">{hot} playing this week</em>}</span>
+            <span>{g.acts.length} acts{hot > 0 && <em class="playing">{hot} playing {groupWhen(hotActs, true)}</em>}</span>
           </li>
         );
       })}

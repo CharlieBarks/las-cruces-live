@@ -1,7 +1,9 @@
 // Reads the latest Thursday Live Music issue from Beehiiv and works out which listed
 // musicians and venues are in it. Writes src/data/thisweek.json.
 //
-// The site only shows WHO and WHERE ("Playing this week", "6 shows here this week").
+// The site only shows WHO and WHERE ("Playing this week & next", "6 shows this week").
+// The issue covers two weeks (the second is web-only); each show keeps its date so the
+// site can say "this week", "next week" or both.
 // Days and times stay in the newsletter.
 //
 // - Needs BEEHIIV_API_KEY (Cloudflare build secret). Without it, the existing file is kept.
@@ -44,8 +46,8 @@ async function main() {
 
   const musicians = JSON.parse(await fs.readFile(path.join(DATA_DIR, 'musicians.json'), 'utf8'));
   const venues = JSON.parse(await fs.readFile(path.join(DATA_DIR, 'venues.json'), 'utf8'));
-  const match = matchLineup(text, musicians, venues);
   const issueDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date(post.publish_date * 1000));
+  const match = matchLineup(text, musicians, venues, issueDate);
   const out = { issueTitle: post.title, issueUrl: post.web_url, issueDate, ...match };
   await fs.writeFile(path.join(DATA_DIR, 'thisweek.json'), JSON.stringify(out, null, 2));
   console.log(`sync-lineup: ${post.title}: ${match.shows} shows, ${Object.keys(match.acts).length} listed acts, ${Object.keys(match.venues).length} listed venues`);

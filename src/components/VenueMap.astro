@@ -1,15 +1,15 @@
 ---
 // Venue map: OpenFreeMap "Liberty" style (free, no key), recolored to match the site.
-// Pins with shows this week glow gold; tapping one shows who's playing (names only)
+// Pins with shows this week or next glow gold; tapping one shows who's playing (names only)
 // and hands off to the Thursday issue for days and times.
-import { venues, venueWeek, musicianBySlug, AREAS, issueLink, subscribeLink } from '../lib/site.js';
+import { venues, venueWeek, musicianBySlug, AREAS, whenText, cap, issueLink, subscribeLink } from '../lib/site.js';
 const { list = venues, height = '70vh', filters = false, zoom } = Astro.props;
 const points = list.filter((v) => v.lat && v.lng).map((v) => {
   const w = venueWeek(v);
   const acts = w.acts.map(musicianBySlug).filter(Boolean);
   return {
     name: v.name, slug: v.slug, lat: v.lat, lng: v.lng, area: AREAS[v.area]?.name || '',
-    shows: w.shows, unlisted: w.unlisted ?? 0, acts: acts.map((a) => a.name),
+    when: cap(whenText(w.weeks, true)), shows: w.shows, unlisted: w.unlisted ?? 0, acts: acts.map((a) => a.name),
     genres: `,${[...new Set(acts.flatMap((a) => a.genres))].join(',')},`,
   };
 });
@@ -111,7 +111,7 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
         const a = make('a', p.name, 'pin-name') as HTMLAnchorElement; a.href = `/venues/${p.slug}/`; box.appendChild(a);
         if (p.area) box.appendChild(make('div', p.area, 'pin-area'));
         if (p.shows > 0) {
-          let line = p.acts.length ? `This week: ${p.acts.join(', ')}` : `This week: ${p.shows} ${p.shows === 1 ? 'show' : 'shows'}`;
+          let line = p.acts.length ? `${p.when}: ${p.acts.join(', ')}` : `${p.when}: ${p.shows} ${p.shows === 1 ? 'show' : 'shows'}`;
           if (p.acts.length && p.unlisted > 0) line += ` and ${p.unlisted} more ${p.unlisted === 1 ? 'show' : 'shows'}`;
           box.appendChild(make('p', line, 'pin-week'));
           const b = make('a', 'Get days and times', 'pin-btn') as HTMLAnchorElement; b.href = links.issue; box.appendChild(b);

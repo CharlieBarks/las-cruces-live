@@ -113,9 +113,28 @@ function venueFor(text, venues) {
 const stripMd = (s) => s.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[=*_]/g, '').trim();
 
 // lines: the issue's text, one show per line ("Act | Venue | time | extras").
-export function matchLineup(text, musicians, venues) {
+// Day headings in the issue look like "Thursday, November 05th". Each show gets the date of
+// the heading above it, so the site can tell this week's shows from next week's.
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+const DAY_HEADING = /^#*\s*(?:mon|tues|wednes|thurs|fri|satur|sun)day,?\s+([a-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b/i;
+function headingDate(line, issueDate) {
+  const m = stripMd(line).match(DAY_HEADING);
+  if (!m) return undefined;
+  const month = MONTHS.findIndex((x) => x.startsWith(m[1].toLowerCase().slice(0, 3)));
+  if (month < 0 || !issueDate) return undefined;
+  const [iy, im] = issueDate.split('-').map(Number);
+  // A December issue can run into January.
+  const year = month + 1 < im - 6 ? iy + 1 : iy;
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(Number(m[2])).padStart(2, '0')}`;
+}
+
+export function matchLineup(text, musicians, venues, issueDate) {
   const shows = [];
+  let date = null;
   for (const raw of text.split('\n')) {
+    const d = headingDate(raw, issueDate);
+    if (d) { date = d; continue; }
+    if (/^#*\s*(coming soon|local music spotlight)\b/i.test(stripMd(raw))) date = null;
     if (!raw.includes('|') || raw.trim().startsWith('#')) continue;
     const parts = raw.split('|').map(stripMd);
     if (parts.length < 2 || !parts[0]) continue;
@@ -124,7 +143,7 @@ export function matchLineup(text, musicians, venues) {
     const acts = musicians
       .filter((m) => (core(m.name).length ? actIn(m.name, searchText) : stripMd(parts[0]).toLowerCase() === m.name.toLowerCase()))
       .map((m) => m.slug);
-    shows.push({ venue: venue?.slug || null, acts });
+    shows.push({ date, venue: venue?.slug || null, acts });
   }
   const acts = {};
   const venueMap = {};
@@ -140,5 +159,5 @@ export function matchLineup(text, musicians, venues) {
       for (const a of s.acts) if (!venueMap[s.venue].acts.includes(a)) venueMap[s.venue].acts.push(a);
     }
   }
-  return { shows: shows.length, acts, venues: venueMap };
+  return { shows: shows.length, acts, venues: venueMap, list: shows };
 }

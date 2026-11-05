@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import ActList from '../../components/ActList.astro';
-import { SITE, utm, musicians, musicianBySlug, isPlaying, playingVenues, typeLabel, genreName, listJoin, musicianJsonLd } from '../../lib/site.js';
+import { SITE, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel, genreName, listJoin, musicianJsonLd } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return musicians.map((m) => ({ params: { slug: m.slug } }));
@@ -21,7 +21,7 @@ const similar = musicians
   .slice(0, 6)
   .map((s) => s.x);
 const genreText = m.genres.length ? listJoin(m.genres.map((g) => genreName(g).toLowerCase())) : 'live music';
-const description = `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from the Las Cruces music scene playing ${genreText}. Links, band info and where they're playing this week.`;
+const description = `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from the Las Cruces music scene playing ${genreText}. Links, band info and where they're playing this week and next.`;
 ---
 <Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable>
   <div class="wrap">
@@ -29,7 +29,7 @@ const description = `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from 
     <article class="grid">
       <div class="main stack">
         <header class="stack">
-          {isPlaying(m) && <p class="playing">Playing this week</p>}
+          {isPlaying(m) && <p class="playing">{playingLabel(m)}</p>}
           <h1 data-pagefind-meta="title">{m.name}</h1>
           <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
         </header>
@@ -62,7 +62,8 @@ const description = `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from 
       <div class="side stack">
         {isPlaying(m) ? (
           <ThisWeek
-            heading={where.length ? `${m.name} is playing ${listJoin(where)} this week.` : `${m.name} is on stage this week.`}
+            heading={where.length ? `${m.name} is playing ${listJoin(where)} ${playingWhen(m)}.` : `${m.name} is on stage ${playingWhen(m)}.`}
+            when={playingWhen(m, true)}
             source={`musician_${m.slug}`}
           />
         ) : (

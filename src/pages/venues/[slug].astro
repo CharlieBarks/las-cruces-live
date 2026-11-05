@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import VenueMap from '../../components/VenueMap.astro';
-import { SITE, utm, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, listJoin, venueJsonLd } from '../../lib/site.js';
+import { SITE, utm, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return venues.map((v) => ({ params: { slug: v.slug } }));
@@ -15,16 +15,17 @@ const LINKS = [['website', 'Website'], ['facebook', 'Facebook'], ['instagram', '
 const links = LINKS.filter(([k]) => v.links[k]);
 const nearby = venues.filter((x) => x.area === v.area && x.slug !== v.slug).slice(0, 6);
 const others = w.unlisted ?? Math.max(0, w.shows - acts.length);
+const when = whenText(w.weeks);
 const heading = acts.length
   ? `${listJoin(acts.map((a) => a.name))}${others > 0 ? `, plus ${others} more ${others === 1 ? 'show' : 'shows'}` : ''}.`
-  : `${w.shows} ${w.shows === 1 ? 'show' : 'shows'} at ${v.name} this week.`;
+  : `${w.shows} ${w.shows === 1 ? 'show' : 'shows'} at ${v.name} ${when}.`;
 ---
-<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week.`} jsonLd={[venueJsonLd(v)]} searchable>
+<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v)]} searchable>
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
     <article class="grid">
       <div class="main stack">
-        {w.shows > 0 && <p class="playing">Live music this week</p>}
+        {w.shows > 0 && <p class="playing">Live music {whenText(w.weeks, true)}</p>}
         <h1>{v.name}</h1>
         <p class="kind"><a href={`/venues/#${v.area}`}>{area?.name}</a></p>
         <dl class="facts">
@@ -36,13 +37,13 @@ const heading = acts.length
       </div>
       <div class="side stack">
         {w.shows > 0 ? (
-          <ThisWeek heading={heading} source={`venue_${v.slug}`} />
+          <ThisWeek heading={heading} source={`venue_${v.slug}`} when={whenText(w.weeks, true)} />
         ) : (
           <ThisWeek heading={`See who's playing ${v.name}.`} body="Every Thursday the Live Music issue lists the week's shows here and all over town." source={`venue_${v.slug}`} />
         )}
         {acts.length > 0 && (
           <div class="acts-here" data-pagefind-ignore>
-            <p class="label">Meet this week's acts</p>
+            <p class="label">Meet the acts</p>
             <ul>{acts.map((a) => <li><a href={`/musicians/${a.slug}/`}>{a.name}</a></li>)}</ul>
           </div>
         )}

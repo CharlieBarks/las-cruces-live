@@ -1,6 +1,6 @@
 ---
 // Poster-style list of acts. Used on the musicians page, genre pages and "more like this".
-import { isPlaying, typeLabel, genreName } from '../lib/site.js';
+import { isPlaying, playingLabel, typeLabel, genreName } from '../lib/site.js';
 const { acts, filterable = false } = Astro.props;
 ---
 <ol class="acts">
@@ -19,7 +19,7 @@ const { acts, filterable = false } = Astro.props;
           {typeLabel(m) && <span>{typeLabel(m)}</span>}
           {m.genres.length > 0 && <span>{m.genres.slice(0, 3).map(genreName).join(', ')}</span>}
         </span>
-        {isPlaying(m) && <span class="playing">Playing this week</span>}
+        {isPlaying(m) && <span class="playing">{playingLabel(m)}</span>}
       </a>
     </li>
   ))}

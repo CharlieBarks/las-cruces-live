@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Stage from '../components/Stage.astro';
-import { SITE, musicians, venues, genres, playingActs, thisWeek, venueWeek, issueLink, subscribeLink, AREAS, SPONSORS } from '../lib/site.js';
+import { SITE, whenText, WHEN_SHORT, lineupTitle, musicians, venues, genres, playingActs, thisWeek, venueWeek, issueLink, subscribeLink, AREAS, SPONSORS } from '../lib/site.js';
 
 const busy = venues
   .map((v) => ({ v, w: venueWeek(v) }))
@@ -26,8 +26,8 @@ const sponsor = SPONSORS.home;
 
       {playingActs.length > 0 ? (
         <div class="poster">
-          <p class="poster-top">This week's lineup</p>
-          <ul class="lineup" id="lineup" aria-label="Acts playing this week">
+          <p class="poster-top">{lineupTitle()}</p>
+          <ul class="lineup" id="lineup" aria-label={`Acts playing ${WHEN_SHORT}`}>
             {playingActs.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a></li>)}
           </ul>
           <script is:inline>
@@ -42,7 +42,7 @@ const sponsor = SPONSORS.home;
           </script>
           <p class="poster-foot">Days and times for all {thisWeek.shows} shows are in Thursday's Live Music issue.</p>
           <div class="btns">
-            <a class="btn btn-gold" href={issueLink('home_hero')}>See this week's days and times</a>
+            <a class="btn btn-gold" href={issueLink('home_hero')}>See days and times</a>
             <a class="btn btn-line" href={subscribeLink('home_hero')}>Get it free every Thursday</a>
           </div>
         </div>
@@ -81,7 +81,7 @@ const sponsor = SPONSORS.home;
         <p class="lede">Wineries, brewery patios, plaza cantinas and roadhouses. These stages had the most going on in the latest issue.</p>
         <ol class="busy">
           {busy.slice(0, 8).map(({ v, w }) => (
-            <li><a href={`/venues/${v.slug}/`}>{v.name}</a><span>{w.shows} {w.shows === 1 ? 'show' : 'shows'} this week</span></li>
+            <li><a href={`/venues/${v.slug}/`}>{v.name}</a><span>{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span></li>
           ))}
         </ol>
         <div class="btns"><a class="btn btn-line" href="/map/">Open the venue map</a><a class="btn btn-line" href="/venues/">All {venues.length} venues</a></div>

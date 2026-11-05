@@ -1,10 +1,10 @@
 ---
 // The newsletter hand-off. Shows who/where, never days or times.
-import { issueLink, subscribeLink } from '../lib/site.js';
-const { heading, body, source = 'page' } = Astro.props;
+import { issueLink, subscribeLink, WHEN_SHORT, cap } from '../lib/site.js';
+const { heading, body, source = 'page', when = WHEN_SHORT } = Astro.props;
 ---
-<aside class="thisweek night on-night" aria-label="Playing this week" data-pagefind-ignore>
-  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>This week</p>
+<aside class="thisweek night on-night" aria-label={`Playing ${when}`} data-pagefind-ignore>
+  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>{cap(when)}</p>
   <p class="head">{heading}</p>
   {body && <p>{body}</p>}
   <p>Days and times are in Thursday's Live Music issue.</p>

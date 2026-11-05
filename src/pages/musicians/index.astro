@@ -2,9 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import ActList from '../../components/ActList.astro';
 import Stage from '../../components/Stage.astro';
-import { musicians, genres, playingActs, thisWeek } from '../../lib/site.js';
+import { musicians, genres, playingActs, thisWeek, WHEN_SHORT } from '../../lib/site.js';
 ---
-<Layout title="Local Musicians & Bands" description={`All ${musicians.length} local musicians and bands in Las Cruces and Mesilla, NM. Filter by genre, bands or solo artists, and see who's playing this week.`}>
+<Layout title="Local Musicians & Bands" description={`All ${musicians.length} local musicians and bands in Las Cruces and Mesilla, NM. Filter by genre, bands or solo artists, and see who's playing this week and next.`}>
   <section class="wallband night on-night">
     <Stage />
     <div class="wrap inner">
@@ -47,7 +47,7 @@ import { musicians, genres, playingActs, thisWeek } from '../../lib/site.js';
         <button type="button" class="chip" data-type="all" aria-pressed="true">All</button>
         <button type="button" class="chip" data-type="band" aria-pressed="false">Bands</button>
         <button type="button" class="chip" data-type="solo" aria-pressed="false">Solo artists</button>
-        {thisWeek.shows > 0 && <button type="button" class="chip hot" id="playing" aria-pressed="false">Playing this week ({playingActs.length})</button>}
+        {thisWeek.shows > 0 && <button type="button" class="chip hot" id="playing" aria-pressed="false">Playing {WHEN_SHORT} ({playingActs.length})</button>}
       </fieldset>
       <fieldset class="row genres">
         <legend class="sr-only">Genre</legend>

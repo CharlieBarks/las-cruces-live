@@ -52,18 +52,77 @@ export const venues = venuesRaw.filter((v) => live(v) && v.name).sort((a, b) => 
 export const musicianBySlug = (s) => musicians.find((m) => m.slug === s);
 export const venueBySlug = (s) => venues.find((v) => v.slug === s);
 
-// ---------- This week (from the latest Thursday issue) ----------
-// Badges only show while the issue is current, so the site never advertises last week's shows.
+// ---------- This week & next (from the latest Thursday issue) ----------
+// The issue covers two weeks, Thursday to Wednesday: the first in the email, the second
+// web-only. Each show carries its date, so the site can say "this week", "next week" or both.
+// Weeks are counted from the issue date, and past shows drop off at each build.
+// Old snapshots without dates count as this week. Everything switches off two weeks out,
+// so the site never advertises old shows.
+const DAY = 864e5;
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date());
-const daysOld = (Date.parse(today) - Date.parse(thisweekRaw.issueDate || '1970-01-01')) / 864e5;
-export const THIS_WEEK_CURRENT = process.env.LIVE_IGNORE_STALE === '1' || daysOld <= 7;
-export const thisWeek = THIS_WEEK_CURRENT ? thisweekRaw : { ...thisweekRaw, shows: 0, acts: {}, venues: {} };
+const daysOld = (Date.parse(today) - Date.parse(thisweekRaw.issueDate || '1970-01-01')) / DAY;
+export const THIS_WEEK_CURRENT = process.env.LIVE_IGNORE_STALE === '1' || daysOld < (thisweekRaw.list ? 14 : 8);
+const weekStart = Date.parse(thisweekRaw.issueDate || '1970-01-01') + Math.max(0, Math.floor(daysOld / 7)) * 7 * DAY;
+const weekOf = (date) => {
+  if (!date) return 0;
+  if (Date.parse(date) < Date.parse(today) && process.env.LIVE_IGNORE_STALE !== '1') return -1;
+  const d = Math.floor((Date.parse(date) - weekStart) / DAY);
+  return d < 0 ? -1 : d < 7 ? 0 : d < 14 ? 1 : -1;
+};
+function buildWeek() {
+  if (!THIS_WEEK_CURRENT) return { ...thisweekRaw, shows: 0, acts: {}, venues: {}, weeks: [] };
+  if (!thisweekRaw.list) {
+    const acts = Object.fromEntries(Object.entries(thisweekRaw.acts).map(([k, v]) => [k, { venues: v, weeks: [0] }]));
+    const venues = Object.fromEntries(Object.entries(thisweekRaw.venues).map(([k, v]) => [k, { ...v, weeks: [0] }]));
+    return { ...thisweekRaw, acts, venues, weeks: thisweekRaw.shows ? [0] : [] };
+  }
+  const acts = {};
+  const venues = {};
+  const weeks = new Set();
+  let shows = 0;
+  for (const s of thisweekRaw.list) {
+    const w = weekOf(s.date);
+    if (w < 0) continue;
+    shows += 1;
+    weeks.add(w);
+    for (const a of s.acts) {
+      acts[a] ||= { venues: [], weeks: [] };
+      if (s.venue && !acts[a].venues.includes(s.venue)) acts[a].venues.push(s.venue);
+      if (!acts[a].weeks.includes(w)) acts[a].weeks.push(w);
+    }
+    if (s.venue) {
+      const v = (venues[s.venue] ||= { shows: 0, unlisted: 0, acts: [], weeks: [] });
+      v.shows += 1;
+      if (!s.acts.length) v.unlisted += 1;
+      for (const a of s.acts) if (!v.acts.includes(a)) v.acts.push(a);
+      if (!v.weeks.includes(w)) v.weeks.push(w);
+    }
+  }
+  return { ...thisweekRaw, shows, acts, venues, weeks: [...weeks] };
+}
+export const thisWeek = buildWeek();
 export const issueLink = (content) => utm(thisWeek.issueUrl || SITE.liveMusicUrl, content);
 export const subscribeLink = (content) => utm(SITE.subscribeUrl, content);
 
+// "this week", "next week" or "this week and next"
+export function whenText(weeks = [], short = false) {
+  const a = weeks.includes(0);
+  const b = weeks.includes(1);
+  if (a && b) return short ? 'this week & next' : 'this week and next';
+  if (b) return 'next week';
+  return 'this week';
+}
+export const WHEN = whenText(thisWeek.weeks);
+export const groupWhen = (acts, short = false) => whenText([...new Set(acts.flatMap((m) => thisWeek.acts[m.slug]?.weeks || []))], short);
+export const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+export const lineupTitle = (w = WHEN_SHORT) => (w === 'this week' ? "This week's lineup" : w === 'next week' ? "Next week's lineup" : 'This week & next');
+export const WHEN_SHORT = whenText(thisWeek.weeks, true);
+
 export const isPlaying = (m) => Boolean(thisWeek.acts[m.slug]);
-export const playingVenues = (m) => (thisWeek.acts[m.slug] || []).map(venueBySlug).filter(Boolean);
-export const venueWeek = (v) => thisWeek.venues[v.slug] || { shows: 0, unlisted: 0, acts: [] };
+export const playingVenues = (m) => (thisWeek.acts[m.slug]?.venues || []).map(venueBySlug).filter(Boolean);
+export const playingWhen = (m, short = false) => whenText(thisWeek.acts[m.slug]?.weeks, short);
+export const playingLabel = (m) => `Playing ${playingWhen(m, true)}`;
+export const venueWeek = (v) => thisWeek.venues[v.slug] || { shows: 0, unlisted: 0, acts: [], weeks: [] };
 export const playingActs = musicians.filter(isPlaying);
 
 // ---------- Genres ----------
