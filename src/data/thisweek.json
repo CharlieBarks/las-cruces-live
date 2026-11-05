@@ -1,232 +1,230 @@
 {
-  "issueTitle": "Live Music This Week in Las Cruces: October 29, 2026",
-  "issueUrl": "https://livelovelascruces.com/p/live-music-this-week-in-las-cruces-october-29-2026",
-  "issueDate": "2026-10-29",
-  "shows": 80,
+  "issueTitle": "Live Music This Week in Las Cruces: November 05, 2026",
+  "issueUrl": "https://livelovelascruces.com/p/live-music-this-week-in-las-cruces-november-05-2026",
+  "issueDate": "2026-11-05",
+  "shows": 91,
   "acts": {
     "chris-baker": [
-      "madelyns-mesilla",
-      "blue-moon-bar-and-grill"
-    ],
-    "saxattitude": [
-      "palacio-bar",
-      "madelyns-mesilla"
-    ],
-    "santana-garcia": [
-      "madelyns-mesilla"
-    ],
-    "austin-jimmy-murphy": [
-      "casa-el-camino"
-    ],
-    "cw-ayon": [
-      "amaro-winery"
-    ],
-    "cm-adams": [
       "the-game-1",
-      "la-posta-de-mesilla",
-      "dry-point-distillers",
-      "madelyns-mesilla"
-    ],
-    "taylor-paul": [
-      "the-game-2",
-      "nm-vintage-wines"
-    ],
-    "papa-blue-and-the-king-bees": [
-      "nm-vintage-wines"
-    ],
-    "the-band": [
-      "palacio-bar"
-    ],
-    "wildcard": [],
-    "calista": [
-      "madelyns-mesilla"
-    ],
-    "sons-of-soul": [],
-    "pizza-bones": [
-      "sparkys-burgers-bbq-and-espresso"
-    ],
-    "the-575-band": [
-      "sombra-antigua-vineyard-and-winery"
-    ],
-    "triple-jack": [
-      "sombra-antigua-vineyard-and-winery"
-    ],
-    "the-retroz": [
-      "zin-valle-vineyards",
-      "sombra-antigua-vineyard-and-winery"
-    ],
-    "kicks-band": [],
-    "flat-blak": [
-      "nm-vintage-wines"
-    ],
-    "the-ghetto-blasters": [
-      "the-game-1"
-    ],
-    "animmo": [
-      "palacio-bar"
-    ],
-    "era-snow": [],
-    "frank-zona-band": [
-      "zin-valle-vineyards"
+      "icebox-28-beer-garden",
+      "little-toad-creek"
     ],
     "randy-lynch": [
       "madelyns-mesilla"
     ],
     "dusty-low": [
-      "rio-grande-winery"
+      "rio-grande-winery",
+      "amaro-winery"
     ],
     "sage-gentlewing": [
       "hacienda-de-mesilla",
-      "picacho-hills-country-club"
+      "picacho-hills-country-club",
+      "madelyns-mesilla"
+    ],
+    "saxattitude": [
+      "nm-vintage-wines",
+      "madelyns-mesilla"
+    ],
+    "cm-adams": [
+      "dry-point-distillers",
+      "madelyns-mesilla",
+      "valley-pizza"
+    ],
+    "rockabilly-strangers": [
+      "elephant-ranch",
+      "nm-vintage-wines",
+      "sparkys-burgers-bbq-and-espresso"
+    ],
+    "dream-merchants": [
+      "palacio-bar",
+      "blue-moon-bar-and-grill"
     ],
     "ghetto-vaquero-band": [
       "madelyns-mesilla"
     ],
+    "guitar-slim": [
+      "sparkys-burgers-bbq-and-espresso",
+      "nm-vintage-wines"
+    ],
     "lush-life": [
-      "rio-grande-winery"
+      "rio-grande-winery",
+      "zin-valle-vineyards"
+    ],
+    "highway-fm": [
+      "valley-pizza"
+    ],
+    "moonshine-railroad": [
+      "blue-moon-bar-and-grill"
     ],
     "burt-ferguson": [
+      "madelyns-mesilla",
+      "rio-grande-winery"
+    ],
+    "kat-crosby-and-the-rhythm-gators": [
+      "nm-vintage-wines"
+    ],
+    "santana-garcia": [
       "madelyns-mesilla"
+    ],
+    "groove-runner": [
+      "madelyns-mesilla"
+    ],
+    "jezzika-sax": [
+      "picacho-peak-brewing-co"
+    ],
+    "taylor-paul": [
+      "the-game-2",
+      "la-posta-de-mesilla"
+    ],
+    "the-band": [],
+    "animmo": [
+      "palacio-bar"
+    ],
+    "flat-blak": [
+      "madelyns-mesilla"
+    ],
+    "cl-smith": [
+      "sparkys-burgers-bbq-and-espresso"
+    ],
+    "daniel-sanchez": [],
+    "jackal": [
+      "amaro-winery"
+    ],
+    "whiskey-river": [
+      "palacio-bar"
+    ],
+    "jack-hansen": [
+      "rio-grande-winery"
     ]
   },
   "venues": {
     "madelyns-mesilla": {
-      "shows": 12,
-      "unlisted": 4,
+      "shows": 14,
+      "unlisted": 5,
       "acts": [
-        "chris-baker",
-        "santana-garcia",
-        "saxattitude",
-        "calista",
         "randy-lynch",
         "cm-adams",
         "ghetto-vaquero-band",
-        "burt-ferguson"
+        "burt-ferguson",
+        "santana-garcia",
+        "groove-runner",
+        "sage-gentlewing",
+        "flat-blak",
+        "saxattitude"
       ]
     },
     "palacio-bar": {
-      "shows": 3,
-      "unlisted": 0,
-      "acts": [
-        "saxattitude",
-        "the-band",
-        "animmo"
-      ]
-    },
-    "nm-vintage-wines": {
       "shows": 6,
       "unlisted": 3,
       "acts": [
-        "papa-blue-and-the-king-bees",
-        "flat-blak",
-        "taylor-paul"
-      ]
-    },
-    "rio-grande-winery": {
-      "shows": 5,
-      "unlisted": 3,
-      "acts": [
-        "dusty-low",
-        "lush-life"
-      ]
-    },
-    "casa-el-camino": {
-      "shows": 1,
-      "unlisted": 0,
-      "acts": [
-        "austin-jimmy-murphy"
-      ]
-    },
-    "amaro-winery": {
-      "shows": 1,
-      "unlisted": 0,
-      "acts": [
-        "cw-ayon"
+        "dream-merchants",
+        "animmo",
+        "whiskey-river"
       ]
     },
     "the-game-1": {
-      "shows": 2,
-      "unlisted": 0,
-      "acts": [
-        "cm-adams",
-        "the-ghetto-blasters"
-      ]
-    },
-    "the-game-2": {
-      "shows": 1,
-      "unlisted": 0,
-      "acts": [
-        "taylor-paul"
-      ]
-    },
-    "grounded-cafe": {
-      "shows": 1,
-      "unlisted": 1,
-      "acts": []
-    },
-    "valley-pizza": {
-      "shows": 2,
-      "unlisted": 2,
-      "acts": []
-    },
-    "chopes-bar-and-cafe": {
-      "shows": 1,
-      "unlisted": 1,
-      "acts": []
-    },
-    "sparkys-burgers-bbq-and-espresso": {
-      "shows": 1,
-      "unlisted": 0,
-      "acts": [
-        "pizza-bones"
-      ]
-    },
-    "sombra-antigua-vineyard-and-winery": {
-      "shows": 4,
-      "unlisted": 0,
-      "acts": [
-        "the-575-band",
-        "triple-jack",
-        "the-retroz"
-      ]
-    },
-    "zin-valle-vineyards": {
-      "shows": 4,
-      "unlisted": 2,
-      "acts": [
-        "the-retroz",
-        "frank-zona-band"
-      ]
-    },
-    "picacho-peak-brewing-co": {
-      "shows": 2,
-      "unlisted": 2,
-      "acts": []
-    },
-    "la-posta-de-mesilla": {
-      "shows": 1,
-      "unlisted": 0,
-      "acts": [
-        "cm-adams"
-      ]
-    },
-    "blue-moon-bar-and-grill": {
       "shows": 1,
       "unlisted": 0,
       "acts": [
         "chris-baker"
       ]
     },
+    "rio-grande-winery": {
+      "shows": 6,
+      "unlisted": 2,
+      "acts": [
+        "dusty-low",
+        "lush-life",
+        "burt-ferguson",
+        "jack-hansen"
+      ]
+    },
+    "amaro-winery": {
+      "shows": 3,
+      "unlisted": 1,
+      "acts": [
+        "dusty-low",
+        "jackal"
+      ]
+    },
+    "nm-vintage-wines": {
+      "shows": 8,
+      "unlisted": 4,
+      "acts": [
+        "saxattitude",
+        "guitar-slim",
+        "kat-crosby-and-the-rhythm-gators",
+        "rockabilly-strangers"
+      ]
+    },
     "dry-point-distillers": {
+      "shows": 2,
+      "unlisted": 1,
+      "acts": [
+        "cm-adams"
+      ]
+    },
+    "elephant-ranch": {
       "shows": 1,
       "unlisted": 0,
       "acts": [
+        "rockabilly-strangers"
+      ]
+    },
+    "valley-pizza": {
+      "shows": 3,
+      "unlisted": 1,
+      "acts": [
+        "highway-fm",
         "cm-adams"
+      ]
+    },
+    "blue-moon-bar-and-grill": {
+      "shows": 3,
+      "unlisted": 1,
+      "acts": [
+        "moonshine-railroad",
+        "dream-merchants"
+      ]
+    },
+    "little-toad-creek": {
+      "shows": 2,
+      "unlisted": 1,
+      "acts": [
+        "chris-baker"
       ]
     },
     "whiskey-dicks": {
       "shows": 2,
       "unlisted": 2,
+      "acts": []
+    },
+    "sparkys-burgers-bbq-and-espresso": {
+      "shows": 4,
+      "unlisted": 0,
+      "acts": [
+        "guitar-slim",
+        "cl-smith",
+        "rockabilly-strangers"
+      ]
+    },
+    "zin-valle-vineyards": {
+      "shows": 4,
+      "unlisted": 3,
+      "acts": [
+        "lush-life"
+      ]
+    },
+    "icebox-28-beer-garden": {
+      "shows": 2,
+      "unlisted": 1,
+      "acts": [
+        "chris-baker"
+      ]
+    },
+    "chopes-bar-and-cafe": {
+      "shows": 1,
+      "unlisted": 1,
       "acts": []
     },
     "hacienda-de-mesilla": {
@@ -242,337 +240,36 @@
       "acts": [
         "sage-gentlewing"
       ]
+    },
+    "picacho-peak-brewing-co": {
+      "shows": 2,
+      "unlisted": 1,
+      "acts": [
+        "jezzika-sax"
+      ]
+    },
+    "the-game-2": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "taylor-paul"
+      ]
+    },
+    "la-posta-de-mesilla": {
+      "shows": 1,
+      "unlisted": 0,
+      "acts": [
+        "taylor-paul"
+      ]
+    },
+    "alma-darte-charter-high-school": {
+      "shows": 1,
+      "unlisted": 1,
+      "acts": []
     }
   },
   "list": [
     {
-      "date": "2026-10-29",
-      "venue": "madelyns-mesilla",
-      "acts": [
-        "chris-baker"
-      ]
-    },
-    {
-      "date": "2026-10-29",
-      "venue": "palacio-bar",
-      "acts": [
-        "saxattitude"
-      ]
-    },
-    {
-      "date": "2026-10-29",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-10-29",
-      "venue": "nm-vintage-wines",
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "madelyns-mesilla",
-      "acts": [
-        "santana-garcia"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "madelyns-mesilla",
-      "acts": [
-        "saxattitude"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "rio-grande-winery",
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "casa-el-camino",
-      "acts": [
-        "austin-jimmy-murphy"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "amaro-winery",
-      "acts": [
-        "cw-ayon"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "the-game-1",
-      "acts": [
-        "cm-adams"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "the-game-2",
-      "acts": [
-        "taylor-paul"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "nm-vintage-wines",
-      "acts": [
-        "papa-blue-and-the-king-bees"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "grounded-cafe",
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "valley-pizza",
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "chopes-bar-and-cafe",
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-10-30",
-      "venue": "palacio-bar",
-      "acts": [
-        "the-band"
-      ]
-    },
-    {
-      "date": "2026-10-30",
-      "venue": null,
-      "acts": [
-        "wildcard"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "madelyns-mesilla",
-      "acts": [
-        "calista"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "madelyns-mesilla",
-      "acts": []
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "rio-grande-winery",
-      "acts": []
-    },
-    {
-      "date": "2026-10-31",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-10-31",
-      "venue": null,
-      "acts": [
-        "sons-of-soul"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "sparkys-burgers-bbq-and-espresso",
-      "acts": [
-        "pizza-bones"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "sombra-antigua-vineyard-and-winery",
-      "acts": [
-        "the-575-band",
-        "triple-jack"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "zin-valle-vineyards",
-      "acts": [
-        "the-retroz"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "nm-vintage-wines",
-      "acts": []
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "sombra-antigua-vineyard-and-winery",
-      "acts": [
-        "the-575-band"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "picacho-peak-brewing-co",
-      "acts": []
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "valley-pizza",
-      "acts": []
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "sombra-antigua-vineyard-and-winery",
-      "acts": [
-        "triple-jack"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": null,
-      "acts": [
-        "kicks-band"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "la-posta-de-mesilla",
-      "acts": [
-        "cm-adams"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "nm-vintage-wines",
-      "acts": [
-        "flat-blak"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "the-game-1",
-      "acts": [
-        "the-ghetto-blasters"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": "palacio-bar",
-      "acts": [
-        "animmo"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": null,
-      "acts": [
-        "era-snow"
-      ]
-    },
-    {
-      "date": "2026-10-31",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "madelyns-mesilla",
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "rio-grande-winery",
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "zin-valle-vineyards",
-      "acts": [
-        "frank-zona-band"
-      ]
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "nm-vintage-wines",
-      "acts": [
-        "taylor-paul"
-      ]
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "sombra-antigua-vineyard-and-winery",
-      "acts": [
-        "the-retroz"
-      ]
-    },
-    {
-      "date": "2026-11-01",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "picacho-peak-brewing-co",
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": "blue-moon-bar-and-grill",
-      "acts": [
-        "chris-baker"
-      ]
-    },
-    {
-      "date": "2026-11-01",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-01",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-02",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-03",
-      "venue": null,
-      "acts": []
-    },
-    {
-      "date": "2026-11-04",
-      "venue": null,
-      "acts": []
-    },
-    {
       "date": "2026-11-05",
       "venue": "madelyns-mesilla",
       "acts": []
@@ -581,6 +278,18 @@
       "date": "2026-11-05",
       "venue": null,
       "acts": []
+    },
+    {
+      "date": "2026-11-05",
+      "venue": "palacio-bar",
+      "acts": []
+    },
+    {
+      "date": "2026-11-05",
+      "venue": "the-game-1",
+      "acts": [
+        "chris-baker"
+      ]
     },
     {
       "date": "2026-11-06",
@@ -609,8 +318,25 @@
     {
       "date": "2026-11-06",
       "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-06",
+      "venue": null,
       "acts": [
         "sage-gentlewing"
+      ]
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "amaro-winery",
+      "acts": []
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "nm-vintage-wines",
+      "acts": [
+        "saxattitude"
       ]
     },
     {
@@ -618,6 +344,35 @@
       "venue": "dry-point-distillers",
       "acts": [
         "cm-adams"
+      ]
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "elephant-ranch",
+      "acts": [
+        "rockabilly-strangers"
+      ]
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "valley-pizza",
+      "acts": []
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "blue-moon-bar-and-grill",
+      "acts": []
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "little-toad-creek",
+      "acts": []
+    },
+    {
+      "date": "2026-11-06",
+      "venue": "palacio-bar",
+      "acts": [
+        "dream-merchants"
       ]
     },
     {
@@ -646,8 +401,27 @@
     },
     {
       "date": "2026-11-07",
+      "venue": "rio-grande-winery",
+      "acts": []
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "sparkys-burgers-bbq-and-espresso",
+      "acts": [
+        "guitar-slim"
+      ]
+    },
+    {
+      "date": "2026-11-07",
       "venue": "zin-valle-vineyards",
       "acts": []
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "icebox-28-beer-garden",
+      "acts": [
+        "chris-baker"
+      ]
     },
     {
       "date": "2026-11-07",
@@ -663,10 +437,46 @@
     },
     {
       "date": "2026-11-07",
+      "venue": "dry-point-distillers",
+      "acts": []
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "nm-vintage-wines",
+      "acts": [
+        "guitar-slim"
+      ]
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "chopes-bar-and-cafe",
+      "acts": []
+    },
+    {
+      "date": "2026-11-07",
       "venue": "hacienda-de-mesilla",
       "acts": [
         "sage-gentlewing"
       ]
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "valley-pizza",
+      "acts": [
+        "highway-fm"
+      ]
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "blue-moon-bar-and-grill",
+      "acts": [
+        "moonshine-railroad"
+      ]
+    },
+    {
+      "date": "2026-11-07",
+      "venue": "palacio-bar",
+      "acts": []
     },
     {
       "date": "2026-11-08",
@@ -684,8 +494,39 @@
     },
     {
       "date": "2026-11-08",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-08",
+      "venue": "sparkys-burgers-bbq-and-espresso",
+      "acts": [
+        "guitar-slim"
+      ]
+    },
+    {
+      "date": "2026-11-08",
       "venue": "zin-valle-vineyards",
       "acts": []
+    },
+    {
+      "date": "2026-11-08",
+      "venue": "nm-vintage-wines",
+      "acts": [
+        "kat-crosby-and-the-rhythm-gators"
+      ]
+    },
+    {
+      "date": "2026-11-08",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-08",
+      "venue": "blue-moon-bar-and-grill",
+      "acts": [
+        "dream-merchants"
+      ]
     },
     {
       "date": "2026-11-08",
@@ -719,10 +560,259 @@
     },
     {
       "date": "2026-11-11",
+      "venue": "madelyns-mesilla",
+      "acts": []
+    },
+    {
+      "date": "2026-11-11",
       "venue": "picacho-hills-country-club",
       "acts": [
         "sage-gentlewing"
       ]
+    },
+    {
+      "date": "2026-11-12",
+      "venue": "madelyns-mesilla",
+      "acts": []
+    },
+    {
+      "date": "2026-11-12",
+      "venue": "palacio-bar",
+      "acts": []
+    },
+    {
+      "date": "2026-11-12",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "madelyns-mesilla",
+      "acts": [
+        "santana-garcia"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "madelyns-mesilla",
+      "acts": [
+        "groove-runner"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "rio-grande-winery",
+      "acts": [
+        "burt-ferguson"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "picacho-peak-brewing-co",
+      "acts": [
+        "jezzika-sax"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "amaro-winery",
+      "acts": [
+        "dusty-low"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "the-game-2",
+      "acts": [
+        "taylor-paul"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "nm-vintage-wines",
+      "acts": []
+    },
+    {
+      "date": "2026-11-13",
+      "venue": null,
+      "acts": [
+        "the-band"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "little-toad-creek",
+      "acts": [
+        "chris-baker"
+      ]
+    },
+    {
+      "date": "2026-11-13",
+      "venue": "palacio-bar",
+      "acts": [
+        "animmo"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "madelyns-mesilla",
+      "acts": [
+        "sage-gentlewing"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "madelyns-mesilla",
+      "acts": [
+        "flat-blak"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "rio-grande-winery",
+      "acts": []
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "sparkys-burgers-bbq-and-espresso",
+      "acts": [
+        "cl-smith"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "zin-valle-vineyards",
+      "acts": []
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "picacho-peak-brewing-co",
+      "acts": []
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "icebox-28-beer-garden",
+      "acts": []
+    },
+    {
+      "date": "2026-11-14",
+      "venue": null,
+      "acts": [
+        "daniel-sanchez"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "nm-vintage-wines",
+      "acts": [
+        "rockabilly-strangers"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "amaro-winery",
+      "acts": [
+        "jackal"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "valley-pizza",
+      "acts": [
+        "cm-adams"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "la-posta-de-mesilla",
+      "acts": [
+        "taylor-paul"
+      ]
+    },
+    {
+      "date": "2026-11-14",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-14",
+      "venue": "palacio-bar",
+      "acts": [
+        "whiskey-river"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "madelyns-mesilla",
+      "acts": [
+        "saxattitude"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "madelyns-mesilla",
+      "acts": []
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "rio-grande-winery",
+      "acts": [
+        "jack-hansen"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "sparkys-burgers-bbq-and-espresso",
+      "acts": [
+        "rockabilly-strangers"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "zin-valle-vineyards",
+      "acts": [
+        "lush-life"
+      ]
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "nm-vintage-wines",
+      "acts": []
+    },
+    {
+      "date": "2026-11-15",
+      "venue": "alma-darte-charter-high-school",
+      "acts": []
+    },
+    {
+      "date": "2026-11-15",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-15",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-16",
+      "venue": "nm-vintage-wines",
+      "acts": []
+    },
+    {
+      "date": "2026-11-17",
+      "venue": null,
+      "acts": []
+    },
+    {
+      "date": "2026-11-18",
+      "venue": null,
+      "acts": []
     }
   ]
 }
