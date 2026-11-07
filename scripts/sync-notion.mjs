@@ -252,7 +252,7 @@ async function main() {
     const photosOk = m._photosOk;
     m.bandMembers = [];
     for (const x of list) {
-      m.bandMembers.push({ name: x.name, plays: x.plays, bio: x.bio, solo: x.solo, photo: photosOk ? await keepPhoto(x._src, `${m.slug}/member-${x._id.slice(0, 8)}`, 400) : '' });
+      m.bandMembers.push({ name: x.name, plays: x.plays, bio: x.bio, solo: x.solo, photo: photosOk ? await keepPhoto(x._src, `${m.slug}/member-${x._id}`, 400) : '' });
     }
     // Older links (Members / Member Of between two musician records) still work
     m.members = m._members.map((id) => idToSlug.get(id)).filter(Boolean);
