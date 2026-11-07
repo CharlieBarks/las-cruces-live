@@ -213,6 +213,14 @@ export async function handleSubmission(payload, env) {
   }
   await joinNewsletter(env, properties);
   await rebuild(env.PREVIEW_HOOK);
+  const act = asText(get('Act or band name')) || 'Untitled';
+  if (!/^test\b/i.test(act)) {
+    await tellCharlie(env, `new act to approve: ${act}`, [
+      `${act} just filled out the form${asText(get('Your name')) ? ` (${asText(get('Your name'))})` : ''}.`,
+      'Its preview page is ready in about 2 minutes. Approve it from the review queue.',
+      '', `Notion record: ${notionLink(page.id)}`,
+    ]);
+  }
   return { status: 'created', id, notion: page.url, members: members.length };
 }
 
@@ -249,6 +257,10 @@ export default {
     if (url.pathname === '/claim') return handleClaim(request, env, ctx);
     if (url.pathname === '/notify' && request.method === 'POST' && env.INTAKE_KEY && url.searchParams.get('key') === env.INTAKE_KEY) {
       try {
+        if (url.searchParams.get('test') === 'charlie') {
+          await sendNotice(env, { to: CHARLIE_INBOX, from: NOTIFY_FROM, subject: 'LC Live: test heads-up', text: `This is what your Las Cruces Live heads-ups look like. You'll get one when a new act signs up, when someone claims a page, and when an act changes their live page.\n\nReview queue: ${REVIEW_URL}` });
+          return Response.json({ ok: true, test: 'charlie' });
+        }
         if (url.searchParams.get('test')) {
           await sendNotice(env, notifyMessage('preview', 'TEST Notification Check', notionLink('41154e00081a8152987fded7b558a87a'), 'nobody@example.com', `${PREVIEW_ORIGIN}/`, true));
           return Response.json({ ok: true, test: true });
@@ -310,6 +322,17 @@ function notifyMessage(kind, act, record, to, link, test = false) {
 async function sendNotice(env, msg) {
   if (!env.EMAIL) throw new Error('The EMAIL binding is missing');
   return env.EMAIL.send(msg);
+}
+
+// Heads-ups for Charlie when something needs him: a new act, a claim to check, edits waiting.
+const CHARLIE_INBOX = 'livelovelascruces@gmail.com';
+const REVIEW_URL = `${PREVIEW_ORIGIN}/review/`;
+async function tellCharlie(env, subject, lines) {
+  try {
+    await sendNotice(env, { to: CHARLIE_INBOX, from: NOTIFY_FROM, subject: `LC Live: ${subject}`, text: [...lines, '', `Review queue: ${REVIEW_URL}`].join('\n') });
+  } catch (err) {
+    console.error(`tellCharlie failed: ${err.message}`);
+  }
 }
 
 let notifyRunning = null;
@@ -421,12 +444,23 @@ async function handleClaim(request, env, ctx) {
         await giveEditLink(env, id, page, email);
       }
       console.log(JSON.stringify({ claim: 'matched', id }));
+      ctx.waitUntil(tellCharlie(env, `${plain(page.properties[TITLE])} claimed their page`, [
+        `${name} <${email}> claimed ${plain(page.properties[TITLE])}. The email matched what's on file, so their private edit link is on its way. Nothing to do.`,
+        "If they change their live page, you'll get another email to approve the changes.",
+        '', `Notion record: ${notionLink(id)}`,
+      ]));
     } else {
       const day = new Date().toISOString().slice(0, 10);
       await env.PHOTOS?.put(`_claim/${id}`, JSON.stringify({ name, email, role, note, at: Date.now() }), { expirationTtl: 60 * 86400 });
       await notion(env, `pages/${id}`, { properties: { 'Claim Request': { rich_text: chunks(`${name} <${email}>${role ? ` · ${role}` : ''} · ${day}${note ? `\n${note}` : ''}`) } } }, 'PATCH');
       ctx.waitUntil(rebuild(env.PREVIEW_HOOK).catch(() => {}));
       console.log(JSON.stringify({ claim: 'to-review', id }));
+      ctx.waitUntil(tellCharlie(env, `claim to check: ${plain(page.properties[TITLE])}`, [
+        `${name} <${email}>${role ? ` (${role})` : ''} wants to claim ${plain(page.properties[TITLE])}, but that email isn't on file.`,
+        note ? `Their note: ${note}` : '',
+        'If they check out, tap "Send edit link" on their page in the review queue. Otherwise dismiss it.',
+        '', `Notion record: ${notionLink(id)}`,
+      ].filter((l, i) => l || i > 1)));
     }
     return reply(done);
   } catch (err) {
@@ -761,6 +795,13 @@ export class Admin extends WorkerEntrypoint {
           'Pending Edits On': { date: { start: record.at.slice(0, 10) } },
         } }, 'PATCH');
         await rebuild(this.env.PREVIEW_HOOK);
+        if (!readPending(page)) {
+          await tellCharlie(this.env, `edits to approve: ${plain(page.properties[TITLE])}`, [
+            `${plain(page.properties[TITLE])} changed their live page: ${[...Object.keys(merged.fields), ...['photo', 'gallery', 'members'].filter((k) => k in merged)].join(', ')}.`,
+            'Approve or discard the changes from the review queue (about 2 minutes from now).',
+            '', `Notion record: ${notionLink(id)}`,
+          ]);
+        }
         return { ok: true, pending: true };
       }
 
