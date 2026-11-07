@@ -100,6 +100,13 @@ async function keepPhoto(src, dest, size = 1600) {
   }
 }
 
+// Booking contact (email or link) -> where the Book button goes
+function bookingHref(v = '') {
+  const t = v.trim().replace(/^mailto:/i, '');
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) return `mailto:${t}?subject=${encodeURIComponent('Booking inquiry (found you on Las Cruces Live)')}`;
+  return cleanUrl(t);
+}
+
 // What an act changed on their live page, summarized for the Review queue (preview only)
 function pendingSummary(raw) {
   if (!raw) return null;
@@ -207,7 +214,7 @@ async function main() {
       photo, thumb, photoCredit: photo ? text(m, 'Photo Credit') : '',
       gallery,
       song: cleanUrl(text(m, 'Song Link')),
-      bookable: Boolean(email(m, 'Booking Email')),
+      booking: bookingHref(text(m, 'Booking Link')),
       links: {
         website,
         facebook: cleanUrl(text(m, 'Facebook')) || c.facebook || '',

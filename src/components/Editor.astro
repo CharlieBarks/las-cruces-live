@@ -32,11 +32,11 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
         <p class="hint">A main photo shows big at the top of your page. Wide (landscape) photos look best. Add up to 8 more below it.</p>
         <div class="ed-photo">
           <div class="ed-main"></div>
-          <label class="file btn btn-line">Upload a main photo<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="main" hidden /></label>
+          <label class="file btn btn-line">Upload a main photo<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="main" class="vh" /></label>
         </div>
         <div class="ed-fields" data-group="photo"></div>
         <ul class="ed-gallery"></ul>
-        <label class="file btn btn-line">Add photos<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-upload="gallery" hidden /></label>
+        <label class="file btn btn-line">Add photos<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-upload="gallery" class="vh" /></label>
       </fieldset>
       <fieldset class="ed-band" hidden>
         <legend>Band members</legend>
@@ -82,7 +82,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     'Image Permission': ['I own these photos (or have permission) and allow Las Cruces Live and Live Love Las Cruces to show them on the site, in the newsletter and on social media, with credit.', 'photo'],
     Website: ['Website', 'links'], Instagram: ['Instagram', 'links'], Facebook: ['Facebook', 'links'], YouTube: ['YouTube', 'links'],
     'Song Link': ['A song people can play', 'links', 'One Spotify, YouTube, SoundCloud or Bandcamp link. Spotify, YouTube and SoundCloud play right on your page.'],
-    'Booking Email': ['Booking email', 'links', 'Private. Never shown on the site.'],
+    'Booking Link': ['How should people book you?', 'links', 'Your booking email or a link to your booking page. It shows on your page as a big Book button.'],
   };
   function el(tag, attrs, kids) {
     var e = document.createElement(tag);
@@ -108,11 +108,11 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       wrap.appendChild(el('label', { class: 'check', for: id }, [cb, el('span', { text: meta[0] })]));
       return wrap;
     }
-    wrap.appendChild(el('label', { for: id, text: meta[0] }));
-    if (meta[2]) wrap.appendChild(el('p', { class: 'hint', text: meta[2] }));
+    wrap.appendChild(el('label', { for: id, id: id + '-l', text: meta[0] }));
+    if (meta[2]) wrap.appendChild(el('p', { class: 'hint', id: id + '-h', text: meta[2] }));
     var input;
     if (f.type === 'multi_select') {
-      input = el('div', { class: 'chips', id: id, role: 'group' });
+      input = el('div', { class: 'chips', id: id, role: 'group', 'aria-labelledby': id + '-l' });
       (f.options || []).forEach(function (o) {
         var c = el('input', { type: 'checkbox', value: o }); c.checked = (f.value || []).indexOf(o) > -1;
         c.addEventListener('change', function () {
@@ -133,6 +133,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       input.value = f.value || '';
       input.addEventListener('input', function () { f.value = input.value; });
     }
+    if (meta[2]) input.setAttribute('aria-describedby', id + '-h');
     wrap.appendChild(input);
     return wrap;
   }
@@ -152,39 +153,40 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   function renderGallery() {
     var ul = root.querySelector('.ed-gallery'); ul.innerHTML = '';
     state.gallery.forEach(function (g, i) {
-      var cap = el('input', { type: 'text', placeholder: 'Caption (optional)', maxlength: 200 }); cap.value = g.caption || '';
+      var cap = el('input', { type: 'text', placeholder: 'Caption (optional)', maxlength: 200, 'aria-label': 'Caption for photo ' + (i + 1) }); cap.value = g.caption || '';
       cap.addEventListener('input', function () { g.caption = cap.value; });
-      var up = el('button', { type: 'button', class: 'linkish', text: '↑', 'aria-label': 'Move up' });
+      var up = el('button', { type: 'button', class: 'linkish', text: '↑', 'aria-label': 'Move photo ' + (i + 1) + ' up' });
       up.addEventListener('click', function () { if (i) { state.gallery.splice(i - 1, 0, state.gallery.splice(i, 1)[0]); renderGallery(); } });
-      var rm = el('button', { type: 'button', class: 'linkish', text: 'Remove' });
+      var rm = el('button', { type: 'button', class: 'linkish', text: 'Remove', 'aria-label': 'Remove photo ' + (i + 1) });
       rm.addEventListener('click', function () { state.gallery.splice(i, 1); renderGallery(); });
-      ul.appendChild(el('li', {}, [el('img', { src: g.url, alt: '' }), cap, el('div', { class: 'row' }, [up, rm])]));
+      ul.appendChild(el('li', {}, [el('img', { src: g.url, alt: 'Photo ' + (i + 1) }), cap, el('div', { class: 'row' }, [up, rm])]));
     });
   }
   function renderMembers() {
     var ol = root.querySelector('.ed-members'); ol.innerHTML = '';
     state.members.forEach(function (p, i) {
-      var name = el('input', { type: 'text', placeholder: 'Name', maxlength: 80, 'aria-label': 'Name' }); name.value = p.name || '';
+      var who = p.name || 'band member ' + (i + 1);
+      var name = el('input', { type: 'text', placeholder: 'Name', maxlength: 80, 'aria-label': 'Name of band member ' + (i + 1) }); name.value = p.name || '';
       name.addEventListener('input', function () { p.name = name.value; });
-      var plays = el('input', { type: 'text', placeholder: 'What they play, like: drums, backing vocals', maxlength: 120, 'aria-label': 'What they play' }); plays.value = p.plays || '';
+      var plays = el('input', { type: 'text', placeholder: 'What they play, like: drums, backing vocals', maxlength: 120, 'aria-label': 'What ' + who + ' plays' }); plays.value = p.plays || '';
       plays.addEventListener('input', function () { p.plays = plays.value; });
-      var bio = el('textarea', { rows: 2, placeholder: 'A line or two about them (optional)', maxlength: 400, 'aria-label': 'Short bio' }); bio.value = p.bio || '';
+      var bio = el('textarea', { rows: 2, placeholder: 'A line or two about them (optional)', maxlength: 400, 'aria-label': 'Short bio for ' + who }); bio.value = p.bio || '';
       bio.addEventListener('input', function () { p.bio = bio.value; });
-      var em = el('input', { type: 'email', placeholder: 'Their email (optional, private)', maxlength: 200, 'aria-label': 'Email' }); em.value = p.email || '';
+      var em = el('input', { type: 'email', placeholder: 'Their email (optional, private)', maxlength: 200, 'aria-label': 'Email for ' + who + ' (private)' }); em.value = p.email || '';
       em.addEventListener('input', function () { p.email = em.value; });
-      var solo = el('select', { 'aria-label': 'Also plays solo as' });
+      var solo = el('select', { 'aria-label': 'Does ' + who + ' have a solo page here?' });
       solo.appendChild(el('option', { value: '', text: "Doesn't have a solo page here" }));
       cfg.soloChoices.forEach(function (c) { var o = el('option', { value: c.id, text: 'Also plays solo as: ' + c.name }); if (c.id === p.solo) o.selected = true; solo.appendChild(o); });
       solo.addEventListener('change', function () { p.solo = solo.value; });
       var face = p.photo ? el('img', { src: p.photo, alt: '' }) : el('span', { class: 'face', text: (p.name || '?').slice(0, 1).toUpperCase() });
-      var file = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', hidden: '' });
+      var file = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'vh', 'aria-label': (p.photo ? 'Change photo for ' : 'Add photo for ') + who });
       file.addEventListener('change', function () { if (file.files[0]) upload(file.files[0], 600).then(function (u) { if (u) { p.photo = u; renderMembers(); } }); });
       var pick = el('label', { class: 'linkish', text: p.photo ? 'Change photo' : 'Add photo' }, [file]);
-      var rmPhoto = p.photo ? el('button', { type: 'button', class: 'linkish', text: 'Remove photo' }) : null;
+      var rmPhoto = p.photo ? el('button', { type: 'button', class: 'linkish', text: 'Remove photo', 'aria-label': 'Remove photo of ' + who }) : null;
       if (rmPhoto) rmPhoto.addEventListener('click', function () { p.photo = ''; renderMembers(); });
-      var up = el('button', { type: 'button', class: 'linkish', text: '↑', 'aria-label': 'Move up' });
+      var up = el('button', { type: 'button', class: 'linkish', text: '↑', 'aria-label': 'Move ' + who + ' up' });
       up.addEventListener('click', function () { if (i) { state.members.splice(i - 1, 0, state.members.splice(i, 1)[0]); renderMembers(); } });
-      var rm = el('button', { type: 'button', class: 'linkish danger', text: 'Remove from band' });
+      var rm = el('button', { type: 'button', class: 'linkish danger', text: 'Remove from band', 'aria-label': 'Remove ' + who + ' from the band' });
       rm.addEventListener('click', function () { if (confirmRemove(p)) { state.members.splice(i, 1); renderMembers(); } });
       ol.appendChild(el('li', {}, [
         el('div', { class: 'mface' }, [face, pick, rmPhoto]),

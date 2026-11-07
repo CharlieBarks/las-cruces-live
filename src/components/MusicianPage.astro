@@ -33,6 +33,8 @@ const description = m.bio
   : `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from the Las Cruces music scene playing ${genreText}. Links, band info and where they're playing this week and next.`;
 const initials = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 const claimed = m.claimed || Boolean(m.photo || m.bio);
+const claimUrl = `/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`;
+const bookExternal = m.booking && !m.booking.startsWith('mailto:');
 ---
 <Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable={!share} noindex={share}>
   {PREVIEW && !share && <PreviewBar m={m} />}
@@ -43,7 +45,7 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
   <section class={`wrap top${m.photo ? ' has-photo' : ''}`}>
     {m.photo && (
       <figure class="feature">
-        <a class="mat" href={m.photo} target="_blank" rel="noopener" aria-label={`View larger photo of ${m.name}`}>
+        <a class="mat" href={m.photo} target="_blank" rel="noopener" aria-label={`View larger photo of ${m.name} (opens in a new tab)`}>
           <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} fetchpriority="high" data-pagefind-meta="image[src]" />
         </a>
         {m.photoCredit && <figcaption>{m.photoCredit}</figcaption>}
@@ -64,12 +66,13 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
         </figure>
       )}
       {m.bio && <div class="bio">{m.bio.split(/\n+/).map((para) => <p>{para}</p>)}</div>}
-      {links.length > 0 ? (
+      {(links.length > 0 || m.booking) ? (
         <div class="links btns">
+          {m.booking && <a class="btn btn-chile book" href={m.booking} rel={bookExternal ? 'noopener' : undefined}>Book {m.name}</a>}
           {links.map(([k, name]) => <a class="btn btn-line" href={m.links[k]} rel="noopener">{name}</a>)}
         </div>
       ) : (
-        <p class="muted" data-pagefind-ignore>No links yet. <a href={`/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`}>Are you {m.name}? Add yours.</a></p>
+        <p class="muted" data-pagefind-ignore>No links yet. <a href={claimUrl}>Are you {m.name}? Add yours.</a></p>
       )}
     </div>
   </section>
@@ -116,7 +119,7 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
             <h2>Photos</h2>
             <ul class={`gallery n${Math.min(gallery.length, 5)}`}>
               {gallery.map((g) => (
-                <li><a href={g.src} target="_blank" rel="noopener"><img src={g.src} alt={g.caption || `${m.name} photo`} loading="lazy" />{g.caption && <span>{g.caption}</span>}</a></li>
+                <li><a href={g.src} target="_blank" rel="noopener" aria-label={`${g.caption || `${m.name} photo`}, full size (opens in a new tab)`}><img src={g.src} alt={g.caption || `${m.name} photo`} loading="lazy" />{g.caption && <span aria-hidden="true">{g.caption}</span>}</a></li>
               ))}
             </ul>
           </section>
@@ -124,6 +127,19 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
       </div>
 
       <div class="side stack">
+        <aside class="booking" aria-labelledby="book-title" data-pagefind-ignore>
+          <h2 id="book-title" class="book-head">Book {m.name} for your event</h2>
+          {m.booking ? (
+            <>
+              <p>Venues, breweries, weddings, backyard parties: reach out straight to {m.type === 'Band' ? 'the band' : m.name}. No middleman, no fee from us.</p>
+              <a class="btn btn-chile" href={m.booking} rel={bookExternal ? 'noopener' : undefined}>{m.booking.startsWith('mailto:') ? `Email ${m.name}` : `Book ${m.name}`}</a>
+            </>
+          ) : links.length > 0 ? (
+            <p>Want them at your venue or party? Message them through their {listJoin(links.map(([, n]) => n))} above. {!share && <a href={claimUrl}>Are you {m.name}? Add a booking contact.</a>}</p>
+          ) : (
+            <p>No booking contact yet. {!share && <a href={claimUrl}>Are you {m.name}? Add one so venues can find you.</a>}</p>
+          )}
+        </aside>
         {isPlaying(m) ? (
           <ThisWeek
             heading={where.length ? `${m.name} is playing ${listJoin(where)} ${playingWhen(m)}.` : `${m.name} is on stage ${playingWhen(m)}.`}
@@ -145,8 +161,8 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
             <p class="claim-head">Is this you?</p>
             <p>{claimed
               ? 'Need to change something on this page? Ask for your private edit link.'
-              : 'Claim this page, free. Add photos, your story, a song people can play and your band members, and change it anytime.'}</p>
-            <a class="btn btn-chile" href={`/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`}>{claimed ? 'Edit this page' : 'Claim this page'}</a>
+              : 'Claim this page, free. Add photos, your story, a song, your band members and a Book button so venues can reach you.'}</p>
+            <a class="btn btn-chile" href={claimUrl}>{claimed ? 'Edit this page' : 'Claim this page'}</a>
           </aside>
         )}
       </div>
@@ -206,7 +222,12 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
   .gallery li:first-child img { aspect-ratio: 16 / 9; }
   .gallery.n2 li:first-child img, .gallery.n4 li:first-child img { aspect-ratio: 4 / 3; }
   .gallery a:hover img { transform: scale(1.03); }
-  .gallery span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 8px; font-size: 0.85rem; color: #fff; background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0)); }
+  .gallery span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 8px; font-size: 0.85rem; color: #fff; background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 40%, rgba(0, 0, 0, 0)); text-shadow: 0 1px 2px #000; }
+  @media (prefers-reduced-motion: reduce) { .gallery img { transition: none; } .gallery a:hover img { transform: none; } }
+  .booking { background: var(--night); color: #fff; border-radius: 12px; padding: 22px; display: grid; gap: 12px; justify-items: start; }
+  .booking .book-head { font: 800 1.6rem/1.05 var(--display); color: var(--gold); }
+  .booking a:not(.btn) { color: var(--gold); }
+  .book { font-size: 1.05rem; }
   .shows-cta { padding: 14px 18px; border-left: 4px solid var(--chile); background: var(--paper); border-radius: 8px; }
   .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 10px; justify-items: start; }
   .claim-head { font: 800 1.5rem/1 var(--display); }

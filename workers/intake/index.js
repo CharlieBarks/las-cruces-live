@@ -109,6 +109,15 @@ const fixUrl = (s, kind) => {
   return /^https?:\/\//i.test(s) ? s : `https://${s.replace(/^\/+/, '')}`;
 };
 
+// Booking contact as typed (email or link) -> a clean email or https:// link, or '' if it's neither
+export function bookingLink(v) {
+  const t = asText(v).replace(/^mailto:/i, '').trim();
+  if (!t) return '';
+  if (isEmail(t)) return t.toLowerCase();
+  const u = /^https?:\/\//i.test(t) ? t : /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t) ? `https://${t}` : '';
+  try { return u && new URL(u).hostname.includes('.') ? u : ''; } catch { return ''; }
+}
+
 // "Maria Lopez - lead vocals, rhythm guitar" (also –, —, : or a comma after the name)
 export function parseMembers(text) {
   return String(text || '').split(/\r?\n/).map((l) => l.trim().replace(/^[-*•\d.)\s]+/, '')).filter(Boolean).slice(0, 15).map((line) => {
@@ -124,6 +133,7 @@ export function musicianProperties(get, meta) {
   const kind = asText(get('Solo or band?'));
   const heard = asText(get('How did you hear about Las Cruces Live?'));
   const photo = fileUrls(get('Main photo (optional)'));
+  const more = fileUrls(get('More photos (optional)')).slice(0, 8);
   return clean({
     [TITLE]: P.title(name),
     'Site Status': P.select('Submitted'),
@@ -132,6 +142,7 @@ export function musicianProperties(get, meta) {
     Genre: P.text(asText(get('Your sound in a few words'))),
     Bio: P.text(asText(get('About you (optional)'))),
     Photo: P.files(photo, 'photo'),
+    Gallery: P.files(more, 'gallery'),
     'Photo Credit': P.text(asText(get('Photo credit (optional)'))),
     'Image Permission': P.check(isChecked(get('Photo permission'))),
     Website: P.url(fixUrl(get('Website'))),
@@ -143,8 +154,9 @@ export function musicianProperties(get, meta) {
     'Submitter Email': P.email(asText(get('Your email'))),
     // Whoever filled out the form owns the page: their edit link goes here.
     'Owner Email': P.email(asText(get('Your email'))),
-    Email: P.email(asText(get('Booking email, if different (optional)')) || asText(get('Your email'))),
-    'Booking Email': P.email(asText(get('Booking email, if different (optional)'))),
+    Email: P.email(asText(get('Your email'))),
+    // Public: shown as the Book button
+    'Booking Link': P.text(bookingLink(get('How should people book you? (optional)'))),
     'Newsletter Opt-in': P.check(isChecked(get('Newsletter'))),
     'Heard About Us': P.text(heard),
     'Form Notes': P.text([
@@ -345,7 +357,7 @@ async function turnstileOk(env, token, ip) {
 
 // ---------- Editor: fields, photos and band members ----------
 // Fields anyone with the private link can change. Everything else stays Charlie's (in Notion).
-const EDITABLE = [TITLE, 'Type', 'Genre', 'Genres (checklist)', 'Bio', 'Website', 'Instagram', 'Facebook', 'YouTube', 'Song Link', 'Booking Email', 'Photo Credit', 'Image Permission'];
+const EDITABLE = [TITLE, 'Type', 'Genre', 'Genres (checklist)', 'Bio', 'Website', 'Instagram', 'Facebook', 'YouTube', 'Song Link', 'Booking Link', 'Photo Credit', 'Image Permission'];
 const MAX_GALLERY = 8;
 const MAX_MEMBERS = 15;
 const sameToken = (a, b) => {
@@ -524,7 +536,16 @@ export class Admin extends WorkerEntrypoint {
       const opts = def[def.type]?.options?.map((o) => o.name) || [];
       switch (def.type) {
         case 'title': props[name] = { title: chunks(clip(value, 120).trim() || 'Untitled') }; break;
-        case 'rich_text': props[name] = { rich_text: value ? chunks(clip(value, name === 'Genre' ? 160 : 1500)) : [] }; break;
+        case 'rich_text': {
+          if (name === 'Booking Link') {
+            const b = bookingLink(value);
+            if (value && !b) throw new UserError('The booking contact should be an email address or a web link.');
+            props[name] = { rich_text: b ? chunks(b) : [] };
+            break;
+          }
+          props[name] = { rich_text: value ? chunks(clip(value, name === 'Genre' ? 160 : 1500)) : [] };
+          break;
+        }
         case 'select': props[name] = { select: value && opts.includes(value) ? { name: value } : null }; break;
         case 'multi_select': props[name] = { multi_select: (Array.isArray(value) ? value : []).filter((v) => opts.includes(v)).slice(0, 5).map((v) => ({ name: v })) }; break;
         case 'checkbox': props[name] = { checkbox: Boolean(value) }; break;
