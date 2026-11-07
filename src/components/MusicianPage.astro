@@ -1,0 +1,238 @@
+---
+// One act's page. Used by /musicians/<slug>/ and, on the preview site, by the private edit link
+// (/share/<token>/), which adds the editor on top.
+import Layout from '../layouts/Layout.astro';
+import ThisWeek from './ThisWeek.astro';
+import ActList from './ActList.astro';
+import PreviewBar from './PreviewBar.astro';
+import Editor from './Editor.astro';
+import {
+  SITE, PREVIEW, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
+  genreName, listJoin, musicianJsonLd, songEmbed, songService,
+} from '../lib/site.js';
+
+const { m, share = false } = Astro.props;
+const label = typeLabel(m);
+const where = playingVenues(m).map((v) => v.name);
+const members = (m.members || []).map(musicianBySlug).filter(Boolean);
+const memberOf = (m.memberOf || []).map(musicianBySlug).filter(Boolean);
+const bandMembers = m.bandMembers || [];
+const gallery = m.gallery || [];
+const LINKS = [['website', 'Website'], ['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube']];
+const links = LINKS.filter(([k]) => m.links[k]);
+const embed = songEmbed(m.song);
+const similar = musicians
+  .filter((x) => x.slug !== m.slug && x.genres.some((g) => m.genres.includes(g)))
+  .map((x) => ({ x, score: x.genres.filter((g) => m.genres.includes(g)).length }))
+  .sort((a, b) => b.score - a.score || a.x.name.localeCompare(b.x.name))
+  .slice(0, 6)
+  .map((s) => s.x);
+const genreText = m.genres.length ? listJoin(m.genres.map((g) => genreName(g).toLowerCase())) : 'live music';
+const description = m.bio
+  ? `${m.name}: ${m.bio}`
+  : `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from the Las Cruces music scene playing ${genreText}. Links, band info and where they're playing this week and next.`;
+const initials = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+const claimed = m.claimed || Boolean(m.photo || m.bio);
+const claimUrl = `/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`;
+const bookExternal = m.booking && !m.booking.startsWith('mailto:');
+---
+<Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable={!share} noindex={share}>
+  {PREVIEW && !share && <PreviewBar m={m} />}
+  {share && <Editor m={m} />}
+  <div class="wrap">
+    <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
+  </div>
+  <section class={`wrap top${m.photo ? ' has-photo' : ''}`}>
+    {m.photo && (
+      <figure class="feature">
+        <a class="mat" href={m.photo} target="_blank" rel="noopener" aria-label={`View larger photo of ${m.name} (opens in a new tab)`}>
+          <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} fetchpriority="high" data-pagefind-meta="image[src]" />
+        </a>
+        {m.photoCredit && <figcaption>{m.photoCredit}</figcaption>}
+      </figure>
+    )}
+    <div class="head">
+      <div class="tags" aria-label="Genres">
+        {isPlaying(m) && <span class="playing">{playingLabel(m)}</span>}
+        {m.genres.map((g) => <a class="tag" href={`/genres/${g}/`}>{genreName(g)}</a>)}
+      </div>
+      <div>
+        <h1 data-pagefind-meta="title">{m.name}</h1>
+        <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
+      </div>
+      {m.sound && (
+        <figure class="sound">
+          <blockquote>{m.sound.replace(/\.$/, '')}</blockquote>
+        </figure>
+      )}
+      {m.bio && <div class="bio">{m.bio.split(/\n+/).map((para) => <p>{para}</p>)}</div>}
+      {(links.length > 0 || m.booking) ? (
+        <div class="links btns">
+          {m.booking && <a class="btn btn-chile book" href={m.booking} rel={bookExternal ? 'noopener' : undefined}>Book {m.name}</a>}
+          {links.map(([k, name]) => <a class="btn btn-line" href={m.links[k]} rel="noopener">{name}</a>)}
+        </div>
+      ) : (
+        <p class="muted" data-pagefind-ignore>No links yet. <a href={claimUrl}>Are you {m.name}? Add yours.</a></p>
+      )}
+    </div>
+  </section>
+  <div class="wrap">
+    <article class="grid">
+      <div class="main stack">
+        {m.song && (
+          <section class="song" aria-label="Listen">
+            <h2>Give it a listen</h2>
+            {embed ? (
+              embed.kind === 'youtube'
+                ? <div class="video"><iframe src={embed.src} title={`${m.name} on YouTube`} loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+                : <iframe class="player" src={embed.src} height={embed.height} title={`${m.name} on ${songService(m.song)}`} loading="lazy" allow="encrypted-media"></iframe>
+            ) : (
+              <a class="btn btn-line" href={m.song} rel="noopener">Listen on {songService(m.song)}</a>
+            )}
+          </section>
+        )}
+
+        {bandMembers.length > 0 && (
+          <section class="band" aria-labelledby="band-title">
+            <h2 id="band-title">Meet the band</h2>
+            <ul class="people">
+              {bandMembers.map((p) => (
+                <li>
+                  {p.photo ? <img src={p.photo} alt={p.name} loading="lazy" /> : <span class="face" aria-hidden="true">{initials(p.name)}</span>}
+                  <div>
+                    <p class="who">{p.name}</p>
+                    {p.plays && <p class="plays">{p.plays}</p>}
+                    {p.bio && <p class="pbio">{p.bio}</p>}
+                    {p.solo && musicianBySlug(p.solo) && <a class="solo" href={`/musicians/${p.solo}/`}>Also plays solo →</a>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {members.length > 0 && <p><strong>Members:</strong> {members.map((x, i) => <>{i > 0 && ', '}<a href={`/musicians/${x.slug}/`}>{x.name}</a></>)}</p>}
+        {memberOf.length > 0 && <p><strong>Also plays with:</strong> {memberOf.map((x, i) => <>{i > 0 && ', '}<a href={`/musicians/${x.slug}/`}>{x.name}</a></>)}</p>}
+
+        {gallery.length > 0 && (
+          <section class="photos" aria-label="Photos">
+            <h2>Photos</h2>
+            <ul class={`gallery n${Math.min(gallery.length, 5)}`}>
+              {gallery.map((g) => (
+                <li><a href={g.src} target="_blank" rel="noopener" aria-label={`${g.caption || `${m.name} photo`}, full size (opens in a new tab)`}><img src={g.src} alt={g.caption || `${m.name} photo`} loading="lazy" />{g.caption && <span aria-hidden="true">{g.caption}</span>}</a></li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <div class="side stack">
+        <aside class="booking" aria-labelledby="book-title" data-pagefind-ignore>
+          <h2 id="book-title" class="book-head">Book {m.name} for your event</h2>
+          {m.booking ? (
+            <>
+              <p>Venues, breweries, weddings, backyard parties: reach out straight to {m.type === 'Band' ? 'the band' : m.name}. No middleman, no fee from us.</p>
+              <a class="btn btn-chile" href={m.booking} rel={bookExternal ? 'noopener' : undefined}>{m.booking.startsWith('mailto:') ? `Email ${m.name}` : `Book ${m.name}`}</a>
+            </>
+          ) : links.length > 0 ? (
+            <p>Want them at your venue or party? Message them through their {listJoin(links.map(([, n]) => n))} above. {!share && <a href={claimUrl}>Are you {m.name}? Add a booking contact.</a>}</p>
+          ) : (
+            <p>No booking contact yet. {!share && <a href={claimUrl}>Are you {m.name}? Add one so venues can find you.</a>}</p>
+          )}
+        </aside>
+        {isPlaying(m) ? (
+          <ThisWeek
+            heading={where.length ? `${m.name} is playing ${listJoin(where)} ${playingWhen(m)}.` : `${m.name} is on stage ${playingWhen(m)}.`}
+            when={playingWhen(m, true)}
+            source={`musician_${m.slug}`}
+          />
+        ) : (
+          <ThisWeek
+            heading={`Catch ${m.name} live.`}
+            body="When they're booked, they'll be in the Thursday Live Music issue with every other show in town."
+            source={`musician_${m.slug}`}
+          />
+        )}
+        <aside class="shows-cta" data-pagefind-ignore>
+          <p><strong>Playing a show?</strong> <a href={utm(SITE.eventsUrl, `musician_${m.slug}`)} rel="noopener">Make sure we know about it: add it to the Events Calendar →</a></p>
+        </aside>
+        {!share && (
+          <aside class="claim" data-pagefind-ignore>
+            <p class="claim-head">Is this you?</p>
+            <p>{claimed
+              ? 'Need to change something on this page? Ask for your private edit link.'
+              : 'Claim this page, free. Add photos, your story, a song, your band members and a Book button so venues can reach you.'}</p>
+            <a class="btn btn-chile" href={claimUrl}>{claimed ? 'Edit this page' : 'Claim this page'}</a>
+          </aside>
+        )}
+      </div>
+    </article>
+
+    {similar.length > 0 && (
+      <section class="more" data-pagefind-ignore>
+        <h2>If you like {m.name}</h2>
+        <ActList acts={similar} />
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .top { display: flex; flex-wrap: wrap; gap: 32px 52px; padding-top: 8px; padding-bottom: 44px; align-items: flex-start; }
+  .feature { flex: 1.15 1 440px; min-width: 0; margin: 0; }
+  @media (min-width: 900px) { .feature { position: sticky; top: 24px; } }
+  .mat { display: block; cursor: zoom-in; }
+  .mat img { display: block; width: auto; height: auto; max-width: 100%; max-height: 72vh; border-radius: 16px; }
+  .feature figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 10px; }
+  .head { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .playing { display: inline-block; background: var(--gold); color: var(--night); padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
+  h1 { font-size: clamp(3rem, 8vw, 6.4rem); overflow-wrap: anywhere; }
+  .has-photo h1 { font-size: clamp(2.6rem, 5vw, 4.2rem); }
+  .kind { font-size: 1.15rem; color: var(--muted); margin-top: 6px; }
+  .sound { margin: 0; padding-left: 18px; border-left: 4px solid var(--chile); }
+  .sound blockquote { margin: 0; font: 700 clamp(1.5rem, 2.8vw, 2.1rem)/1.1 var(--display); color: var(--turq); }
+  .sound blockquote::before { content: '“'; } .sound blockquote::after { content: '”'; }
+  .bio { font-size: 1.1rem; line-height: 1.65; max-width: 62ch; }
+  .bio p + p { margin-top: 12px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
+  .song, .band, .photos { padding-top: 22px; border-top: 2px solid var(--ink); }
+  .song h2, .band h2, .photos h2 { font-size: 2rem; margin-bottom: 16px; }
+  .video { position: relative; aspect-ratio: 16 / 9; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 10px; }
+  .player { width: 100%; border: 0; border-radius: 12px; }
+  .muted { color: var(--muted); }
+  .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
+  .people li { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 22px 16px 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+  .people img, .face { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 4px #fff, 0 0 0 6px var(--gold); }
+  .face { display: grid; place-items: center; background: var(--night); color: var(--gold); font: 800 2.2rem/1 var(--display); }
+  .who { font: 800 1.45rem/1.05 var(--display); margin-top: 6px; }
+  .plays { color: var(--turq); font-weight: 700; font-size: 0.95rem; margin-top: 2px; }
+  .pbio { font-size: 0.95rem; margin-top: 6px; color: var(--muted); }
+  .solo { display: inline-block; margin-top: 8px; font-weight: 700; font-size: 0.95rem; }
+  .gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .gallery li { grid-column: span 2; }
+  .gallery.n1 li { grid-column: span 6; }
+  .gallery.n2 li, .gallery.n4 li { grid-column: span 3; }
+  .gallery.n3 li:first-child, .gallery.n5 li:first-child { grid-column: span 6; }
+  .gallery.n3 li:not(:first-child) { grid-column: span 3; }
+  .gallery.n5 li:nth-child(2), .gallery.n5 li:nth-child(3) { grid-column: span 3; }
+  .gallery a { position: relative; display: block; border-radius: 10px; overflow: hidden; }
+  .gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; transition: transform 0.3s; }
+  .gallery li:first-child img { aspect-ratio: 16 / 9; }
+  .gallery.n2 li:first-child img, .gallery.n4 li:first-child img { aspect-ratio: 4 / 3; }
+  .gallery a:hover img { transform: scale(1.03); }
+  .gallery span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 8px; font-size: 0.85rem; color: #fff; background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 40%, rgba(0, 0, 0, 0)); text-shadow: 0 1px 2px #000; }
+  @media (prefers-reduced-motion: reduce) { .gallery img { transition: none; } .gallery a:hover img { transform: none; } }
+  .booking { background: var(--night); color: #fff; border-radius: 12px; padding: 22px; display: grid; gap: 12px; justify-items: start; }
+  .booking .book-head { font: 800 1.6rem/1.05 var(--display); color: var(--gold); }
+  .booking a:not(.btn) { color: var(--gold); }
+  .book { font-size: 1.05rem; }
+  .shows-cta { padding: 14px 18px; border-left: 4px solid var(--chile); background: var(--paper); border-radius: 8px; }
+  .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 10px; justify-items: start; }
+  .claim-head { font: 800 1.5rem/1 var(--display); }
+  .more { padding-bottom: 72px; }
+  .more h2 { margin-bottom: 18px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } .gallery li, .gallery.n3 li:not(:first-child) { grid-column: span 3; } }
+  @media (max-width: 520px) { .people { grid-template-columns: 1fr 1fr; gap: 12px; } .people img, .face { width: 88px; height: 88px; } }
+</style>

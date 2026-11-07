@@ -90,8 +90,8 @@ import { musicians, genres, playingActs, thisWeek, WHEN_SHORT } from '../../lib/
     }
     count.textContent = `${shown} ${shown === 1 ? 'act' : 'acts'}`;
     empty.hidden = shown > 0;
-    document.querySelectorAll<HTMLButtonElement>('[data-type]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.type === state.type)));
-    document.querySelectorAll<HTMLButtonElement>('[data-genre]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.genre === state.genre)));
+    document.querySelectorAll<HTMLButtonElement>('button[data-type]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.type === state.type)));
+    document.querySelectorAll<HTMLButtonElement>('button[data-genre]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.genre === state.genre)));
     playingBtn?.setAttribute('aria-pressed', String(state.playing));
     const p = new URLSearchParams();
     if (state.genre) p.set('genre', state.genre);
@@ -100,8 +100,8 @@ import { musicians, genres, playingActs, thisWeek, WHEN_SHORT } from '../../lib/
     history.replaceState(null, '', p.toString() ? `?${p}` : location.pathname);
   }
 
-  document.querySelectorAll<HTMLButtonElement>('[data-type]').forEach((b) => b.addEventListener('click', () => { state.type = b.dataset.type!; render(); }));
-  document.querySelectorAll<HTMLButtonElement>('[data-genre]').forEach((b) => b.addEventListener('click', () => { state.genre = b.dataset.genre!; render(); }));
+  document.querySelectorAll<HTMLButtonElement>('button[data-type]').forEach((b) => b.addEventListener('click', () => { state.type = b.dataset.type!; render(); }));
+  document.querySelectorAll<HTMLButtonElement>('button[data-genre]').forEach((b) => b.addEventListener('click', () => { state.genre = b.dataset.genre!; render(); }));
   playingBtn?.addEventListener('click', () => { state.playing = !state.playing; render(); });
   q.addEventListener('input', () => { state.q = q.value; render(); });
   render();

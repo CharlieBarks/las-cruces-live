@@ -46,6 +46,13 @@ export const AREAS = {
   around: { name: 'Around the valley', blurb: 'Presenters, pop-ups and places that move around.' },
 };
 
+export const PREVIEW = process.env.LIVE_PREVIEW === '1';
+// The private preview site: Approve buttons, the Review queue and private edit links
+export const PREVIEW_URL = 'https://las-cruces-live-preview.cf2-99b.workers.dev';
+export const INTAKE_URL = 'https://lc-live-intake.cf2-99b.workers.dev';
+export const FORM_URL = 'https://tally.so/r/RWdbxl';
+export const TURNSTILE_SITEKEY = '0x4AAAAAAF3l-lKGwLZNR-iU';
+
 const live = (r) => !r.siteStatus || r.siteStatus === 'Approved' || process.env.LIVE_PREVIEW === '1';
 export const musicians = musiciansRaw.filter((m) => live(m) && m.name).sort((a, b) => a.name.localeCompare(b.name));
 export const venues = venuesRaw.filter((v) => live(v) && v.name).sort((a, b) => a.name.localeCompare(b.name));
@@ -171,3 +178,25 @@ export function venueJsonLd(v) {
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
+
+// A song link as an embedded player where the service allows it (Bandcamp needs its own embed code,
+// so it stays a "Listen" button).
+export function songEmbed(url = '') {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, '').replace(/^m\./, '');
+    if (host === 'youtu.be') return { kind: 'youtube', src: `https://www.youtube-nocookie.com/embed/${u.pathname.slice(1)}`, height: 0 };
+    if (host === 'youtube.com') {
+      const v = u.searchParams.get('v') || (u.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]+)/) || [])[1];
+      return v ? { kind: 'youtube', src: `https://www.youtube-nocookie.com/embed/${v}`, height: 0 } : null;
+    }
+    if (host === 'open.spotify.com') {
+      const m = u.pathname.match(/\/(track|album|artist|playlist|episode)\/(\w+)/);
+      return m ? { kind: 'spotify', src: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, height: m[1] === 'track' ? 152 : 352 } : null;
+    }
+    if (host === 'soundcloud.com') return { kind: 'soundcloud', src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%230a6f6b&visual=false`, height: 166 };
+  } catch {}
+  return null;
+}
+export const songService = (url = '') => (/spotify/.test(url) ? 'Spotify' : /youtu/.test(url) ? 'YouTube' : /soundcloud/.test(url) ? 'SoundCloud' : /bandcamp/.test(url) ? 'Bandcamp' : 'the music');

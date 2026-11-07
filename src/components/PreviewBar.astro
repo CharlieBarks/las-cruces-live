@@ -1,0 +1,122 @@
+---
+// Preview site only: Charlie's controls on each act's page. Approve / Hide, edit the page, handle a
+// claim request or an owner's waiting changes, and manage the private edit link.
+import Editor from './Editor.astro';
+import { PREVIEW_URL } from '../lib/site.js';
+const { m } = Astro.props;
+const status = m.siteStatus || 'Approved';
+const pe = m.pendingEdits;
+const notionUrl = `https://www.notion.so/${m.notionId}`;
+---
+<section class="pbar" data-id={m.notionId} data-pagefind-ignore>
+  <div class="wrap">
+    <div class="pb-row">
+      <p><span class={`pill ${status.replace(/\s/g, '').toLowerCase()}`}>{status === 'Approved' ? 'Live' : status}</span>
+        {m.fromForm && <span class="meta">From the form{m.submittedOn && `, ${m.submittedOn}`}{m.submitter && ` · ${m.submitter}`}</span>}
+        {m.ownerEmail && <span class="meta">Owner: {m.ownerEmail}</span>}
+      </p>
+      <div class="pb-btns">
+        {status !== 'Approved' && <button class="btn btn-chile" data-status="Approved">Approve</button>}
+        {status !== 'Hidden' && <button class="btn btn-line" data-status="Hidden">Hide</button>}
+        <button class="btn btn-line" data-edit>Edit page</button>
+        <a class="btn btn-line" href={notionUrl} target="_blank" rel="noopener">Notion</a>
+        <a class="btn btn-line" href="/review/">Review queue</a>
+      </div>
+    </div>
+    {m.formNotes && <p class="pb-note"><strong>From the form:</strong> {m.formNotes}</p>}
+    {m.hasPhotoWithoutPermission && <p class="pb-note warn">This act has photos in Notion, but Image Permission isn't ticked, so they don't show.</p>}
+    {m.claimRequest && (
+      <div class="pb-box">
+        <p><strong>Claim request:</strong> {m.claimRequest}</p>
+        <p class="meta">Their email isn't the one on file. Check them out (Instagram, website), then send the link.</p>
+        <div class="pb-btns"><button class="btn btn-chile" data-owner="sendEditLink">Send them the edit link</button><button class="btn btn-line" data-owner="dismissClaim">Dismiss</button></div>
+      </div>
+    )}
+    {pe && (
+      <div class="pb-box">
+        <p><strong>Waiting changes from the owner</strong>{pe.at && ` (${pe.at.slice(0, 10)})`}:</p>
+        <ul>
+          {pe.fields.map((f) => <li><strong>{f.name}:</strong> <s>{f.before || '(blank)'}</s> → {f.after || '(blank)'}</li>)}
+          {pe.photo && <li><strong>Main photo:</strong> {pe.photo === '(removed)' ? 'removed' : <a href={pe.photo} target="_blank" rel="noopener">new photo</a>}</li>}
+          {pe.gallery !== null && pe.gallery !== undefined && <li><strong>Gallery:</strong> {pe.gallery} photo{pe.gallery === 1 ? '' : 's'}</li>}
+          {pe.members && <li><strong>Band members:</strong> {pe.members.join('; ') || '(none)'}</li>}
+          {pe.unreadable && <li>Couldn't read the changes. Check Pending Edits in Notion.</li>}
+        </ul>
+        <div class="pb-btns">
+          <button class="btn btn-chile" data-pending="apply">Apply</button>
+          <button class="btn btn-line" data-pending="trust">Apply &amp; trust them</button>
+          <button class="btn btn-line" data-pending="discard">Discard</button>
+        </div>
+      </div>
+    )}
+    <details class="pb-more">
+      <summary>Edit link and history</summary>
+      <div class="pb-btns">
+        <button class="btn btn-line" data-owner="sendEditLink">Send edit link</button>
+        <button class="btn btn-line" data-owner="sendEditLink" data-fresh="1">Send a new link (old one stops)</button>
+        <button class="btn btn-line" data-owner="revokeEditLink">Turn off edit link</button>
+        <button class="btn btn-line" data-owner="undoLast">Undo last saved change</button>
+        {m.shareToken && <a class="btn btn-line" href={`${PREVIEW_URL}/share/${m.shareToken}/`} target="_blank" rel="noopener">Open their edit page</a>}
+      </div>
+    </details>
+    <p class="pb-msg" role="status" aria-live="polite"></p>
+  </div>
+</section>
+<Editor m={m} mode="admin" />
+
+<script is:inline>
+(function () {
+  var bar = document.querySelector('.pbar');
+  var id = bar.getAttribute('data-id');
+  var msg = bar.querySelector('.pb-msg');
+  function post(path, body, done) {
+    msg.textContent = 'Working…';
+    fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ id: id }, body)) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { msg.textContent = d.ok ? done(d) : (d.error || 'That didn’t work.'); })
+      .catch(function () { msg.textContent = 'That didn’t work. Check your connection.'; });
+  }
+  bar.querySelectorAll('[data-status]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var s = b.getAttribute('data-status');
+      post('/api/status', { status: s }, function () { return s === 'Approved' ? 'Approved. It goes live in about 2 minutes.' : 'Hidden. It comes off the site in about 2 minutes.'; });
+    });
+  });
+  bar.querySelectorAll('[data-pending]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.getAttribute('data-pending');
+      post('/api/pending', { apply: k !== 'discard', trust: k === 'trust' }, function () { return k === 'discard' ? 'Discarded.' : 'Applied. The live page updates in about 2 minutes.'; });
+    });
+  });
+  bar.querySelectorAll('[data-owner]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var a = b.getAttribute('data-owner');
+      if (a === 'revokeEditLink' && !confirm('Turn off their edit link? It stops working right away.')) return;
+      post('/api/owner', { action: a, fresh: b.hasAttribute('data-fresh') }, function (d) {
+        return a === 'sendEditLink' ? 'Edit link set for ' + d.email + '. Grok Bot emails it on its next run.'
+          : a === 'undoLast' ? 'Undone: ' + (d.undid || []).join(', ') : 'Done.';
+      });
+    });
+  });
+  var edit = bar.querySelector('[data-edit]');
+  if (edit) edit.addEventListener('click', function () { document.dispatchEvent(new Event('lc-edit')); });
+})();
+</script>
+
+<style>
+  .pbar { background: var(--gold); color: var(--night); padding: 14px 0; border-bottom: 2px solid var(--night); }
+  .pb-row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .pill { display: inline-block; font: 800 0.8rem/1 var(--text); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 10px; border-radius: 999px; background: var(--night); color: #fff; margin-right: 8px; }
+  .pill.live, .pill.approved { background: var(--turq); }
+  .pill.submitted { background: var(--chile); }
+  .meta { font-size: 0.9rem; margin-right: 12px; }
+  .pb-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pb-btns .btn { padding: 9px 14px; font-size: 0.92rem; }
+  .pb-note { margin-top: 10px; font-size: 0.95rem; }
+  .pb-note.warn { font-weight: 700; color: var(--chile); }
+  .pb-box { margin-top: 12px; padding: 12px 14px; background: #fff6e0; border-radius: 8px; display: grid; gap: 8px; }
+  .pb-box ul { margin: 0; padding-left: 18px; }
+  .pb-more { margin-top: 10px; }
+  .pb-more summary { cursor: pointer; font-weight: 700; margin-bottom: 8px; }
+  .pb-msg { margin-top: 8px; font-weight: 700; }
+</style>

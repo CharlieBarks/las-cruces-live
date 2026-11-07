@@ -1,0 +1,16 @@
+{
+  // Las Cruces Live intake: Tally submissions, Claim this page, and the editor's saves (see index.js).
+  // Lives in the Live Love Las Cruces Cloudflare account, next to the Art Trail Workers.
+  // Cloudflare rebuilds it when files in workers/intake change on main.
+  "name": "lc-live-intake",
+  "main": "index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  // Photos copied out of form submissions and uploaded in the editor, served at /photo/...
+  // Keys starting with "_" are private (claims, change log) and never served.
+  "kv_namespaces": [{ "binding": "PHOTOS", "id": "434f93ab8cd24cdaa5de61aa8867a8c7" }],
+  // Claim this page: at most 5 claims a minute from one visitor
+  "ratelimits": [{ "name": "CLAIM_LIMIT", "namespace_id": "1201", "simple": { "limit": 5, "period": 60 } }]
+}

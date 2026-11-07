@@ -1,0 +1,13 @@
+---
+// Private edit links: one page per act with a share token, built only on the preview site.
+// The address holds a random token, so only the person it's emailed to can find it.
+import MusicianPage from '../../components/MusicianPage.astro';
+import { musicians, PREVIEW } from '../../lib/site.js';
+
+export function getStaticPaths() {
+  if (process.env.LIVE_PREVIEW !== '1') return [];
+  return musicians.filter((m) => m.shareToken).map((m) => ({ params: { token: m.shareToken }, props: { m } }));
+}
+const { m } = Astro.props;
+---
+{PREVIEW && <MusicianPage m={m} share />}

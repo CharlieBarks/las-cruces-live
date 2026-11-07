@@ -14,7 +14,26 @@
     { "pattern": "www.lascruceslive.com", "custom_domain": true }
   ],
   "env": {
-    // Private preview for approving listings. Build with LIVE_PREVIEW=1, deploy with `npx wrangler deploy --env preview`.
-    "preview": { "name": "las-cruces-live-preview", "workers_dev": true, "routes": [] }
+    // Private preview for approving listings and the private edit links:
+    // las-cruces-live-preview.cf2-99b.workers.dev, in the Live Love Las Cruces Cloudflare account
+    // (next to the Art Trail preview). Builds with LIVE_PREVIEW=1 and deploys with
+    // `npx wrangler deploy --env preview`. No custom domains, so it can never take over lascruceslive.com.
+    // Locked by Cloudflare Access ("Las Cruces Live preview", Charlie only), except /share and
+    // /share-api, which each act opens with its private token.
+    "preview": {
+      "name": "las-cruces-live-preview",
+      "workers_dev": true,
+      "routes": [],
+      "main": "workers/preview/index.js",
+      "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "html_handling": "auto-trailing-slash",
+        "not_found_handling": "404-page",
+        "run_worker_first": ["/api/*", "/share-api/*"]
+      },
+      // Approve / edit buttons and owner saves go through the intake Worker's Admin entrypoint
+      "services": [{ "binding": "INTAKE", "service": "lc-live-intake", "entrypoint": "Admin" }]
+    }
   }
 }
