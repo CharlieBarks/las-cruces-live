@@ -12,5 +12,10 @@
   // Keys starting with "_" are private (claims, change log) and never served.
   "kv_namespaces": [{ "binding": "PHOTOS", "id": "434f93ab8cd24cdaa5de61aa8867a8c7" }],
   // Claim this page: at most 5 claims a minute from one visitor
+  // Grok Bot notifications. Can only email Grok Bot's inbox. Sends from livelovelascruces.com
+  // (Cloudflare Email Service > Email Sending).
+  "send_email": [{ "name": "EMAIL", "allowed_destination_addresses": ["charlie-p9916j@mail.grokbot.com"] }],
+  // Backup run of the Grok Bot notifications
+  "triggers": { "crons": ["*/30 * * * *"] },
   "ratelimits": [{ "name": "CLAIM_LIMIT", "namespace_id": "1201", "simple": { "limit": 5, "period": 60 } }]
 }

@@ -233,6 +233,10 @@ async function joinNewsletter(env, properties) {
 }
 
 export default {
+  // Backup for Grok Bot notifications (see notifyAll)
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(notifyAll(env).catch((err) => console.error(`notify failed: ${err.message}`)));
+  },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/photo/') && env.PHOTOS) {
@@ -243,6 +247,17 @@ export default {
       return new Response(obj.value, { headers: { 'content-type': obj.metadata?.type || 'image/jpeg', 'cache-control': 'public, max-age=31536000, immutable', 'access-control-allow-origin': '*' } });
     }
     if (url.pathname === '/claim') return handleClaim(request, env, ctx);
+    if (url.pathname === '/notify' && request.method === 'POST' && env.INTAKE_KEY && url.searchParams.get('key') === env.INTAKE_KEY) {
+      try {
+        if (url.searchParams.get('test')) {
+          await sendNotice(env, notifyMessage('preview', 'TEST Notification Check', notionLink('41154e00081a8152987fded7b558a87a'), 'nobody@example.com', `${PREVIEW_ORIGIN}/`, true));
+          return Response.json({ ok: true, test: true });
+        }
+        return Response.json({ ok: true, ...(await notifyAll(env)) });
+      } catch (err) {
+        return Response.json({ ok: false, error: err.message }, { status: 500 });
+      }
+    }
     if (url.pathname !== '/tally' || url.searchParams.get('key') !== env.INTAKE_KEY) return new Response('Not found', { status: 404 });
     if (request.method !== 'POST') return new Response('Las Cruces Live intake is running. Tally sends submissions here.', { headers: { 'content-type': 'text/plain' } });
     let payload;
@@ -260,10 +275,82 @@ export default {
   },
 };
 
+// ---------- Grok Bot notifications ----------
+// Grok Bot sends the musician emails. We email its inbox whenever one is due: a new act's
+// private preview link, an edit link (claim or re-send), or "you're live". Runs after every
+// preview deploy (POST /notify from the build), right after an edit link is re-sent, and every
+// 30 minutes as a backup. The matching checkbox is ticked only after the email goes out, so a
+// failed send is retried next time and nobody gets the same email twice.
+const GROK_INBOX = 'charlie-p9916j@mail.grokbot.com';
+const NOTIFY_FROM = { email: 'notify@livelovelascruces.com', name: 'Las Cruces Live' };
+const NOTIFY_KINDS = [
+  { kind: 'preview', box: 'Preview Email Sent', link: 'Share Link', to: ['Submitter Email', 'Owner Email'],
+    due: (p) => p['Submitted On']?.date?.start && p['Share Link']?.url },
+  { kind: 'edit-link', box: 'Edit Link Sent', link: 'Edit Link', to: ['Owner Email'],
+    due: (p) => p['Edit Link']?.url && p['Owner Email']?.email },
+  { kind: 'live', box: 'Live Email Sent', link: 'Live Link', to: ['Owner Email', 'Submitter Email'],
+    due: (p) => p['Live Link']?.url },
+];
+const notionLink = (id) => `https://www.notion.so/${dashless(id)}`;
+
+function notifyMessage(kind, act, record, to, link, test = false) {
+  const what = { preview: 'New act: send the private preview link (Email 1)', 'edit-link': 'Send the private edit link (Email 2)', live: "They're live: send the you're-live email (Email 3)" }[kind];
+  const text = [
+    test ? 'TEST NOTIFICATION. Do not email anyone. Just confirm you received it.\n' : '',
+    `Notification: ${kind}`,
+    what,
+    `Act: ${act}`,
+    `Notion record: ${record}`,
+    `Send to: ${to}`,
+    `Link to include: ${link}`,
+  ].filter(Boolean).join('\n');
+  return { to: GROK_INBOX, from: NOTIFY_FROM, subject: `${test ? '[TEST] ' : ''}LC Live ${kind}: ${act}`, text };
+}
+
+async function sendNotice(env, msg) {
+  if (!env.EMAIL) throw new Error('The EMAIL binding is missing');
+  return env.EMAIL.send(msg);
+}
+
+let notifyRunning = null;
+async function notifyAll(env) {
+  if (notifyRunning) return notifyRunning; // one run at a time per Worker instance
+  notifyRunning = (async () => {
+    const filter = { or: [
+      { and: [{ property: 'Submitted On', date: { is_not_empty: true } }, { property: 'Share Link', url: { is_not_empty: true } }, { property: 'Preview Email Sent', checkbox: { equals: false } }] },
+      { and: [{ property: 'Edit Link', url: { is_not_empty: true } }, { property: 'Owner Email', email: { is_not_empty: true } }, { property: 'Edit Link Sent', checkbox: { equals: false } }] },
+      { and: [{ property: 'Live Link', url: { is_not_empty: true } }, { property: 'Live Email Sent', checkbox: { equals: false } }] },
+    ] };
+    const res = await notion(env, `databases/${MUSICIANS_DB}/query`, { filter, page_size: 50 });
+    const sent = [], failed = [];
+    for (const page of res.results || []) {
+      const p = page.properties;
+      const act = plain(p[TITLE]);
+      if (/^test\b/i.test(act)) continue; // test records never notify
+      for (const k of NOTIFY_KINDS) {
+        if (p[k.box]?.checkbox || !k.due(p)) continue;
+        const to = k.to.map((f) => p[f]?.email).find(Boolean);
+        if (!to) continue;
+        try {
+          await sendNotice(env, notifyMessage(k.kind, act, notionLink(page.id), to, p[k.link].url));
+          await notion(env, `pages/${dashless(page.id)}`, { properties: { [k.box]: { checkbox: true } } }, 'PATCH');
+          sent.push(`${k.kind}: ${act}`);
+        } catch (err) {
+          failed.push(`${k.kind}: ${act}: ${err.message}`);
+        }
+      }
+    }
+    const out = { sent, failed };
+    console.log(JSON.stringify({ notify: out }));
+    return out;
+  })().finally(() => { notifyRunning = null; });
+  return notifyRunning;
+}
+
 // ---------- Claim this page ----------
 // From lascruceslive.com/claim/?id=<notion id>. If the email matches the one on file (Owner Email,
 // Email, Booking Email or the Musician Contact List), the private edit link goes into Notion's
-// Edit Link with Edit Link Sent unticked, and Grok Bot emails it. Otherwise the claim waits in
+// Edit Link with Edit Link Sent unticked, and we email Grok Bot to send it. Otherwise the claim waits in
 // Claim Request for Charlie (Review queue on the preview site). Same answer either way.
 const newShareToken = () => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const shareUrl = (token) => `${PREVIEW_ORIGIN}/share/${token}/`;
@@ -289,8 +376,11 @@ async function giveEditLink(env, id, page, email, fresh = false) {
     'Owner Email': { email },
     'Claim Request': { rich_text: [] },
   } }, 'PATCH');
-  // A new token needs its page built on the preview site (about 2 minutes, before Grok Bot's next run)
+  // A new token needs its page built on the preview site first (about 2 minutes). The preview
+  // build pings /notify when it's done, so Grok Bot hears about it once the link works.
+  // Same token: the page already exists, so tell Grok Bot now.
   if (token !== had) await rebuild(env.PREVIEW_HOOK);
+  else await notifyAll(env);
   return link;
 }
 
@@ -326,6 +416,7 @@ async function handleClaim(request, env, ctx) {
       // Matches. If a link is already out, re-send the same one rather than replacing it.
       if (page.properties['Edit Link']?.url && plain(page.properties['Share Token'])) {
         await notion(env, `pages/${id}`, { properties: { 'Edit Link Sent': { checkbox: false } } }, 'PATCH');
+        ctx.waitUntil(notifyAll(env).catch((e) => console.error(`notify failed: ${e.message}`)));
       } else {
         await giveEditLink(env, id, page, email);
       }
