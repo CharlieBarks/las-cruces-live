@@ -68,7 +68,9 @@ async function notion(env, path, body, method = 'POST') {
 
 async function rebuild(hook) {
   if (!hook) return false;
-  const res = await fetch(`https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/${hook}`, { method: 'POST' }).catch(() => null);
+  // Accepts the hook's ID or its whole URL
+  const url = /^https:\/\//.test(hook) ? hook.trim() : `https://api.cloudflare.com/client/v4/workers/builds/deploy_hooks/${hook.trim()}`;
+  const res = await fetch(url, { method: 'POST' }).catch(() => null);
   return Boolean(res?.ok);
 }
 
