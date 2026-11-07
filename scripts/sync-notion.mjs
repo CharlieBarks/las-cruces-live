@@ -40,7 +40,8 @@ async function notion(pathname, body, method) {
 }
 
 async function queryAll(databaseId, useStatus) {
-  const filter = useStatus ? { or: SHOW.map((s) => ({ property: 'Site Status', select: { equals: s } })) } : undefined;
+  // Blank Site Status counts as live: the 179 acts listed before Site Status existed never had one.
+  const filter = useStatus ? { or: [...SHOW.map((s) => ({ property: 'Site Status', select: { equals: s } })), { property: 'Site Status', select: { is_empty: true } }] } : undefined;
   const pages = [];
   let cursor;
   do {
@@ -145,7 +146,7 @@ async function main() {
       },
       _members: rel(m, 'Members'), _memberOf: rel(m, 'Member Of'),
       tier: (text(m, 'Listing Tier') || 'Free').toLowerCase(),
-      siteStatus: mStatus ? text(m, 'Site Status') : 'Approved',
+      siteStatus: (mStatus && text(m, 'Site Status')) || 'Approved',
     };
   }).filter((m) => m.name);
   for (const m of musicians) {
@@ -174,7 +175,7 @@ async function main() {
       links: { website: cleanUrl(text(v, 'Website Link')), facebook: cleanUrl(text(v, 'Facebook Link')), instagram: cleanUrl(text(v, 'Instagram Link')) },
       lat, lng,
       tier: (text(v, 'Listing Tier') || 'Free').toLowerCase(),
-      siteStatus: vStatus ? text(v, 'Site Status') : 'Approved',
+      siteStatus: (vStatus && text(v, 'Site Status')) || 'Approved',
     });
   }
 
