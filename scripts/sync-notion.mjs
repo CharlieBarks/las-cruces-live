@@ -15,6 +15,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import sharp from 'sharp';
 import { slugify, cleanUrl, genresFor, areaFor } from './lib/shape.mjs';
 
 const TOKEN = process.env.NOTION_TOKEN;
@@ -23,9 +24,6 @@ const MUSICIANS_DB = 'b8aa6b26746c4ddf9967e8fd2010d08e';
 const CONTACTS_DB = '36454e00081a80b680b1dab51a210a4a';
 const VENUES_DB = '59ba83b7e42d4115b54ee3d349c3f697';
 const MEMBERS_DB = 'c7d3f6b775f34477851b55a6a6f7dbe0'; // Band Members (shown only under their band)
-// Photos uploaded through the form or the editor live here for good; anything else (a photo
-// uploaded in Notion itself, whose link expires) is downloaded into public/media at build time.
-const PHOTO_STORE = 'https://lc-live-intake.cf2-99b.workers.dev/photo/';
 const PREVIEW_SITE_URL = (process.env.PREVIEW_SITE_URL || '').replace(/\/+$/, '');
 const LIVE_SITE_URL = 'https://lascruceslive.com';
 const MEDIA_DIR = path.resolve('public/media');
@@ -82,21 +80,22 @@ const date = (page, name) => p(page, name)?.date?.start?.slice(0, 10) || '';
 const files = (page, name) => (p(page, name)?.files || []).map((f) => (f.type === 'external' ? f.external.url : f.file?.url)).filter(Boolean);
 const dashless = (id) => String(id || '').replace(/-/g, '');
 
-// A photo the site can show forever: photo-store links as they are, anything else downloaded.
-async function keepPhoto(src, dest) {
+// Every photo is downloaded at build time and resized (phone photos can be 10 MB), so pages load
+// fast and never depend on Notion's expiring links. `size` is the longest side in pixels.
+async function keepPhoto(src, dest, size = 1600) {
   if (!src) return '';
-  if (src.startsWith(PHOTO_STORE)) return src;
   try {
-    const res = await fetch(src);
+    const res = await fetch(src, { redirect: 'follow' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const type = res.headers.get('content-type') || '';
-    const ext = /png/.test(type) ? 'png' : /webp/.test(type) ? 'webp' : 'jpg';
-    const file = path.join(MEDIA_DIR, `${dest}.${ext}`);
+    const out = await sharp(Buffer.from(await res.arrayBuffer())).rotate()
+      .resize({ width: size, height: size, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+    const file = path.join(MEDIA_DIR, `${dest}.jpg`);
     await fs.mkdir(path.dirname(file), { recursive: true });
-    await fs.writeFile(file, Buffer.from(await res.arrayBuffer()));
-    return `/media/${dest}.${ext}`;
+    await fs.writeFile(file, out);
+    return `/media/${dest}.jpg`;
   } catch (err) {
-    console.warn(`sync-notion: couldn't download a photo for ${dest}: ${err.message}`);
+    console.warn(`sync-notion: couldn't save a photo for ${dest}: ${err.message}`);
     return '';
   }
 }
@@ -189,7 +188,8 @@ async function main() {
     // Photos show only with permission (ticked on the form, in the editor or in Notion)
     const photosOk = check(m, 'Image Permission');
     const captions = text(m, 'Photo Captions').split('\n');
-    const photo = photosOk ? await keepPhoto(files(m, 'Photo')[0], `${slug}/photo`) : '';
+    const photo = photosOk ? await keepPhoto(files(m, 'Photo')[0], `${slug}/photo`, 1800) : '';
+    const thumb = photo ? await keepPhoto(files(m, 'Photo')[0], `${slug}/thumb`, 240) : '';
     const gallery = [];
     if (photosOk) {
       for (const [i, src] of files(m, 'Gallery').slice(0, 8).entries()) {
@@ -204,7 +204,7 @@ async function main() {
       sound: text(m, 'Genre'),
       genres: genresFor(text(m, 'Genre'), multi(m, 'Genres (checklist)')),
       bio: text(m, 'Bio'),
-      photo, photoCredit: photo ? text(m, 'Photo Credit') : '',
+      photo, thumb, photoCredit: photo ? text(m, 'Photo Credit') : '',
       gallery,
       song: cleanUrl(text(m, 'Song Link')),
       bookable: Boolean(email(m, 'Booking Email')),
@@ -252,7 +252,7 @@ async function main() {
     const photosOk = m._photosOk;
     m.bandMembers = [];
     for (const x of list) {
-      m.bandMembers.push({ name: x.name, plays: x.plays, bio: x.bio, solo: x.solo, photo: photosOk ? await keepPhoto(x._src, `${m.slug}/member-${x._id.slice(0, 8)}`) : '' });
+      m.bandMembers.push({ name: x.name, plays: x.plays, bio: x.bio, solo: x.solo, photo: photosOk ? await keepPhoto(x._src, `${m.slug}/member-${x._id.slice(0, 8)}`, 400) : '' });
     }
     // Older links (Members / Member Of between two musician records) still work
     m.members = m._members.map((id) => idToSlug.get(id)).filter(Boolean);

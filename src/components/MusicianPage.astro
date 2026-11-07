@@ -37,21 +37,30 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
 <Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable={!share} noindex={share}>
   {PREVIEW && !share && <PreviewBar m={m} />}
   {share && <Editor m={m} />}
-  <div class="wrap">
-    <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
-    <article class="grid">
-      <div class="main stack">
-        <header class="stack">
+  {m.photo && (
+    <section class="hero">
+      <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} loading="eager" fetchpriority="high" data-pagefind-meta="image[src]" />
+      <div class="hero-text">
+        <div class="wrap">
+          <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
           {isPlaying(m) && <p class="playing">{playingLabel(m)}</p>}
           <h1 data-pagefind-meta="title">{m.name}</h1>
           <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
-        </header>
-
-        {m.photo && (
-          <figure class="hero">
-            <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} loading="eager" data-pagefind-meta="image[src]" />
-            {m.photoCredit && <figcaption>{m.photoCredit}</figcaption>}
-          </figure>
+        </div>
+      </div>
+      {m.photoCredit && <p class="credit">{m.photoCredit}</p>}
+    </section>
+  )}
+  <div class="wrap">
+    {!m.photo && <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>}
+    <article class={`grid${m.photo ? ' has-hero' : ''}`}>
+      <div class="main stack">
+        {!m.photo && (
+          <header class="stack">
+            {isPlaying(m) && <p class="playing">{playingLabel(m)}</p>}
+            <h1 data-pagefind-meta="title">{m.name}</h1>
+            <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
+          </header>
         )}
 
         {m.sound && (
@@ -115,9 +124,9 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
         {gallery.length > 0 && (
           <section class="photos" aria-label="Photos">
             <h2>Photos</h2>
-            <ul class="gallery">
+            <ul class={`gallery n${Math.min(gallery.length, 5)}`}>
               {gallery.map((g) => (
-                <li><a href={g.src} target="_blank" rel="noopener"><img src={g.src} alt={g.caption || `${m.name} photo`} loading="lazy" /></a>{g.caption && <span>{g.caption}</span>}</li>
+                <li><a href={g.src} target="_blank" rel="noopener"><img src={g.src} alt={g.caption || `${m.name} photo`} loading="lazy" />{g.caption && <span>{g.caption}</span>}</a></li>
               ))}
             </ul>
           </section>
@@ -163,39 +172,58 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
 </Layout>
 
 <style>
+  .hero { position: relative; background: var(--night); color: #fff; }
+  .hero img { display: block; width: 100%; height: clamp(320px, 62vh, 640px); object-fit: cover; object-position: center 30%; }
+  .hero-text { position: absolute; inset: auto 0 0 0; padding: 120px 0 34px; background: linear-gradient(to top, rgba(29, 23, 53, 0.92) 0%, rgba(29, 23, 53, 0.55) 55%, rgba(29, 23, 53, 0) 100%); }
+  .hero .crumbs, .hero .crumbs a { color: #e9e4f7; }
+  .hero h1 { color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35); }
+  .hero .kind { color: #f1edfb; }
+  .hero .playing { display: inline-block; background: var(--gold); color: var(--night); padding: 6px 12px; border-radius: 999px; font-weight: 700; margin-bottom: 8px; }
+  .credit { position: absolute; right: 12px; top: 10px; margin: 0; font-size: 0.75rem; color: #fff; background: rgba(0, 0, 0, 0.45); padding: 3px 8px; border-radius: 4px; }
   .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
+  .grid.has-hero { padding-top: 40px; }
   h1 { font-size: clamp(3rem, 8vw, 6.4rem); overflow-wrap: anywhere; }
   .kind { font-size: 1.15rem; color: var(--muted); }
-  .hero { margin: 8px 0 0; }
-  .hero img { width: 100%; max-height: 560px; object-fit: cover; border-radius: 10px; display: block; background: var(--paper); }
-  .hero figcaption { margin-top: 6px; font-size: 0.82rem; color: var(--muted); }
   .sound { margin: 8px 0; padding: 20px 0 0; border-top: 2px solid var(--ink); }
+  .has-hero .sound { border-top: 0; padding-top: 0; margin-top: 0; }
   .sound blockquote { margin: 0; font: 700 clamp(1.6rem, 3.2vw, 2.4rem)/1.05 var(--display); color: var(--turq); }
   .sound blockquote::before { content: '“'; } .sound blockquote::after { content: '”'; }
   .sound figcaption { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
-  .bio { font-size: 1.1rem; line-height: 1.6; max-width: 62ch; }
+  .bio { font-size: 1.12rem; line-height: 1.65; max-width: 62ch; }
   .bio p + p { margin-top: 12px; }
-  .song h2, .band h2, .photos h2 { font-size: 1.9rem; margin-bottom: 14px; }
+  .song, .band, .photos { padding-top: 22px; border-top: 2px solid var(--ink); }
+  .song h2, .band h2, .photos h2 { font-size: 2rem; margin-bottom: 16px; }
   .video { position: relative; aspect-ratio: 16 / 9; }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 10px; }
   .player { width: 100%; border: 0; border-radius: 12px; }
   .links { margin-top: 8px; }
   .muted { color: var(--muted); }
-  .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
-  .people li { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: start; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
-  .people img, .face { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
-  .face { display: grid; place-items: center; background: var(--night); color: var(--gold); font: 800 1.4rem/1 var(--display); }
-  .who { font: 800 1.3rem/1.05 var(--display); }
-  .plays { color: var(--turq); font-weight: 600; font-size: 0.95rem; margin-top: 2px; }
+  .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
+  .people li { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 22px 16px 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+  .people img, .face { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 4px #fff, 0 0 0 6px var(--gold); }
+  .face { display: grid; place-items: center; background: var(--night); color: var(--gold); font: 800 2.2rem/1 var(--display); }
+  .who { font: 800 1.45rem/1.05 var(--display); margin-top: 6px; }
+  .plays { color: var(--turq); font-weight: 700; font-size: 0.95rem; margin-top: 2px; }
   .pbio { font-size: 0.95rem; margin-top: 6px; color: var(--muted); }
-  .solo { display: inline-block; margin-top: 6px; font-weight: 700; font-size: 0.95rem; }
-  .gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-  .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; }
-  .gallery span { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+  .solo { display: inline-block; margin-top: 8px; font-weight: 700; font-size: 0.95rem; }
+  .gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .gallery li { grid-column: span 2; }
+  .gallery.n1 li { grid-column: span 6; }
+  .gallery.n2 li, .gallery.n4 li { grid-column: span 3; }
+  .gallery.n3 li:first-child, .gallery.n5 li:first-child { grid-column: span 6; }
+  .gallery.n3 li:not(:first-child) { grid-column: span 3; }
+  .gallery.n5 li:nth-child(2), .gallery.n5 li:nth-child(3) { grid-column: span 3; }
+  .gallery a { position: relative; display: block; border-radius: 10px; overflow: hidden; }
+  .gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; transition: transform 0.3s; }
+  .gallery li:first-child img { aspect-ratio: 16 / 9; }
+  .gallery.n2 li:first-child img, .gallery.n4 li:first-child img { aspect-ratio: 4 / 3; }
+  .gallery a:hover img { transform: scale(1.03); }
+  .gallery span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 8px; font-size: 0.85rem; color: #fff; background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0)); }
   .shows-cta { padding: 14px 18px; border-left: 4px solid var(--chile); background: var(--paper); border-radius: 8px; }
   .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 10px; justify-items: start; }
   .claim-head { font: 800 1.5rem/1 var(--display); }
   .more { padding-bottom: 72px; }
   .more h2 { margin-bottom: 18px; }
-  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } .hero img { height: 58vh; } .gallery li, .gallery.n3 li:not(:first-child) { grid-column: span 3; } }
+  @media (max-width: 520px) { .people { grid-template-columns: 1fr 1fr; gap: 12px; } .people img, .face { width: 88px; height: 88px; } }
 </style>
