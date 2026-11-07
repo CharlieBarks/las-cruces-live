@@ -165,8 +165,8 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
   .top { display: flex; flex-wrap: wrap; gap: 32px 52px; padding-top: 8px; padding-bottom: 44px; align-items: flex-start; }
   .feature { flex: 1.15 1 440px; min-width: 0; margin: 0; }
   @media (min-width: 900px) { .feature { position: sticky; top: 24px; } }
-  .mat { position: relative; display: block; aspect-ratio: 5 / 4; background: var(--cream); border-radius: 18px; cursor: zoom-in; }
-  .mat img { position: absolute; inset: clamp(12px, 2.5vw, 24px); width: calc(100% - 2 * clamp(12px, 2.5vw, 24px)); height: calc(100% - 2 * clamp(12px, 2.5vw, 24px)); object-fit: contain; filter: drop-shadow(0 14px 22px rgba(29, 23, 53, 0.35)); }
+  .mat { display: block; cursor: zoom-in; }
+  .mat img { display: block; width: auto; height: auto; max-width: 100%; max-height: 72vh; border-radius: 16px; }
   .feature figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 10px; }
   .head { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
   .tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
