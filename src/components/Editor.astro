@@ -17,7 +17,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       <div>
         <p class="ed-kicker">{mode === 'owner' ? 'Your private edit link' : 'Editing as Charlie'}</p>
         <h2>{mode === 'owner' ? `Edit your page, ${m.name}` : `Edit ${m.name}`}</h2>
-        {mode === 'owner' && <p class="ed-note">Only you have this link, so don't share it. Make your changes, then tap <strong>Save</strong>. Your page is shown below.</p>}
+        {mode === 'owner' && <p class="ed-note">Only you have this link, so keep it to yourself and bookmark it to come back anytime. Add photos{m.type === 'Band' ? ', a photo and short bio for each band member' : ''}, your links and a booking contact below, then tap <strong>Save</strong>. Charlie gives changes a quick look before they go public. Your page is shown underneath.</p>}
       </div>
       <button class="btn btn-line ed-toggle" type="button" aria-expanded="true" aria-controls="ed-body">Hide editor</button>
     </div>
