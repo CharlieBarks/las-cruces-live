@@ -325,7 +325,7 @@ async function sendNotice(env, msg) {
 }
 
 // Heads-ups for Charlie when something needs him: a new act, a claim to check, edits waiting.
-const CHARLIE_INBOX = 'livelovelascruces@gmail.com';
+const CHARLIE_INBOX = 'charlie@livelovelascruces.com';
 const REVIEW_URL = `${PREVIEW_ORIGIN}/review/`;
 async function tellCharlie(env, subject, lines) {
   try {
