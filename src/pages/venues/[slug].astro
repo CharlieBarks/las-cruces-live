@@ -39,7 +39,7 @@ const heading = acts.length
         {w.shows > 0 ? (
           <ThisWeek heading={heading} source={`venue_${v.slug}`} when={whenText(w.weeks, true)} />
         ) : (
-          <ThisWeek heading={`See who's playing ${v.name}.`} body="Every Thursday the Live Music issue lists the week's shows here and all over town." source={`venue_${v.slug}`} />
+          <ThisWeek idle heading={`See who's playing ${v.name}.`} body="Every Thursday the Live Music issue lists the week's shows here and all over town." source={`venue_${v.slug}`} />
         )}
         {acts.length > 0 && (
           <div class="acts-here" data-pagefind-ignore>

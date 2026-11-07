@@ -148,8 +148,9 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
           />
         ) : (
           <ThisWeek
+            idle
             heading={`Catch ${m.name} live.`}
-            body="When they're booked, they'll be in the Thursday Live Music issue with every other show in town."
+            body="No shows on our calendar this week. When they're booked, they'll be in the Thursday Live Music issue with every other show in town."
             source={`musician_${m.slug}`}
           />
         )}

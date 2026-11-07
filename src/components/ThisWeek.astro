@@ -1,18 +1,30 @@
 ---
 // The newsletter hand-off. Shows who/where, never days or times.
 import { issueLink, subscribeLink, WHEN_SHORT, cap } from '../lib/site.js';
-const { heading, body, source = 'page', when = WHEN_SHORT } = Astro.props;
+// idle: nothing on the calendar this week, so no "this week" label and no days-and-times button.
+const { heading, body, source = 'page', when = WHEN_SHORT, idle = false } = Astro.props;
 ---
-<aside class="thisweek night on-night" aria-label={`Playing ${when}`} data-pagefind-ignore>
-  <p class="eyebrow"><span class="dot" aria-hidden="true"></span>{cap(when)}</p>
-  <p class="head">{heading}</p>
-  {body && <p>{body}</p>}
-  <p>Days and times are in Thursday's Live Music issue.</p>
-  <div class="btns">
-    <a class="btn btn-gold" href={issueLink(source)}>See days and times</a>
-    <a class="btn btn-line" href={subscribeLink(source)}>Get it free every Thursday</a>
-  </div>
-</aside>
+{idle ? (
+  <aside class="thisweek night on-night" aria-label="Get the Thursday Live Music issue" data-pagefind-ignore>
+    <p class="eyebrow">Never miss a show</p>
+    <p class="head">{heading}</p>
+    {body && <p>{body}</p>}
+    <div class="btns">
+      <a class="btn btn-gold" href={subscribeLink(source)}>Get it free every Thursday</a>
+    </div>
+  </aside>
+) : (
+  <aside class="thisweek night on-night" aria-label={`Playing ${when}`} data-pagefind-ignore>
+    <p class="eyebrow"><span class="dot" aria-hidden="true"></span>{cap(when)}</p>
+    <p class="head">{heading}</p>
+    {body && <p>{body}</p>}
+    <p>Days and times are in Thursday's Live Music issue.</p>
+    <div class="btns">
+      <a class="btn btn-gold" href={issueLink(source)}>See days and times</a>
+      <a class="btn btn-line" href={subscribeLink(source)}>Get it free every Thursday</a>
+    </div>
+  </aside>
+)}
 
 <style>
   .thisweek { border-radius: 10px; padding: 28px; display: grid; gap: 12px; }
