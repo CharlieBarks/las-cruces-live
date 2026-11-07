@@ -37,47 +37,45 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
 <Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable={!share} noindex={share}>
   {PREVIEW && !share && <PreviewBar m={m} />}
   {share && <Editor m={m} />}
-  {m.photo && (
-    <section class="hero">
-      <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} loading="eager" fetchpriority="high" data-pagefind-meta="image[src]" />
-      <div class="hero-text">
-        <div class="wrap">
-          <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
-          {isPlaying(m) && <p class="playing">{playingLabel(m)}</p>}
-          <h1 data-pagefind-meta="title">{m.name}</h1>
-          <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
-        </div>
-      </div>
-      {m.photoCredit && <p class="credit">{m.photoCredit}</p>}
-    </section>
-  )}
   <div class="wrap">
-    {!m.photo && <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>}
-    <article class={`grid${m.photo ? ' has-hero' : ''}`}>
+    <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
+  </div>
+  <section class={`wrap top${m.photo ? ' has-photo' : ''}`}>
+    {m.photo && (
+      <figure class="feature">
+        <a class="mat" href={m.photo} target="_blank" rel="noopener" aria-label={`View larger photo of ${m.name}`}>
+          <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} fetchpriority="high" data-pagefind-meta="image[src]" />
+        </a>
+        {m.photoCredit && <figcaption>{m.photoCredit}</figcaption>}
+      </figure>
+    )}
+    <div class="head">
+      <div class="tags" aria-label="Genres">
+        {isPlaying(m) && <span class="playing">{playingLabel(m)}</span>}
+        {m.genres.map((g) => <a class="tag" href={`/genres/${g}/`}>{genreName(g)}</a>)}
+      </div>
+      <div>
+        <h1 data-pagefind-meta="title">{m.name}</h1>
+        <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
+      </div>
+      {m.sound && (
+        <figure class="sound">
+          <blockquote>{m.sound.replace(/\.$/, '')}</blockquote>
+        </figure>
+      )}
+      {m.bio && <div class="bio">{m.bio.split(/\n+/).map((para) => <p>{para}</p>)}</div>}
+      {links.length > 0 ? (
+        <div class="links btns">
+          {links.map(([k, name]) => <a class="btn btn-line" href={m.links[k]} rel="noopener">{name}</a>)}
+        </div>
+      ) : (
+        <p class="muted" data-pagefind-ignore>No links yet. <a href={`/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`}>Are you {m.name}? Add yours.</a></p>
+      )}
+    </div>
+  </section>
+  <div class="wrap">
+    <article class="grid">
       <div class="main stack">
-        {!m.photo && (
-          <header class="stack">
-            {isPlaying(m) && <p class="playing">{playingLabel(m)}</p>}
-            <h1 data-pagefind-meta="title">{m.name}</h1>
-            <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
-          </header>
-        )}
-
-        {m.sound && (
-          <figure class="sound">
-            <blockquote>{m.sound.replace(/\.$/, '')}</blockquote>
-            <figcaption>The sound, in a few words</figcaption>
-          </figure>
-        )}
-
-        {m.genres.length > 0 && (
-          <div class="tags" aria-label="Genres">
-            {m.genres.map((g) => <a class="tag" href={`/genres/${g}/`}>{genreName(g)}</a>)}
-          </div>
-        )}
-
-        {m.bio && <div class="bio">{m.bio.split(/\n+/).map((para) => <p>{para}</p>)}</div>}
-
         {m.song && (
           <section class="song" aria-label="Listen">
             <h2>Give it a listen</h2>
@@ -89,14 +87,6 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
               <a class="btn btn-line" href={m.song} rel="noopener">Listen on {songService(m.song)}</a>
             )}
           </section>
-        )}
-
-        {links.length > 0 ? (
-          <div class="links btns">
-            {links.map(([k, name]) => <a class="btn btn-line" href={m.links[k]} rel="noopener">{name}</a>)}
-          </div>
-        ) : (
-          <p class="muted" data-pagefind-ignore>No links yet. <a href={`/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`}>Are you {m.name}? Add yours.</a></p>
         )}
 
         {bandMembers.length > 0 && (
@@ -172,31 +162,29 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
 </Layout>
 
 <style>
-  .hero { position: relative; background: var(--night); color: #fff; }
-  .hero img { display: block; width: 100%; height: clamp(320px, 62vh, 640px); object-fit: cover; object-position: center 30%; }
-  .hero-text { position: absolute; inset: auto 0 0 0; padding: 120px 0 34px; background: linear-gradient(to top, rgba(29, 23, 53, 0.92) 0%, rgba(29, 23, 53, 0.55) 55%, rgba(29, 23, 53, 0) 100%); }
-  .hero .crumbs, .hero .crumbs a { color: #e9e4f7; }
-  .hero h1 { color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35); }
-  .hero .kind { color: #f1edfb; }
-  .hero .playing { display: inline-block; background: var(--gold); color: var(--night); padding: 6px 12px; border-radius: 999px; font-weight: 700; margin-bottom: 8px; }
-  .credit { position: absolute; right: 12px; top: 10px; margin: 0; font-size: 0.75rem; color: #fff; background: rgba(0, 0, 0, 0.45); padding: 3px 8px; border-radius: 4px; }
-  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
-  .grid.has-hero { padding-top: 40px; }
+  .top { display: flex; flex-wrap: wrap; gap: 32px 52px; padding-top: 8px; padding-bottom: 44px; align-items: flex-start; }
+  .feature { flex: 1.15 1 440px; min-width: 0; margin: 0; }
+  @media (min-width: 900px) { .feature { position: sticky; top: 24px; } }
+  .mat { position: relative; display: block; aspect-ratio: 5 / 4; background: var(--cream); border-radius: 18px; cursor: zoom-in; }
+  .mat img { position: absolute; inset: clamp(12px, 2.5vw, 24px); width: calc(100% - 2 * clamp(12px, 2.5vw, 24px)); height: calc(100% - 2 * clamp(12px, 2.5vw, 24px)); object-fit: contain; filter: drop-shadow(0 14px 22px rgba(29, 23, 53, 0.35)); }
+  .feature figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 10px; }
+  .head { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .playing { display: inline-block; background: var(--gold); color: var(--night); padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
   h1 { font-size: clamp(3rem, 8vw, 6.4rem); overflow-wrap: anywhere; }
-  .kind { font-size: 1.15rem; color: var(--muted); }
-  .sound { margin: 8px 0; padding: 20px 0 0; border-top: 2px solid var(--ink); }
-  .has-hero .sound { border-top: 0; padding-top: 0; margin-top: 0; }
-  .sound blockquote { margin: 0; font: 700 clamp(1.6rem, 3.2vw, 2.4rem)/1.05 var(--display); color: var(--turq); }
+  .has-photo h1 { font-size: clamp(2.6rem, 5vw, 4.2rem); }
+  .kind { font-size: 1.15rem; color: var(--muted); margin-top: 6px; }
+  .sound { margin: 0; padding-left: 18px; border-left: 4px solid var(--chile); }
+  .sound blockquote { margin: 0; font: 700 clamp(1.5rem, 2.8vw, 2.1rem)/1.1 var(--display); color: var(--turq); }
   .sound blockquote::before { content: '“'; } .sound blockquote::after { content: '”'; }
-  .sound figcaption { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
-  .bio { font-size: 1.12rem; line-height: 1.65; max-width: 62ch; }
+  .bio { font-size: 1.1rem; line-height: 1.65; max-width: 62ch; }
   .bio p + p { margin-top: 12px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
   .song, .band, .photos { padding-top: 22px; border-top: 2px solid var(--ink); }
   .song h2, .band h2, .photos h2 { font-size: 2rem; margin-bottom: 16px; }
   .video { position: relative; aspect-ratio: 16 / 9; }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 10px; }
   .player { width: 100%; border: 0; border-radius: 12px; }
-  .links { margin-top: 8px; }
   .muted { color: var(--muted); }
   .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
   .people li { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 22px 16px 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
@@ -224,6 +212,6 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
   .claim-head { font: 800 1.5rem/1 var(--display); }
   .more { padding-bottom: 72px; }
   .more h2 { margin-bottom: 18px; }
-  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } .hero img { height: 58vh; } .gallery li, .gallery.n3 li:not(:first-child) { grid-column: span 3; } }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } .gallery li, .gallery.n3 li:not(:first-child) { grid-column: span 3; } }
   @media (max-width: 520px) { .people { grid-template-columns: 1fr 1fr; gap: 12px; } .people img, .face { width: 88px; height: 88px; } }
 </style>
