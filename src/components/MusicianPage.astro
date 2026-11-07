@@ -1,0 +1,201 @@
+---
+// One act's page. Used by /musicians/<slug>/ and, on the preview site, by the private edit link
+// (/share/<token>/), which adds the editor on top.
+import Layout from '../layouts/Layout.astro';
+import ThisWeek from './ThisWeek.astro';
+import ActList from './ActList.astro';
+import PreviewBar from './PreviewBar.astro';
+import Editor from './Editor.astro';
+import {
+  SITE, PREVIEW, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
+  genreName, listJoin, musicianJsonLd, songEmbed, songService,
+} from '../lib/site.js';
+
+const { m, share = false } = Astro.props;
+const label = typeLabel(m);
+const where = playingVenues(m).map((v) => v.name);
+const members = (m.members || []).map(musicianBySlug).filter(Boolean);
+const memberOf = (m.memberOf || []).map(musicianBySlug).filter(Boolean);
+const bandMembers = m.bandMembers || [];
+const gallery = m.gallery || [];
+const LINKS = [['website', 'Website'], ['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube']];
+const links = LINKS.filter(([k]) => m.links[k]);
+const embed = songEmbed(m.song);
+const similar = musicians
+  .filter((x) => x.slug !== m.slug && x.genres.some((g) => m.genres.includes(g)))
+  .map((x) => ({ x, score: x.genres.filter((g) => m.genres.includes(g)).length }))
+  .sort((a, b) => b.score - a.score || a.x.name.localeCompare(b.x.name))
+  .slice(0, 6)
+  .map((s) => s.x);
+const genreText = m.genres.length ? listJoin(m.genres.map((g) => genreName(g).toLowerCase())) : 'live music';
+const description = m.bio
+  ? `${m.name}: ${m.bio}`
+  : `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from the Las Cruces music scene playing ${genreText}. Links, band info and where they're playing this week and next.`;
+const initials = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+const claimed = m.claimed || Boolean(m.photo || m.bio);
+---
+<Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable={!share} noindex={share}>
+  {PREVIEW && !share && <PreviewBar m={m} />}
+  {share && <Editor m={m} />}
+  <div class="wrap">
+    <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
+    <article class="grid">
+      <div class="main stack">
+        <header class="stack">
+          {isPlaying(m) && <p class="playing">{playingLabel(m)}</p>}
+          <h1 data-pagefind-meta="title">{m.name}</h1>
+          <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
+        </header>
+
+        {m.photo && (
+          <figure class="hero">
+            <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} loading="eager" data-pagefind-meta="image[src]" />
+            {m.photoCredit && <figcaption>{m.photoCredit}</figcaption>}
+          </figure>
+        )}
+
+        {m.sound && (
+          <figure class="sound">
+            <blockquote>{m.sound.replace(/\.$/, '')}</blockquote>
+            <figcaption>The sound, in a few words</figcaption>
+          </figure>
+        )}
+
+        {m.genres.length > 0 && (
+          <div class="tags" aria-label="Genres">
+            {m.genres.map((g) => <a class="tag" href={`/genres/${g}/`}>{genreName(g)}</a>)}
+          </div>
+        )}
+
+        {m.bio && <div class="bio">{m.bio.split(/\n+/).map((para) => <p>{para}</p>)}</div>}
+
+        {m.song && (
+          <section class="song" aria-label="Listen">
+            <h2>Give it a listen</h2>
+            {embed ? (
+              embed.kind === 'youtube'
+                ? <div class="video"><iframe src={embed.src} title={`${m.name} on YouTube`} loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+                : <iframe class="player" src={embed.src} height={embed.height} title={`${m.name} on ${songService(m.song)}`} loading="lazy" allow="encrypted-media"></iframe>
+            ) : (
+              <a class="btn btn-line" href={m.song} rel="noopener">Listen on {songService(m.song)}</a>
+            )}
+          </section>
+        )}
+
+        {links.length > 0 ? (
+          <div class="links btns">
+            {links.map(([k, name]) => <a class="btn btn-line" href={m.links[k]} rel="noopener">{name}</a>)}
+          </div>
+        ) : (
+          <p class="muted" data-pagefind-ignore>No links yet. <a href={`/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`}>Are you {m.name}? Add yours.</a></p>
+        )}
+
+        {bandMembers.length > 0 && (
+          <section class="band" aria-labelledby="band-title">
+            <h2 id="band-title">Meet the band</h2>
+            <ul class="people">
+              {bandMembers.map((p) => (
+                <li>
+                  {p.photo ? <img src={p.photo} alt={p.name} loading="lazy" /> : <span class="face" aria-hidden="true">{initials(p.name)}</span>}
+                  <div>
+                    <p class="who">{p.name}</p>
+                    {p.plays && <p class="plays">{p.plays}</p>}
+                    {p.bio && <p class="pbio">{p.bio}</p>}
+                    {p.solo && musicianBySlug(p.solo) && <a class="solo" href={`/musicians/${p.solo}/`}>Also plays solo →</a>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {members.length > 0 && <p><strong>Members:</strong> {members.map((x, i) => <>{i > 0 && ', '}<a href={`/musicians/${x.slug}/`}>{x.name}</a></>)}</p>}
+        {memberOf.length > 0 && <p><strong>Also plays with:</strong> {memberOf.map((x, i) => <>{i > 0 && ', '}<a href={`/musicians/${x.slug}/`}>{x.name}</a></>)}</p>}
+
+        {gallery.length > 0 && (
+          <section class="photos" aria-label="Photos">
+            <h2>Photos</h2>
+            <ul class="gallery">
+              {gallery.map((g) => (
+                <li><a href={g.src} target="_blank" rel="noopener"><img src={g.src} alt={g.caption || `${m.name} photo`} loading="lazy" /></a>{g.caption && <span>{g.caption}</span>}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <div class="side stack">
+        {isPlaying(m) ? (
+          <ThisWeek
+            heading={where.length ? `${m.name} is playing ${listJoin(where)} ${playingWhen(m)}.` : `${m.name} is on stage ${playingWhen(m)}.`}
+            when={playingWhen(m, true)}
+            source={`musician_${m.slug}`}
+          />
+        ) : (
+          <ThisWeek
+            heading={`Catch ${m.name} live.`}
+            body="When they're booked, they'll be in the Thursday Live Music issue with every other show in town."
+            source={`musician_${m.slug}`}
+          />
+        )}
+        <aside class="shows-cta" data-pagefind-ignore>
+          <p><strong>Playing a show?</strong> <a href={utm(SITE.eventsUrl, `musician_${m.slug}`)} rel="noopener">Make sure we know about it: add it to the Events Calendar →</a></p>
+        </aside>
+        {!share && (
+          <aside class="claim" data-pagefind-ignore>
+            <p class="claim-head">Is this you?</p>
+            <p>{claimed
+              ? 'Need to change something on this page? Ask for your private edit link.'
+              : 'Claim this page, free. Add photos, your story, a song people can play and your band members, and change it anytime.'}</p>
+            <a class="btn btn-chile" href={`/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`}>{claimed ? 'Edit this page' : 'Claim this page'}</a>
+          </aside>
+        )}
+      </div>
+    </article>
+
+    {similar.length > 0 && (
+      <section class="more" data-pagefind-ignore>
+        <h2>If you like {m.name}</h2>
+        <ActList acts={similar} />
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
+  h1 { font-size: clamp(3rem, 8vw, 6.4rem); overflow-wrap: anywhere; }
+  .kind { font-size: 1.15rem; color: var(--muted); }
+  .hero { margin: 8px 0 0; }
+  .hero img { width: 100%; max-height: 560px; object-fit: cover; border-radius: 10px; display: block; background: var(--paper); }
+  .hero figcaption { margin-top: 6px; font-size: 0.82rem; color: var(--muted); }
+  .sound { margin: 8px 0; padding: 20px 0 0; border-top: 2px solid var(--ink); }
+  .sound blockquote { margin: 0; font: 700 clamp(1.6rem, 3.2vw, 2.4rem)/1.05 var(--display); color: var(--turq); }
+  .sound blockquote::before { content: '“'; } .sound blockquote::after { content: '”'; }
+  .sound figcaption { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
+  .bio { font-size: 1.1rem; line-height: 1.6; max-width: 62ch; }
+  .bio p + p { margin-top: 12px; }
+  .song h2, .band h2, .photos h2 { font-size: 1.9rem; margin-bottom: 14px; }
+  .video { position: relative; aspect-ratio: 16 / 9; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 10px; }
+  .player { width: 100%; border: 0; border-radius: 12px; }
+  .links { margin-top: 8px; }
+  .muted { color: var(--muted); }
+  .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .people li { display: grid; grid-template-columns: 72px 1fr; gap: 14px; align-items: start; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+  .people img, .face { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+  .face { display: grid; place-items: center; background: var(--night); color: var(--gold); font: 800 1.4rem/1 var(--display); }
+  .who { font: 800 1.3rem/1.05 var(--display); }
+  .plays { color: var(--turq); font-weight: 600; font-size: 0.95rem; margin-top: 2px; }
+  .pbio { font-size: 0.95rem; margin-top: 6px; color: var(--muted); }
+  .solo { display: inline-block; margin-top: 6px; font-weight: 700; font-size: 0.95rem; }
+  .gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; }
+  .gallery span { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+  .shows-cta { padding: 14px 18px; border-left: 4px solid var(--chile); background: var(--paper); border-radius: 8px; }
+  .claim { border: 1px dashed var(--turq); border-radius: 10px; padding: 22px; display: grid; gap: 10px; justify-items: start; }
+  .claim-head { font: 800 1.5rem/1 var(--display); }
+  .more { padding-bottom: 72px; }
+  .more h2 { margin-bottom: 18px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; gap: 32px; } }
+</style>

@@ -1,16 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { SITE, utm } from '../lib/site.js';
+import { SITE, utm, FORM_URL } from '../lib/site.js';
 const mail = (subject, body, bcc) => `mailto:${SITE.contactEmail}?subject=${encodeURIComponent(subject)}${bcc ? `&bcc=${encodeURIComponent(bcc)}` : ''}${body ? `&body=${encodeURIComponent(body)}` : ''}`;
-// Early-list emails also go to Grok Bot, which logs them in Notion and sends the reply.
-const GROKBOT = 'charlie-p9916j@mail.grokbot.com';
 ---
-<Layout title="Get Listed" description="Free listings for Las Cruces musicians, bands and live music venues, plus affordable upgrades and sponsor spots.">
+<Layout title="Get Listed" description="Free listings for Las Cruces musicians, bands and live music venues. Add your act, or claim your page to add photos, band members and a song.">
   <div class="wrap">
     <p class="crumbs"><a href="/">Home</a> / Get listed</p>
     <header class="top stack">
       <h1>Get on the lineup</h1>
-      <p class="lede">If you play music or host it in the Mesilla Valley, you get a free listing. Always. Paid upgrades for folks who want a little more are coming soon.</p>
+      <p class="lede">If you play music or host it in the Mesilla Valley, you get a free listing. Always. No pay-to-play. Just the whole scene, in one place.</p>
     </header>
 
     <aside class="shows-note" id="shows">
@@ -23,33 +21,29 @@ const GROKBOT = 'charlie-p9916j@mail.grokbot.com';
     <section class="block" id="musicians">
       <h2>Musicians and bands</h2>
       <div class="cols">
-        <div class="plan">
-          <p class="plan-name">Free listing</p>
-          <p class="price">$0, forever</p>
-          <ul>
-            <li>Your page with your name, genres and your sound in your own words</li>
-            <li>Website and social links</li>
-            <li>Band members linked to each other's pages</li>
-            <li>A “Playing this week” (or “next week”) badge whenever you're in the Thursday issue</li>
-            <li>Listed alphabetically. Nobody pays to cut the line.</li>
-          </ul>
-          <a class="btn btn-line" href={mail('Las Cruces Live: add or update my free listing')}>Add or fix my listing</a>
-        </div>
         <div class="plan featured">
-          <p class="soon">Coming soon</p>
-          <p class="plan-name">Booking-ready page</p>
-          <p class="price">$5 a month or $49 a year</p>
+          <p class="plan-name">New here? Add your act</p>
+          <p class="price">Free, forever</p>
           <ul>
-            <li>Header photo and a photo gallery</li>
-            <li>A song player from Spotify, YouTube, SoundCloud or Bandcamp</li>
-            <li>Your story and bio</li>
-            <li>A “Book us” form that emails you, without showing your address</li>
-            <li>A printable QR poster for your gigs and merch table</li>
-            <li>A monthly count of page views and link clicks</li>
+            <li>Your own page: photos, your story and your sound in your own words</li>
+            <li>A song people can play right on your page</li>
+            <li>Your band members, each with a photo and a line about them</li>
+            <li>Genres, website and social links</li>
+            <li>A “Playing this week” badge whenever you're in the Thursday issue</li>
           </ul>
-          <p class="note">Founding Musicians: the first 25 get a full year free.</p>
-          <p>We're putting the finishing touches on this one. Get on the early list and you'll hear first, with your founding spot saved.</p>
-          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Musician spot', 'Act or band name:\nBest way to reach you:\n', GROKBOT)}>Save me a founding spot</a>
+          <a class="btn btn-chile" href={FORM_URL} rel="noopener">Add my act</a>
+          <p class="small">About 3 minutes. I'll email you a private link to make changes anytime.</p>
+        </div>
+        <div class="plan">
+          <p class="plan-name">Already on the site? Claim it</p>
+          <p class="price">Also free</p>
+          <ul>
+            <li>Find your page and tap <strong>Claim this page</strong></li>
+            <li>I'll email you a private link to your page</li>
+            <li>Add photos, your bio, a song and your band members, and fix anything that's off</li>
+          </ul>
+          <a class="btn btn-line" href="/musicians/">Find my page</a>
+          <p class="small">Listed alphabetically. Nobody pays to cut the line.</p>
         </div>
       </div>
     </section>
@@ -77,9 +71,7 @@ const GROKBOT = 'charlie-p9916j@mail.grokbot.com';
             <li>A gold featured pin on the map</li>
             <li>Top spot in your neighborhood list</li>
           </ul>
-          <p class="note">Founding Venues: the first 10 get 3 months free.</p>
-          <p>Featured pages launch shortly. Raise your hand now and I'll hold one of the 10 founding spots for you.</p>
-          <a class="btn btn-chile" href={mail('Las Cruces Live: save me a Founding Venue spot', 'Venue name:\nYour name:\nBest way to reach you:\n', GROKBOT)}>Hold a founding spot for my venue</a>
+          <p>Featured venue pages are on the way. Want to hear first? <a href={mail('Las Cruces Live: featured venue')}>Drop me a line</a>.</p>
         </div>
       </div>
 
@@ -114,7 +106,7 @@ const GROKBOT = 'charlie-p9916j@mail.grokbot.com';
   .price { font-weight: 700; color: var(--turq); }
   .plan ul, .sponsors ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
   .soon { font: 700 0.8rem/1 var(--text); text-transform: uppercase; letter-spacing: 0.08em; color: #fff; background: var(--turq); padding: 6px 10px; border-radius: 999px; }
-  .note { font-weight: 600; color: var(--chile); }
+  .small { font-size: 0.9rem; color: var(--muted); }
   .sponsors { margin-top: 40px; display: grid; gap: 12px; justify-items: start; max-width: 70ch; }
   @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
 </style>

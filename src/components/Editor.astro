@@ -1,0 +1,332 @@
+---
+// The page editor. Two modes:
+//   owner: on a private edit link (/share/<token>/). Talks to /share-api/* with the token.
+//   admin: Charlie on the preview site (opened from the preview bar). Talks to /api/*, which checks his login.
+// Everything is saved through the lc-live-intake Worker, which writes to Notion.
+import { musicians } from '../lib/site.js';
+
+const { m, mode = 'owner' } = Astro.props;
+const soloChoices = musicians
+  .filter((x) => x.type === 'Solo Artist' && x.slug !== m.slug)
+  .map((x) => ({ id: x.notionId, name: x.name }));
+const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mode, name: m.name, soloChoices };
+---
+<section class={`editor ${mode}`} id="editor" hidden={mode === 'admin'} data-pagefind-ignore>
+  <div class="wrap">
+    <div class="ed-head">
+      <div>
+        <p class="ed-kicker">{mode === 'owner' ? 'Your private edit link' : 'Editing as Charlie'}</p>
+        <h2>{mode === 'owner' ? `Edit your page, ${m.name}` : `Edit ${m.name}`}</h2>
+        {mode === 'owner' && <p class="ed-note">Only you have this link, so don't share it. Make your changes, then tap <strong>Save</strong>. Your page is shown below.</p>}
+      </div>
+      <button class="btn btn-line ed-toggle" type="button" aria-expanded="true" aria-controls="ed-body">Hide editor</button>
+    </div>
+    <p class="ed-status" role="status" aria-live="polite">Loading your page…</p>
+    <form class="ed-body" id="ed-body" hidden>
+      <fieldset>
+        <legend>The basics</legend>
+        <div class="ed-fields" data-group="basics"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Photos</legend>
+        <p class="hint">A main photo shows big at the top of your page. Wide (landscape) photos look best. Add up to 8 more below it.</p>
+        <div class="ed-photo">
+          <div class="ed-main"></div>
+          <label class="file btn btn-line">Upload a main photo<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="main" hidden /></label>
+        </div>
+        <div class="ed-fields" data-group="photo"></div>
+        <ul class="ed-gallery"></ul>
+        <label class="file btn btn-line">Add photos<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-upload="gallery" hidden /></label>
+      </fieldset>
+      <fieldset class="ed-band" hidden>
+        <legend>Band members</legend>
+        <p class="hint">They show under your band on this page only. Add a small photo and a line or two about each person if you like. If someone also plays solo and has their own page here, pick it so people can find them.</p>
+        <ol class="ed-members"></ol>
+        <button class="btn btn-line" type="button" data-add-member>Add a band member</button>
+      </fieldset>
+      <fieldset>
+        <legend>Links</legend>
+        <div class="ed-fields" data-group="links"></div>
+      </fieldset>
+      <div class="ed-save">
+        <button class="btn btn-chile" type="submit">Save changes</button>
+        <p class="ed-saved" role="status" aria-live="polite"></p>
+      </div>
+      <aside class="ed-shows">
+        <strong>Don't forget your shows.</strong> Your page doesn't add them. Put your gigs on the
+        <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=editor" target="_blank" rel="noopener">LLLC Events Calendar</a>
+        so they make the Thursday Live Music issue.
+      </aside>
+    </form>
+  </div>
+</section>
+
+<script is:inline type="application/json" id="editor-config" set:html={JSON.stringify(config)}></script>
+<script is:inline>
+(function () {
+  var cfg = JSON.parse(document.getElementById('editor-config').textContent);
+  var root = document.getElementById('editor');
+  var api = cfg.mode === 'owner' ? '/share-api' : '/api';
+  var qs = '?id=' + cfg.id + (cfg.token ? '&token=' + encodeURIComponent(cfg.token) : '');
+  var status = root.querySelector('.ed-status');
+  var form = root.querySelector('.ed-body');
+  var saved = root.querySelector('.ed-saved');
+  var state = null, original = null;
+  var LABELS = {
+    "Musician's Name": ['Act or band name', 'basics', 'Exactly as it is on your flyers.'],
+    Type: ['Solo or band', 'basics'],
+    Genre: ['Your sound in a few words', 'basics', 'One line. It shows big on your page.'],
+    'Genres (checklist)': ['Genres (up to 3)', 'basics'],
+    Bio: ['About you', 'basics', '2 to 4 sentences, written to someone who has never heard you.'],
+    'Photo Credit': ['Photo credit', 'photo', 'Like: Photo by Jane Smith'],
+    'Image Permission': ['I own these photos (or have permission) and allow Las Cruces Live and Live Love Las Cruces to show them on the site, in the newsletter and on social media, with credit.', 'photo'],
+    Website: ['Website', 'links'], Instagram: ['Instagram', 'links'], Facebook: ['Facebook', 'links'], YouTube: ['YouTube', 'links'],
+    'Song Link': ['A song people can play', 'links', 'One Spotify, YouTube, SoundCloud or Bandcamp link. Spotify, YouTube and SoundCloud play right on your page.'],
+    'Booking Email': ['Booking email', 'links', 'Private. Never shown on the site.'],
+  };
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    for (var k in attrs || {}) { if (attrs[k] === undefined) continue; if (k === 'text') e.textContent = attrs[k]; else if (k === 'html') e.innerHTML = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    (kids || []).forEach(function (c) { if (c) e.appendChild(c); });
+    return e;
+  }
+  function say(msg, kind) { status.textContent = msg; status.className = 'ed-status ' + (kind || ''); }
+
+  root.querySelector('.ed-toggle').addEventListener('click', function () {
+    if (!state) return;
+    form.hidden = !form.hidden;
+    this.textContent = form.hidden ? 'Show editor' : 'Hide editor'; this.setAttribute('aria-expanded', String(!form.hidden));
+  });
+
+  function fieldInput(f) {
+    var meta = LABELS[f.name] || [f.name, 'basics'];
+    var id = 'f-' + f.name.replace(/\W+/g, '-');
+    var wrap = el('div', { class: 'ed-field' });
+    if (f.type === 'checkbox') {
+      var cb = el('input', { type: 'checkbox', id: id }); cb.checked = Boolean(f.value);
+      cb.addEventListener('change', function () { f.value = cb.checked; });
+      wrap.appendChild(el('label', { class: 'check', for: id }, [cb, el('span', { text: meta[0] })]));
+      return wrap;
+    }
+    wrap.appendChild(el('label', { for: id, text: meta[0] }));
+    if (meta[2]) wrap.appendChild(el('p', { class: 'hint', text: meta[2] }));
+    var input;
+    if (f.type === 'multi_select') {
+      input = el('div', { class: 'chips', id: id, role: 'group' });
+      (f.options || []).forEach(function (o) {
+        var c = el('input', { type: 'checkbox', value: o }); c.checked = (f.value || []).indexOf(o) > -1;
+        c.addEventListener('change', function () {
+          var picked = Array.prototype.filter.call(input.querySelectorAll('input'), function (x) { return x.checked; }).map(function (x) { return x.value; });
+          if (picked.length > 3) { c.checked = false; return; }
+          f.value = picked;
+        });
+        input.appendChild(el('label', { class: 'chip' }, [c, el('span', { text: o })]));
+      });
+    } else if (f.type === 'select') {
+      input = el('select', { id: id });
+      ['', ...(f.options || [])].forEach(function (o) { var op = el('option', { value: o, text: o || 'Pick one' }); if (o === f.value) op.selected = true; input.appendChild(op); });
+      input.addEventListener('change', function () { f.value = input.value; showBand(); });
+    } else {
+      var long = f.name === 'Bio';
+      input = el(long ? 'textarea' : 'input', { id: id, rows: long ? 5 : undefined, type: f.type === 'url' ? 'url' : f.type === 'email' ? 'email' : 'text', maxlength: f.name === 'Genre' ? 120 : long ? 1500 : 300 });
+      if (long) input.removeAttribute('type');
+      input.value = f.value || '';
+      input.addEventListener('input', function () { f.value = input.value; });
+    }
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function field(name) { return state.fields.find(function (f) { return f.name === name; }); }
+  function showBand() { var t = field('Type'); root.querySelector('.ed-band').hidden = !(t && t.value === 'Band'); }
+
+  function renderMain() {
+    var box = root.querySelector('.ed-main'); box.innerHTML = '';
+    if (state.photo) {
+      box.appendChild(el('img', { src: state.photo, alt: 'Main photo' }));
+      var rm = el('button', { type: 'button', class: 'linkish', text: 'Remove main photo' });
+      rm.addEventListener('click', function () { state.photo = ''; renderMain(); });
+      box.appendChild(rm);
+    } else box.appendChild(el('p', { class: 'empty', text: 'No main photo yet.' }));
+  }
+  function renderGallery() {
+    var ul = root.querySelector('.ed-gallery'); ul.innerHTML = '';
+    state.gallery.forEach(function (g, i) {
+      var cap = el('input', { type: 'text', placeholder: 'Caption (optional)', maxlength: 200 }); cap.value = g.caption || '';
+      cap.addEventListener('input', function () { g.caption = cap.value; });
+      var up = el('button', { type: 'button', class: 'linkish', text: '↑', 'aria-label': 'Move up' });
+      up.addEventListener('click', function () { if (i) { state.gallery.splice(i - 1, 0, state.gallery.splice(i, 1)[0]); renderGallery(); } });
+      var rm = el('button', { type: 'button', class: 'linkish', text: 'Remove' });
+      rm.addEventListener('click', function () { state.gallery.splice(i, 1); renderGallery(); });
+      ul.appendChild(el('li', {}, [el('img', { src: g.url, alt: '' }), cap, el('div', { class: 'row' }, [up, rm])]));
+    });
+  }
+  function renderMembers() {
+    var ol = root.querySelector('.ed-members'); ol.innerHTML = '';
+    state.members.forEach(function (p, i) {
+      var name = el('input', { type: 'text', placeholder: 'Name', maxlength: 80, 'aria-label': 'Name' }); name.value = p.name || '';
+      name.addEventListener('input', function () { p.name = name.value; });
+      var plays = el('input', { type: 'text', placeholder: 'What they play, like: drums, backing vocals', maxlength: 120, 'aria-label': 'What they play' }); plays.value = p.plays || '';
+      plays.addEventListener('input', function () { p.plays = plays.value; });
+      var bio = el('textarea', { rows: 2, placeholder: 'A line or two about them (optional)', maxlength: 400, 'aria-label': 'Short bio' }); bio.value = p.bio || '';
+      bio.addEventListener('input', function () { p.bio = bio.value; });
+      var em = el('input', { type: 'email', placeholder: 'Their email (optional, private)', maxlength: 200, 'aria-label': 'Email' }); em.value = p.email || '';
+      em.addEventListener('input', function () { p.email = em.value; });
+      var solo = el('select', { 'aria-label': 'Also plays solo as' });
+      solo.appendChild(el('option', { value: '', text: "Doesn't have a solo page here" }));
+      cfg.soloChoices.forEach(function (c) { var o = el('option', { value: c.id, text: 'Also plays solo as: ' + c.name }); if (c.id === p.solo) o.selected = true; solo.appendChild(o); });
+      solo.addEventListener('change', function () { p.solo = solo.value; });
+      var face = p.photo ? el('img', { src: p.photo, alt: '' }) : el('span', { class: 'face', text: (p.name || '?').slice(0, 1).toUpperCase() });
+      var file = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', hidden: '' });
+      file.addEventListener('change', function () { if (file.files[0]) upload(file.files[0], 600).then(function (u) { if (u) { p.photo = u; renderMembers(); } }); });
+      var pick = el('label', { class: 'linkish', text: p.photo ? 'Change photo' : 'Add photo' }, [file]);
+      var rmPhoto = p.photo ? el('button', { type: 'button', class: 'linkish', text: 'Remove photo' }) : null;
+      if (rmPhoto) rmPhoto.addEventListener('click', function () { p.photo = ''; renderMembers(); });
+      var up = el('button', { type: 'button', class: 'linkish', text: '↑', 'aria-label': 'Move up' });
+      up.addEventListener('click', function () { if (i) { state.members.splice(i - 1, 0, state.members.splice(i, 1)[0]); renderMembers(); } });
+      var rm = el('button', { type: 'button', class: 'linkish danger', text: 'Remove from band' });
+      rm.addEventListener('click', function () { if (confirmRemove(p)) { state.members.splice(i, 1); renderMembers(); } });
+      ol.appendChild(el('li', {}, [
+        el('div', { class: 'mface' }, [face, pick, rmPhoto]),
+        el('div', { class: 'mfields' }, [name, plays, bio, em, solo, el('div', { class: 'row' }, [up, rm])]),
+      ]));
+    });
+  }
+  function confirmRemove(p) { return !p.name || window.confirm('Remove ' + p.name + ' from the band?'); }
+  root.querySelector('[data-add-member]').addEventListener('click', function () {
+    state.members.push({ name: '', plays: '', bio: '', photo: '', email: '', solo: '' }); renderMembers();
+    var inputs = root.querySelectorAll('.ed-members li:last-child input'); if (inputs[0]) inputs[0].focus();
+  });
+
+  // Photos are shrunk in the browser (max 2000px, or less for member photos) before uploading.
+  function shrink(file, max) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        var s = Math.min(1, max / Math.max(img.width, img.height));
+        if (s === 1 && file.size < 2.5e6 && /jpeg|webp/.test(file.type)) return resolve(file);
+        var c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { resolve(b || file); }, 'image/jpeg', 0.86);
+      };
+      img.onerror = function () { resolve(file); };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  function upload(file, max) {
+    say('Uploading photo…');
+    return shrink(file, max || 2000).then(function (blob) {
+      return fetch(api + '/photo' + qs, { method: 'POST', headers: { 'content-type': blob.type || 'image/jpeg' }, body: blob });
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.ok) { say(d.error || 'That photo didn’t upload. Try again.', 'bad'); return ''; }
+      say('Photo added. Remember to tap Save.', 'ok'); return d.url;
+    }).catch(function () { say('That photo didn’t upload. Check your connection and try again.', 'bad'); return ''; });
+  }
+  root.querySelector('[data-upload="main"]').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    upload(f).then(function (u) { if (u) { state.photo = u; renderMain(); } }); e.target.value = '';
+  });
+  root.querySelector('[data-upload="gallery"]').addEventListener('change', function (e) {
+    var list = Array.prototype.slice.call(e.target.files, 0, Math.max(0, 8 - state.gallery.length));
+    if (!list.length) { say('That’s the 8-photo limit. Remove one to add another.', 'bad'); return; }
+    list.reduce(function (p, f) { return p.then(function () { return upload(f).then(function (u) { if (u) { state.gallery.push({ url: u, caption: '' }); renderGallery(); } }); }); }, Promise.resolve());
+    e.target.value = '';
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var changes = { fields: {} };
+    state.fields.forEach(function (f) { if (JSON.stringify(f.value) !== JSON.stringify(original.fields[f.name])) changes.fields[f.name] = f.value; });
+    if (state.photo !== original.photo) changes.photo = state.photo;
+    if (JSON.stringify(state.gallery) !== JSON.stringify(original.gallery)) changes.gallery = state.gallery;
+    var cleanMembers = state.members.filter(function (p) { return (p.name || '').trim(); });
+    if (JSON.stringify(cleanMembers) !== JSON.stringify(original.members)) changes.members = cleanMembers;
+    var hasPhotos = state.photo || state.gallery.length || cleanMembers.some(function (p) { return p.photo; });
+    var perm = field('Image Permission');
+    if (hasPhotos && perm && !perm.value) { saved.textContent = 'Tick the photo permission box (under Photos) so your photos can show.'; saved.className = 'ed-saved bad'; return; }
+    if (!Object.keys(changes.fields).length) delete changes.fields;
+    if (!Object.keys(changes).length) { saved.textContent = 'Nothing has changed yet.'; saved.className = 'ed-saved'; return; }
+    var btn = form.querySelector('[type=submit]'); btn.disabled = true; saved.textContent = 'Saving…'; saved.className = 'ed-saved';
+    fetch(api + '/listing' + qs, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: cfg.id, changes: changes }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        btn.disabled = false;
+        if (!d.ok) { saved.textContent = d.error || 'That didn’t save. Try again in a minute.'; saved.className = 'ed-saved bad'; return; }
+        original = JSON.parse(JSON.stringify(snapshot()));
+        saved.className = 'ed-saved ok';
+        saved.textContent = d.pending
+          ? 'Saved! Charlie will look it over and your changes go live soon, usually within a day.'
+          : d.live ? 'Saved! Your page updates in about 2 minutes.' : 'Saved! It’s on your preview now and goes live when Charlie approves it.';
+      })
+      .catch(function () { btn.disabled = false; saved.textContent = 'That didn’t save. Check your connection and try again.'; saved.className = 'ed-saved bad'; });
+  });
+
+  function snapshot() {
+    var f = {}; state.fields.forEach(function (x) { f[x.name] = x.value; });
+    return { fields: f, photo: state.photo, gallery: state.gallery, members: state.members.filter(function (p) { return (p.name || '').trim(); }) };
+  }
+  function start() {
+    say('Loading your page…');
+    fetch(api + '/listing' + qs).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.ok) { say(d.error || 'Couldn’t load your page.', 'bad'); return; }
+      state = { fields: d.fields, photo: d.photo || '', gallery: d.gallery || [], members: (d.members || []).map(function (p) { return { id: p.id, name: p.name, plays: p.plays, bio: p.bio, photo: p.photo, email: p.email, solo: p.solo }; }) };
+      original = JSON.parse(JSON.stringify(snapshot()));
+      root.querySelectorAll('.ed-fields').forEach(function (g) { g.innerHTML = ''; });
+      d.fields.forEach(function (f) { var g = (LABELS[f.name] || [0, 'basics'])[1]; root.querySelector('[data-group="' + g + '"]').appendChild(fieldInput(f)); });
+      renderMain(); renderGallery(); renderMembers(); showBand();
+      status.hidden = true; form.hidden = false;
+      if (d.pending && cfg.mode === 'owner') { status.hidden = false; say('You have changes waiting for Charlie. You can keep editing; your newest version is what he’ll see.', 'ok'); }
+    }).catch(function () { say('Couldn’t load your page. Check your connection and reload.', 'bad'); });
+  }
+  if (cfg.mode === 'owner') start();
+  else document.addEventListener('lc-edit', function () { root.hidden = false; if (!state) start(); root.scrollIntoView({ behavior: 'smooth' }); });
+})();
+</script>
+
+<style is:global>
+  .editor { background: var(--night); color: #fff; padding: 28px 0 36px; }
+  .editor a { color: var(--gold); }
+  .editor .ed-head { display: flex; justify-content: space-between; gap: 20px; align-items: start; flex-wrap: wrap; }
+  .editor .ed-kicker { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: var(--gold); font-weight: 700; }
+  .editor h2 { font-size: clamp(2rem, 4vw, 2.8rem); color: #fff; }
+  .editor .ed-note { max-width: 60ch; color: #d8d4ea; margin-top: 6px; }
+  .editor .ed-toggle { color: #fff; }
+  .editor .ed-status { margin-top: 14px; font-weight: 600; }
+  .editor .ed-status.bad, .editor .ed-saved.bad { color: #ffb4b4; }
+  .editor .ed-status.ok, .editor .ed-saved.ok { color: #9fe3c9; }
+  .editor .ed-body { margin-top: 20px; display: grid; gap: 18px; max-width: 820px; }
+  .editor fieldset { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 18px 20px 20px; margin: 0; display: grid; gap: 14px; }
+  .editor legend { font: 800 1.4rem/1 var(--display); padding: 0 6px; color: var(--gold); }
+  .editor .ed-fields { display: grid; gap: 14px; }
+  .editor .ed-field { display: grid; gap: 6px; }
+  .editor .ed-field > label { font-weight: 700; }
+  .editor .hint { font-size: 0.88rem; color: #c9c4de; }
+  .editor input[type=text], .editor input[type=url], .editor input[type=email], .editor textarea, .editor select {
+    width: 100%; font: inherit; padding: 10px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.35); background: #fff; color: var(--ink);
+  }
+  .editor .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .editor .chip { display: inline-flex; gap: 6px; align-items: center; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.35); border-radius: 999px; cursor: pointer; }
+  .editor .chip:has(input:checked) { background: var(--gold); color: var(--night); border-color: var(--gold); }
+  .editor .check { display: flex; gap: 10px; align-items: start; font-weight: 500; }
+  .editor .check input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+  .editor .file { color: #fff; justify-self: start; }
+  .editor .ed-photo { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
+  .editor .ed-main img { max-width: 320px; max-height: 200px; border-radius: 8px; display: block; object-fit: cover; }
+  .editor .ed-main .empty { color: #c9c4de; }
+  .editor .ed-gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .editor .ed-gallery li { display: grid; gap: 6px; }
+  .editor .ed-gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; }
+  .editor .ed-members { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: m; }
+  .editor .ed-members li { display: grid; grid-template-columns: 90px 1fr; gap: 14px; padding: 14px; border-radius: 8px; background: rgba(255,255,255,0.06); }
+  .editor .mface { display: grid; gap: 6px; justify-items: center; align-content: start; text-align: center; font-size: 0.85rem; }
+  .editor .mface img, .editor .mface .face { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+  .editor .mface .face { display: grid; place-items: center; background: var(--gold); color: var(--night); font: 800 1.6rem/1 var(--display); }
+  .editor .mfields { display: grid; gap: 8px; }
+  .editor .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .editor .linkish { background: none; border: 0; padding: 0; color: var(--gold); font: inherit; font-size: 0.9rem; text-decoration: underline; cursor: pointer; }
+  .editor .linkish.danger { color: #ffb4b4; }
+  .editor .ed-save { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; position: sticky; bottom: 0; background: var(--night); padding: 12px 0; }
+  .editor .ed-saved { font-weight: 600; }
+  .editor .ed-shows { padding: 12px 16px; border-left: 4px solid var(--gold); background: rgba(255,255,255,0.06); border-radius: 6px; }
+  @media (max-width: 560px) { .editor .ed-members li { grid-template-columns: 1fr; } }
+</style>

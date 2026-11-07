@@ -1,0 +1,139 @@
+---
+// "Claim this page": a musician or band asks for the private edit link to their own page.
+// Linked from every musician page (/claim/?id=…&name=…). Posts to the lc-live-intake Worker
+// (POST /claim). If the email matches one on file, Grok Bot emails the private edit link;
+// otherwise the request goes to Charlie's Review queue. Same answer either way.
+// Copied from the Art Trail's claim page.
+import Layout from '../layouts/Layout.astro';
+import { SITE, INTAKE_URL, TURNSTILE_SITEKEY, FORM_URL } from '../lib/site.js';
+---
+<Layout title="Claim your page" description="Musicians and bands on Las Cruces Live can claim their page to add photos, band members and changes themselves. Free." noindex>
+  <section class="wrap claim">
+    <h1>Claim your page</h1>
+    <p class="lede" data-intro>Your page, your words. Claim it and you can add photos, your story, a song, your band members and links yourself, any time. Free, always.</p>
+
+    <form class="claim-form" data-claim-form data-endpoint={`${INTAKE_URL}/claim`} data-sitekey={TURNSTILE_SITEKEY} novalidate>
+      <p class="for" data-for hidden>Claiming <strong data-name></strong> · <a data-back href="/">back to the page</a></p>
+      <p class="missing" data-missing hidden>Open this from the "Claim this page" button on your page. <a href="/musicians/">Find your page</a>, or if you're not listed yet, <a href={FORM_URL}>add your act</a>.</p>
+      <label class="field"><span>Your name</span><input name="name" maxlength="80" required autocomplete="name" /></label>
+      <label class="field"><span>Email</span><input name="email" type="email" maxlength="120" required autocomplete="email" /></label>
+      <p class="hint">Use the email you've used with Live Love Las Cruces and your private edit link comes straight to you. Different email? No problem: I'll check it's really you first.</p>
+      <label class="field" data-role-field><span>Your role <em>(optional)</em></span><input name="role" maxlength="80" placeholder="Lead singer, drummer, manager…" /></label>
+      <label class="field"><span>Anything that helps me confirm it's you <em>(optional)</em></span><textarea name="note" rows="3" maxlength="500" placeholder="The band's Instagram, or a note like “I post our shows on the band Facebook page”"></textarea></label>
+      <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+      <div class="ts"></div>
+      <div class="actions">
+        <button class="btn btn-chile" type="submit">Send me my edit link</button>
+        <p class="msg" role="status" aria-live="polite"></p>
+      </div>
+      <p class="fine">Your email stays private. It's only used for your edit link and questions about your page.</p>
+    </form>
+
+    <div class="how">
+      <h2>How it works</h2>
+      <ol>
+        <li><strong>You get a private link</strong> by email, usually within the hour. Don't share it: anyone with it can edit your page.</li>
+        <li><strong>Open it.</strong> Add photos, your story, a song, band members and links, then tap Save.</li>
+        <li><strong>I give your first update a quick look</strong> before it goes live. After that, your edits can go live on their own.</li>
+        <li><strong>Add your shows to the <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=claim">LLLC Events Calendar</a>.</strong> Your page doesn't add them, and it's how your gigs make the Thursday Live Music issue.</li>
+      </ol>
+      <p class="muted">Lost your link or it expired? Just claim your page again. Questions? <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a></p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-claim-form]');
+  if (form) {
+    const q = new URLSearchParams(location.search);
+    const id = (q.get('id') || '').replace(/[^0-9a-f]/gi, '');
+    const name = (q.get('name') || '').slice(0, 120);
+    const msg = form.querySelector<HTMLElement>('.msg')!;
+    const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    if (id.length === 32 && name) {
+      form.querySelector<HTMLElement>('[data-for]')!.hidden = false;
+      form.querySelector<HTMLElement>('[data-name]')!.textContent = name;
+      const back = document.referrer && new URL(document.referrer).origin === location.origin ? document.referrer : '/';
+      form.querySelector<HTMLAnchorElement>('[data-back]')!.href = back;
+    } else {
+      form.querySelector<HTMLElement>('[data-missing]')!.hidden = false;
+      btn.disabled = true;
+    }
+
+    let token = '';
+    let widget: string | undefined;
+    const start = async () => {
+      if (widget !== undefined || !form.dataset.sitekey) return;
+      widget = '';
+      await new Promise<void>((resolve) => {
+        const s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => resolve();
+        document.head.appendChild(s);
+      });
+      widget = (window as any).turnstile?.render(form.querySelector('.ts'), {
+        sitekey: form.dataset.sitekey, size: 'flexible',
+        callback: (t: string) => (token = t), 'expired-callback': () => (token = ''),
+      });
+    };
+    form.addEventListener('focusin', start, { once: true });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const who = String(data.get('name') || '').trim();
+      const email = String(data.get('email') || '').trim();
+      if (!who || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        msg.className = 'msg err';
+        msg.textContent = 'Add your name and a working email.';
+        return;
+      }
+      btn.disabled = true;
+      msg.className = 'msg';
+      msg.textContent = 'Sending…';
+      try {
+        const res = await fetch(form.dataset.endpoint!, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id, name: who, email, role: data.get('role'), note: data.get('note'), website: data.get('website'), token }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || 'Something went wrong. Please try again.');
+        form.innerHTML = `<div class="thanks"><h2>Got it, ${who.replace(/[<>&"]/g, '').split(' ')[0]}! ❤️</h2>
+          <p>If that's the email I have for ${name.replace(/[<>&"]/g, '')}, your private edit link is on its way from Live Love Las Cruces (usually within the hour; peek in spam just in case).</p>
+          <p>Different email? I'll check it's you and send the link myself, usually within a day.</p>
+          <p><strong>While you wait:</strong> add your upcoming shows to the <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=claim_thanks">LLLC Events Calendar</a> so they make the Thursday Live Music issue.</p></div>`;
+      } catch (err) {
+        msg.className = 'msg err';
+        msg.textContent = (err as Error).message;
+        btn.disabled = false;
+        token = '';
+        if (widget) (window as any).turnstile?.reset(widget);
+      }
+    });
+  }
+</script>
+
+<style>
+  .claim { display: flex; flex-direction: column; gap: 22px; padding-top: 32px; padding-bottom: 64px; max-width: 760px; }
+  .claim-form { display: flex; flex-direction: column; gap: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 24px; }
+  .for { font-size: 1.05rem; }
+  .missing { font-weight: 600; color: var(--chile); }
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: .92rem; font-weight: 600; }
+  .field em { font-style: normal; font-weight: 400; color: var(--muted); }
+  .field input, .field textarea { font: inherit; font-weight: 400; font-size: 1rem; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--turq); }
+  .field[hidden] { display: none; }
+  .hint { font-size: .9rem; color: var(--muted); margin-top: -6px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .msg:empty { display: none; }
+  .msg.err { color: var(--chile); font-weight: 600; }
+  .fine { font-size: .82rem; color: var(--muted); }
+  .claim-form :global(.thanks) { display: flex; flex-direction: column; gap: 10px; }
+  .how h2 { font-size: 1.4rem; margin-bottom: 10px; }
+  .how ol { display: flex; flex-direction: column; gap: 8px; padding-left: 1.2em; margin-bottom: 12px; }
+  button:disabled { opacity: .55; cursor: default; }
+</style>

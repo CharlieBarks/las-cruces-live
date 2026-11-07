@@ -1,0 +1,47 @@
+---
+// Preview site only: everything waiting for Charlie. New acts from the form, claim requests from
+// people whose email isn't on file, and owners' changes to live pages.
+import Layout from '../../layouts/Layout.astro';
+import { musicians, PREVIEW } from '../../lib/site.js';
+const newActs = musicians.filter((m) => m.siteStatus === 'Submitted' || m.siteStatus === 'In Review');
+const claims = musicians.filter((m) => m.claimRequest);
+const pending = musicians.filter((m) => m.pendingEdits);
+const empty = !newActs.length && !claims.length && !pending.length;
+---
+<Layout title="Review queue" description="Waiting for approval" noindex>
+  <div class="wrap q">
+    {!PREVIEW ? <p>Not here.</p> : (
+      <>
+        <h1>Review queue</h1>
+        {empty && <p class="lede">All caught up. Nothing is waiting.</p>}
+        {newActs.length > 0 && (
+          <section>
+            <h2>New acts ({newActs.length})</h2>
+            <ul>{newActs.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{m.siteStatus}{m.submittedOn && ` · ${m.submittedOn}`}{m.submitter && ` · ${m.submitter}`}</span></li>)}</ul>
+          </section>
+        )}
+        {claims.length > 0 && (
+          <section>
+            <h2>Claim requests ({claims.length})</h2>
+            <ul>{claims.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{m.claimRequest.split('\n')[0]}</span></li>)}</ul>
+          </section>
+        )}
+        {pending.length > 0 && (
+          <section>
+            <h2>Changes to live pages ({pending.length})</h2>
+            <ul>{pending.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{(m.pendingEdits.at || '').slice(0, 10)}</span></li>)}</ul>
+          </section>
+        )}
+        <p class="tip">Open an act to Approve it, send the edit link or apply their changes. This page refreshes about 2 minutes after anything changes.</p>
+      </>
+    )}
+  </div>
+</Layout>
+<style>
+  .q { padding: 32px 0 80px; display: grid; gap: 24px; }
+  section { border-top: 2px solid var(--ink); padding-top: 14px; }
+  h2 { margin-bottom: 10px; }
+  ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+  li span { color: var(--muted); font-size: 0.95rem; margin-left: 6px; }
+  .tip { color: var(--muted); }
+</style>
