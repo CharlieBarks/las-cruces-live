@@ -2,13 +2,13 @@
 // Venue map: OpenFreeMap "Liberty" style (free, no key), recolored to match the site.
 // Pins with shows this week or next glow gold; tapping one shows who's playing (names only)
 // and hands off to the Thursday issue for days and times.
-import { venues, venueWeek, musicianBySlug, AREAS, whenText, cap, issueLink, subscribeLink } from '../lib/site.js';
+import { venues, venueWeek, musicianBySlug, AREAS, whenText, cap, issueLink, subscribeLink, isFeatured } from '../lib/site.js';
 const { list = venues, height = '70vh', filters = false, zoom } = Astro.props;
 const points = list.filter((v) => v.lat && v.lng).map((v) => {
   const w = venueWeek(v);
   const acts = w.acts.map(musicianBySlug).filter(Boolean);
   return {
-    name: v.name, slug: v.slug, lat: v.lat, lng: v.lng, area: AREAS[v.area]?.name || '',
+    name: v.name, slug: v.slug, lat: v.lat, lng: v.lng, area: AREAS[v.area]?.name || '', feat: isFeatured(v) ? 1 : 0,
     when: cap(whenText(w.weeks, true)), shows: w.shows, unlisted: w.unlisted ?? 0, acts: acts.map((a) => a.name),
     genres: `,${[...new Set(acts.flatMap((a) => a.genres))].join(',')},`,
   };
@@ -87,12 +87,20 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
           features: points.map((p: any, i: number) => ({
             type: 'Feature', id: i,
             geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
-            properties: { i, hot: p.shows > 0 ? 1 : 0, g: p.genres },
+            properties: { i, hot: p.shows > 0 ? 1 : 0, feat: p.feat, g: p.genres, name: p.name },
           })),
         },
       });
       // Pins sit above streets but below town names, so "Las Cruces" and "Mesilla" stay readable.
       const firstPlace = ((map.getStyle().layers || []) as any[]).find((l) => /^label_(city|town|village|state|country)/.test(l.id))?.id;
+      // Featured venues: a red chile halo under the pin, and their name always showing.
+      map.addLayer({
+        id: 'venue-halo', type: 'circle', source: 'venues', filter: ['==', ['get', 'feat'], 1],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 12, 14, 22],
+          'circle-color': 'rgba(176, 31, 44, 0.22)', 'circle-stroke-color': '#b01f2c', 'circle-stroke-width': 2.5,
+        },
+      }, firstPlace);
       map.addLayer({
         id: 'venue-pins', type: 'circle', source: 'venues',
         paint: {
@@ -103,12 +111,22 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
         },
       }, firstPlace);
 
+      map.addLayer({
+        id: 'venue-names', type: 'symbol', source: 'venues', filter: ['==', ['get', 'feat'], 1],
+        layout: {
+          'text-field': ['get', 'name'], 'text-font': ['Noto Sans Bold'], 'text-size': 13,
+          'text-offset': [0, 1.6], 'text-anchor': 'top', 'text-allow-overlap': true,
+        },
+        paint: { 'text-color': '#b01f2c', 'text-halo-color': '#ffffff', 'text-halo-width': 2 },
+      });
+
       const popup = new Popup({ closeButton: true, maxWidth: '290px', offset: 12 });
       const make = (tag: string, text?: string, cls?: string) => { const n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; };
       map.on('click', 'venue-pins', (e: any) => {
         const p = points[e.features[0].properties.i];
         const box = make('div', undefined, 'pin');
         const a = make('a', p.name, 'pin-name') as HTMLAnchorElement; a.href = `/venues/${p.slug}/`; box.appendChild(a);
+        if (p.feat) box.insertBefore(make('div', 'Featured venue', 'pin-feat'), a);
         if (p.area) box.appendChild(make('div', p.area, 'pin-area'));
         if (p.shows > 0) {
           let line = p.acts.length ? `${p.when}: ${p.acts.join(', ')}` : `${p.when}: ${p.shows} ${p.shows === 1 ? 'show' : 'shows'}`;
@@ -133,7 +151,10 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
           const conds: any[] = [];
           if (hot) conds.push(['==', ['get', 'hot'], 1]);
           if (genre) conds.push(['in', `,${genre},`, ['get', 'g']]);
-          map.setFilter('venue-pins', conds.length ? ['all', ...conds] : null);
+          const f = conds.length ? ['all', ...conds] : null;
+          map.setFilter('venue-pins', f);
+          map.setFilter('venue-halo', f ? ['all', ['==', ['get', 'feat'], 1], f] : ['==', ['get', 'feat'], 1]);
+          map.setFilter('venue-names', f ? ['all', ['==', ['get', 'feat'], 1], f] : ['==', ['get', 'feat'], 1]);
           const n = points.filter((p: any) => (!hot || p.shows > 0) && (!genre || p.genres.includes(`,${genre},`))).length;
           const out = form.querySelector('output'); if (out) out.textContent = `${n} ${n === 1 ? 'venue' : 'venues'} on the map`;
         };
@@ -153,6 +174,7 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
   .pin { font-family: var(--text); display: grid; gap: 4px; }
   .pin-name { font: 800 1.35rem/1 var(--display); color: var(--ink) !important; text-decoration: none; padding-right: 18px; }
   .pin-area { color: var(--muted); font-size: 0.85rem; }
+  .pin-feat { justify-self: start; background: var(--gold); color: var(--night); font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 999px; }
   .pin-week { margin: 6px 0 4px !important; font-size: 0.95rem; color: var(--ink); }
   .pin-btn { display: inline-block; background: var(--gold); color: var(--night) !important; font-weight: 700; padding: 9px 12px; border-radius: 6px; text-decoration: none; justify-self: start; }
   .pin-sub { font-size: 0.85rem; color: var(--turq) !important; }

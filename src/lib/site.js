@@ -59,6 +59,11 @@ export const venues = venuesRaw.filter((v) => live(v) && v.name).sort((a, b) => 
 export const musicianBySlug = (s) => musicians.find((m) => m.slug === s);
 export const venueBySlug = (s) => venues.find((v) => v.slug === s);
 
+// Featured venues (Listing Tier = Featured in Notion) are sponsors: shown first, gold highlight, labeled on the map.
+export const isFeatured = (v) => ['featured', 'sponsor'].includes((v?.tier || '').toLowerCase());
+export const featuredVenues = venues.filter(isFeatured);
+export const featuredFirst = (list) => [...list].sort((a, b) => Number(isFeatured(b)) - Number(isFeatured(a)));
+
 // ---------- This week & next (from the latest Thursday issue) ----------
 // The issue covers two weeks, Thursday to Wednesday: the first in the email, the second
 // web-only. Each show carries its date, so the site can say "this week", "next week" or both.

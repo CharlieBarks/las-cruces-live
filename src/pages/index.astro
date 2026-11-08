@@ -1,12 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Stage from '../components/Stage.astro';
-import { SITE, whenText, WHEN_SHORT, lineupTitle, musicians, venues, genres, playingActs, thisWeek, venueWeek, issueLink, subscribeLink, AREAS, SPONSORS } from '../lib/site.js';
+import Icon from '../components/Icon.astro';
+import FeaturedVenue from '../components/FeaturedVenue.astro';
+import { SITE, whenText, WHEN_SHORT, lineupTitle, musicians, venues, genres, playingActs, thisWeek, venueWeek, issueLink, subscribeLink, AREAS, SPONSORS, featuredVenues, isFeatured } from '../lib/site.js';
 
 const busy = venues
   .map((v) => ({ v, w: venueWeek(v) }))
   .filter((x) => x.w.shows > 0)
-  .sort((a, b) => b.w.shows - a.w.shows || a.v.name.localeCompare(b.v.name));
+  .sort((a, b) => Number(isFeatured(b.v)) - Number(isFeatured(a.v)) || b.w.shows - a.w.shows || a.v.name.localeCompare(b.v.name));
 const areaCounts = Object.entries(AREAS)
   .map(([k, a]) => ({ k, a, n: venues.filter((v) => v.area === k).length }))
   .filter((x) => x.n > 0);
@@ -56,6 +58,15 @@ const sponsor = SPONSORS.home;
     </div>
   </section>
 
+  {featuredVenues.length > 0 && (
+    <section class="featured">
+      <div class="wrap">
+        <h2>Featured stages</h2>
+        <div class="fgrid">{featuredVenues.map((v) => <FeaturedVenue v={v} source="home" />)}</div>
+      </div>
+    </section>
+  )}
+
   {sponsor && (
     <div class="sponsor wrap"><span>Presented by</span> <a href={sponsor.url}>{sponsor.name}</a></div>
   )}
@@ -68,7 +79,7 @@ const sponsor = SPONSORS.home;
       </div>
       <ul class="genres">
         {genres.map((g) => (
-          <li><a href={`/genres/${g.slug}/`}><span>{g.name}</span><span class="n">{g.acts.length}</span></a></li>
+          <li><a href={`/genres/${g.slug}/`}><span class="gname"><Icon genre={g.slug} size={30} />{g.name}</span><span class="n">{g.acts.length}</span></a></li>
         ))}
       </ul>
     </div>
@@ -81,7 +92,7 @@ const sponsor = SPONSORS.home;
         <p class="lede">Wineries, brewery patios, plaza cantinas and roadhouses. These stages had the most going on in the latest issue.</p>
         <ol class="busy">
           {busy.slice(0, 8).map(({ v, w }) => (
-            <li><a href={`/venues/${v.slug}/`}>{v.name}</a><span>{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span></li>
+            <li class={isFeatured(v) ? 'feat' : undefined}><a href={`/venues/${v.slug}/`}>{v.name}{isFeatured(v) && <em class="ftag">Featured</em>}</a><span>{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span></li>
           ))}
         </ol>
         <div class="btns"><a class="btn btn-line" href="/map/">Open the venue map</a><a class="btn btn-line" href="/venues/">All {venues.length} venues</a></div>
@@ -147,6 +158,13 @@ const sponsor = SPONSORS.home;
   .busy li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); }
   .busy a { font: 700 1.35rem/1.1 var(--display); color: var(--ink); text-decoration: none; }
   .busy a:hover { color: var(--turq); }
+  .busy li.feat { background: rgba(244,182,62,.12); box-shadow: inset 4px 0 0 var(--gold); padding-left: 12px; }
+  .ftag { font: 700 .72rem var(--text); font-style: normal; background: var(--gold); color: var(--night); padding: 3px 8px; border-radius: 999px; margin-left: 10px; vertical-align: .3em; }
+  .featured { padding: clamp(40px, 5vw, 64px) 0 8px; }
+  .featured h2 { margin-bottom: 20px; }
+  .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .gname { display: inline-flex; align-items: center; gap: 12px; }
+  .gname :global(.icon) { color: var(--turq); flex: none; }
   .busy span { color: var(--chile); font-weight: 600; font-size: 0.92rem; white-space: nowrap; }
   .areas h3 { margin-bottom: 12px; }
   .areas ul { list-style: none; margin: 0; padding: 0; }
