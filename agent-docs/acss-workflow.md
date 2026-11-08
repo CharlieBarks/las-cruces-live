@@ -4,7 +4,7 @@ ACSS is a WordPress plugin. Our sites are Astro. So a WordPress install acts as 
 
 ## The control panel: Barks.co
 
-- **Barks.co** is the control panel: an empty placeholder WordPress site (noindex, no visitors) with ACSS installed and licensed. It's hosted on a Vultr server managed with **RunCloud**, which has WP-CLI pre-installed.
+- **Barks.co** is the control panel: an empty placeholder WordPress site (noindex, no visitors) with **ACSS 4 or newer** installed and licensed. The `wp acss` commands don't exist in ACSS 3.x. It's hosted on a Vultr server managed with **RunCloud**, which has WP-CLI pre-installed.
 - Claude Code on Charlie's Mac reaches it over **SSH** and runs `wp acss ...` there. `scripts/acss-sync.sh` does this for you.
 - Importing settings restyles Barks.co. That's fine: nobody uses it. **Never use any other live WordPress site as the control panel.** Importing replaces that site's whole design for its visitors.
 - Fallback if the server is ever unavailable: a LocalWP install on the Mac with ACSS (set `ACSS_SSH=` empty and `ACSS_WP_PATH` to the local WordPress folder).
@@ -31,6 +31,8 @@ ACSS is a WordPress plugin. Our sites are Astro. So a WordPress install acts as 
 **Never commit** the server IP, user, key or these two files. Two of the site repos are public.
 
 If `wp` isn't found over SSH, find its location on the server (`which wp` in a RunCloud SSH session) and use the full path in the script, then note it here.
+
+If the test says `'acss' is not a registered wp command`, the SSH connection is fine but ACSS is older than version 4. Update the plugin on the control panel, then run the test again. WordPress may not offer the update on its own; the plugin can be installed from the ACSS account.
 
 ## Files in each site repo
 
