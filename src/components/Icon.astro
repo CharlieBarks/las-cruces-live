@@ -1,0 +1,7 @@
+---
+// Genre instrument drawing. <Icon genre="blues" size={28} />
+import { INSTRUMENTS, DEFAULT_INSTRUMENT } from '../lib/instruments.js';
+const { genre, size = 32, stroke = 2.4, class: cls } = Astro.props;
+const inner = INSTRUMENTS[genre] || DEFAULT_INSTRUMENT;
+---
+<svg class:list={['icon', cls]} viewBox="0 0 48 48" width={size} height={size} fill="none" stroke="currentColor" stroke-width={stroke} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={inner} />

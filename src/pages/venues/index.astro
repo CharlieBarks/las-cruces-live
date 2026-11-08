@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { venues, AREAS, venueWeek, whenText } from '../../lib/site.js';
+import FeaturedVenue from '../../components/FeaturedVenue.astro';
+import { venues, AREAS, venueWeek, whenText, featuredVenues, featuredFirst, isFeatured } from '../../lib/site.js';
 const groups = Object.entries(AREAS)
-  .map(([k, a]) => ({ k, a, list: venues.filter((v) => v.area === k) }))
+  .map(([k, a]) => ({ k, a, list: featuredFirst(venues.filter((v) => v.area === k)) }))
   .filter((g) => g.list.length);
 ---
 <Layout title="Live Music Venues" description={`${venues.length} places to hear live music in Las Cruces, Mesilla, the South Valley wineries and Hatch, grouped by neighborhood.`}>
@@ -15,6 +16,12 @@ const groups = Object.entries(AREAS)
         {groups.map((g) => <a class="tag" href={`#${g.k}`}>{g.a.name}</a>)}
       </nav>
     </header>
+    {featuredVenues.length > 0 && (
+      <section class="fband">
+        <h2>Featured venues</h2>
+        <div class="fgrid">{featuredVenues.map((v) => <FeaturedVenue v={v} source="venues" />)}</div>
+      </section>
+    )}
     {groups.map((g) => (
       <section class="area" id={g.k}>
         <div class="area-head">
@@ -25,8 +32,8 @@ const groups = Object.entries(AREAS)
           {g.list.map((v) => {
             const w = venueWeek(v);
             return (
-              <li>
-                <a href={`/venues/${v.slug}/`}>{v.name}</a>
+              <li class={isFeatured(v) ? 'feat' : undefined}>
+                <a href={`/venues/${v.slug}/`}>{v.name}{isFeatured(v) && <em class="ftag">Featured</em>}</a>
                 <span class="addr">{v.address ? v.address.replace(/,\s*NM\s*\d{5}$/, '') : ''}</span>
                 {w.shows > 0 && <span class="playing">{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span>}
               </li>
@@ -41,6 +48,11 @@ const groups = Object.entries(AREAS)
 <style>
   .top { padding: 18px 0 32px; }
   .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .fband { padding: 8px 0 40px; }
+  .fband h2 { margin-bottom: 18px; }
+  .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .vlist li.feat { background: rgba(244,182,62,.12); box-shadow: inset 4px 0 0 var(--gold); padding-left: 12px; }
+  .ftag { font: 700 .72rem var(--text); font-style: normal; background: var(--gold); color: var(--night); padding: 3px 8px; border-radius: 999px; margin-left: 10px; vertical-align: .3em; }
   .area { display: grid; grid-template-columns: minmax(220px, 1fr) 2fr; gap: 32px; padding: 32px 0; border-top: 2px solid var(--ink); scroll-margin-top: 20px; }
   .area:last-child { padding-bottom: 80px; }
   .area-head p { margin-top: 10px; color: var(--muted); }

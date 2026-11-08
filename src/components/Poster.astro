@@ -1,0 +1,33 @@
+---
+// Gig-poster card for a musician who hasn't sent photos yet: their name, their genre's instrument, site colors.
+import { instrumentFor } from '../lib/instruments.js';
+import { genreName, typeLabel } from '../lib/site.js';
+const { m, claimUrl = '/get-listed/' } = Astro.props;
+const size = m.name.length > 26 ? 'sm' : m.name.length > 14 ? 'md' : 'lg';
+---
+<figure class="poster-card" aria-label={`${m.name} poster`}>
+  <div class="art">
+    <span class="beam l"></span><span class="beam r"></span>
+    <svg class="inst" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={instrumentFor(m.genres)} />
+    <p class:list={['pname', size]}>{m.name}</p>
+    <p class="pgenre">{m.genres.slice(0, 2).map(genreName).join(' · ') || typeLabel(m) || 'Live music'}</p>
+    <p class="pplace">Las Cruces, New Mexico</p>
+  </div>
+  <figcaption data-pagefind-ignore>Are you {m.name}? <a href={claimUrl}>Add a photo</a> to replace this poster.</figcaption>
+</figure>
+
+<style>
+  .poster-card { margin: 0; }
+  .art { position: relative; overflow: hidden; aspect-ratio: 4 / 5; border-radius: 10px; background: var(--night); color: var(--cream);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px 22px;
+    border: 3px solid var(--gold); box-shadow: inset 0 0 0 6px var(--night), inset 0 0 0 8px rgba(244,182,62,.5); }
+  .beam { position: absolute; top: -10%; width: 60%; height: 120%; opacity: .45; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); }
+  .beam.l { left: -8%; transform: rotate(-16deg); background: linear-gradient(180deg, rgba(244,182,62,.6), transparent 75%); }
+  .beam.r { right: -8%; transform: rotate(16deg); background: linear-gradient(180deg, rgba(54,179,168,.55), transparent 75%); }
+  .inst { position: relative; width: 38%; height: auto; color: var(--gold); margin-bottom: 14px; }
+  .pname { position: relative; font: 900 2.9rem/0.95 var(--display); text-transform: uppercase; color: var(--cream) !important; overflow-wrap: anywhere; }
+  .pname.md { font-size: 2.3rem; } .pname.sm { font-size: 1.8rem; }
+  .pgenre { position: relative; margin-top: 12px; color: var(--turq-bright) !important; font-weight: 700; }
+  .pplace { position: relative; margin-top: 6px; font-size: .85rem; color: #cfc8de !important; }
+  figcaption { margin-top: 10px; font-size: .9rem; color: var(--muted); }
+</style>

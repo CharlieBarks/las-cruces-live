@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import VenueMap from '../../components/VenueMap.astro';
-import { SITE, utm, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd } from '../../lib/site.js';
+import { SITE, utm, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, isFeatured, featuredFirst } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return venues.map((v) => ({ params: { slug: v.slug } }));
@@ -13,7 +13,8 @@ const w = venueWeek(v);
 const acts = w.acts.map(musicianBySlug).filter(Boolean);
 const LINKS = [['website', 'Website'], ['facebook', 'Facebook'], ['instagram', 'Instagram']];
 const links = LINKS.filter(([k]) => v.links[k]);
-const nearby = venues.filter((x) => x.area === v.area && x.slug !== v.slug).slice(0, 6);
+const feat = isFeatured(v);
+const nearby = featuredFirst(venues.filter((x) => x.area === v.area && x.slug !== v.slug)).slice(0, 6);
 const others = w.unlisted ?? Math.max(0, w.shows - acts.length);
 const when = whenText(w.weeks);
 const heading = acts.length
@@ -23,8 +24,9 @@ const heading = acts.length
 <Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v)]} searchable>
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
-    <article class="grid">
+    <article class:list={['grid', { feat }]}>
       <div class="main stack">
+        {feat && <p class="fpill">Featured venue</p>}
         {w.shows > 0 && <p class="playing">Live music {whenText(w.weeks, true)}</p>}
         <h1>{v.name}</h1>
         <p class="kind"><a href={`/venues/#${v.area}`}>{area?.name}</a></p>
@@ -50,23 +52,26 @@ const heading = acts.length
         <aside class="shows-cta" data-pagefind-ignore>
           <p><strong>Got shows coming up?</strong> <a href={utm(SITE.eventsUrl, `venue_${v.slug}`)} rel="noopener">Make sure we know about it: add it to the Events Calendar →</a></p>
         </aside>
-        <aside class="claim" data-pagefind-ignore>
+        {!feat && <aside class="claim" data-pagefind-ignore>
           <p class="claim-head">Run this venue?</p>
           <p>Featured venue pages are coming soon, with photos, your regular music nights and a gold pin on the map. Sponsor spots are open now.</p>
           <a href="/get-listed/#venues">See venue options</a>
-        </aside>
+        </aside>}
       </div>
     </article>
     {nearby.length > 0 && (
       <section class="nearby" data-pagefind-ignore>
         <h2>More in {area?.name}</h2>
-        <ul>{nearby.map((x) => <li><a href={`/venues/${x.slug}/`}>{x.name}</a></li>)}</ul>
+        <ul>{nearby.map((x) => <li><a href={`/venues/${x.slug}/`}>{x.name}</a>{isFeatured(x) && <em class="ftag">Featured</em>}</li>)}</ul>
       </section>
     )}
   </div>
 </Layout>
 
 <style>
+  .fpill { display: inline-block; margin-right: 10px; background: var(--gold); color: var(--night); font-weight: 700; font-size: .85rem; padding: 5px 12px; border-radius: 999px; }
+  .feat h1 { text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 8px; text-underline-offset: 6px; text-decoration-skip-ink: none; }
+  .ftag { font: 700 .7rem var(--text); font-style: normal; background: var(--gold); color: var(--night); padding: 2px 7px; border-radius: 999px; margin-left: 8px; }
   .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 48px; padding: 20px 0 56px; align-items: start; }
   h1 { font-size: clamp(3rem, 7.5vw, 6rem); }
   .kind { font-size: 1.15rem; }

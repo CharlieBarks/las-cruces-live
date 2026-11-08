@@ -1,0 +1,38 @@
+---
+// Highlight card for a featured (sponsoring) venue.
+import { venueWeek, musicianBySlug, AREAS, issueLink, whenText } from '../lib/site.js';
+const { v, source = 'featured' } = Astro.props;
+const w = venueWeek(v);
+const acts = w.acts.map(musicianBySlug).filter(Boolean);
+const extra = w.unlisted ?? Math.max(0, w.shows - acts.length);
+---
+<article class="fv">
+  <p class="pill">Featured venue</p>
+  <h3><a href={`/venues/${v.slug}/`}>{v.name}</a></h3>
+  <p class="area">{AREAS[v.area]?.name}</p>
+  {w.shows > 0 ? (
+    <p class="week">
+      <span class="playing">{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span>
+      {acts.length > 0 && <span class="who">{acts.map((a, i) => <>{i > 0 && (i === acts.length - 1 && extra === 0 ? ' and ' : ', ')}<a href={`/musicians/${a.slug}/`}>{a.name}</a></>)}{extra > 0 && ` and ${extra} more`}</span>}
+    </p>
+  ) : (
+    <p class="week">Live music most weekends.</p>
+  )}
+  <div class="btns">
+    <a class="btn btn-chile" href={`/venues/${v.slug}/`}>See the venue</a>
+    {w.shows > 0 && <a class="btn btn-line" href={issueLink(`${source}_${v.slug}`)}>Days and times</a>}
+  </div>
+</article>
+
+<style>
+  .fv { position: relative; background: var(--paper); border: 2px solid var(--gold); border-radius: 10px; padding: 24px 24px 22px; display: grid; gap: 8px; align-content: start;
+    box-shadow: 0 0 0 4px rgba(244, 182, 62, 0.18); }
+  .pill { justify-self: start; background: var(--gold); color: var(--night); font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; }
+  h3 { font-size: clamp(1.9rem, 3vw, 2.4rem); }
+  h3 a { color: var(--ink); text-decoration: none; }
+  h3 a:hover { color: var(--turq); }
+  .area { color: var(--muted); }
+  .week { display: grid; gap: 4px; margin-top: 4px; }
+  .who a { color: var(--ink); font-weight: 600; }
+  .btns { margin-top: 10px; }
+</style>

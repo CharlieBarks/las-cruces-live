@@ -6,6 +6,7 @@ import ThisWeek from './ThisWeek.astro';
 import ActList from './ActList.astro';
 import PreviewBar from './PreviewBar.astro';
 import Editor from './Editor.astro';
+import Poster from './Poster.astro';
 import {
   SITE, PREVIEW, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
   genreName, listJoin, musicianJsonLd, songEmbed, songService,
@@ -42,7 +43,8 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>
   </div>
-  <section class={`wrap top${m.photo ? ' has-photo' : ''}`}>
+  <section class={`wrap top${m.photo ? ' has-photo' : ' has-poster'}`}>
+    {!m.photo && <div class="poster-slot"><Poster m={m} claimUrl={claimUrl} /></div>}
     {m.photo && (
       <figure class="feature">
         <a class="mat" href={m.photo} target="_blank" rel="noopener" aria-label={`View larger photo of ${m.name} (opens in a new tab)`}>
@@ -181,6 +183,8 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
 <style>
   .top { display: flex; flex-wrap: wrap; gap: 32px 52px; padding-top: 8px; padding-bottom: 44px; align-items: flex-start; }
   .feature { flex: 1.15 1 440px; min-width: 0; margin: 0; }
+  .poster-slot { flex: 0 1 340px; min-width: 260px; }
+  @media (min-width: 900px) { .poster-slot { position: sticky; top: 24px; } }
   @media (min-width: 900px) { .feature { position: sticky; top: 24px; } }
   .mat { display: block; cursor: zoom-in; }
   .mat img { display: block; width: auto; height: auto; max-width: 100%; max-height: 72vh; border-radius: 16px; }
