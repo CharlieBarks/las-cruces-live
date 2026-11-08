@@ -76,9 +76,10 @@ REMOTE_SETTINGS="$(put_ "$SETTINGS")"
 wp_ acss settings import "$REMOTE_SETTINGS" --yes --skip-css
 wp_ acss css regenerate
 
-# Copy the generated stylesheets. Builder-specific files (Gutenberg, Bricks, Etch, etc.) aren't needed.
+# Copy the generated stylesheets. Builder- and editor-specific files (Gutenberg, Bricks, Etch,
+# ACSS 4's core-for-block-editor and core-for-iframe-editor, etc.) aren't needed.
 rm -f "$OUT"/*.css
-list_ | grep -viE 'gutenberg|bricks|etch|oxygen|elementor|breakdance|builder' | while read -r f; do
+list_ | grep -viE 'gutenberg|bricks|etch|oxygen|elementor|breakdance|builder|editor' | while read -r f; do
   get_ "$f" "$OUT/$(basename "$f")"
 done
 ls "$OUT"/*.css >/dev/null 2>&1 || { echo "No stylesheets copied. Check where ACSS writes its files on the control panel and update UPLOADS." >&2; exit 1; }
