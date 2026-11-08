@@ -1,0 +1,20 @@
+/* ACSS bridge. Loaded after the generated ACSS stylesheet. See agent-docs/acss-workflow.md.
+
+   1. Legacy aliases: while a site moves to ACSS, point its old token names at ACSS tokens
+      so existing components keep working. Delete each alias once nothing uses it.
+      The mapping for each site is in its SITE.md. Example (Art Trail):
+
+      :root {
+        --agave: var(--secondary);
+        --ink: var(--text-dark);
+      }
+
+      NEVER alias a legacy name that is also an ACSS token name (--accent, --accent-dark,
+      --radius and anything starting --primary, --secondary, --tertiary, --accent, --base,
+      --neutral, --text-, --space-, --bg-, --width-). Those must be renamed in the code
+      first (SITE.md lists them), or they silently override ACSS.
+
+   2. Proven gaps: rules ACSS doesn't cover on Astro (for example content width on section
+      children, if the first build shows ACSS doesn't apply it). Note each one in the docs.
+
+   Keep this file short. If it grows, something belongs in ACSS settings instead. */
