@@ -5,3 +5,6 @@ dist/
 .env
 # Photos downloaded from Notion at build time
 public/media/
+
+# ACSS control panel backup (another site's settings) - never commit
+acss/.last-control-panel-backup.json

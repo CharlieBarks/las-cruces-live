@@ -18,7 +18,7 @@ All three are Astro, hosted on Cloudflare, deploy on every push to `main`, and s
 ## Stack
 
 - **Paper** (https://paper.design): design, connected through its MCP. Design before code.
-- **Automatic.css (ACSS)**: design system and CSS framework. Configured in a WordPress "control panel" install and exported to each site. See [agent-docs/acss-workflow.md](agent-docs/acss-workflow.md).
+- **Automatic.css (ACSS)**: design system and CSS framework. Configured on Barks.co (an unused WordPress site that serves as the ACSS "control panel") and exported to each site. See [agent-docs/acss-workflow.md](agent-docs/acss-workflow.md).
 - **Astro**: site framework. See [agent-docs/astro.md](agent-docs/astro.md).
 - **Cloudflare**: hosting, Workers, KV, D1.
 - **Notion**: where listings are edited.

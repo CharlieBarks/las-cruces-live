@@ -2,11 +2,35 @@
 
 ACSS is a WordPress plugin. Our sites are Astro. So a WordPress install acts as the **ACSS control panel**: settings go in, ACSS generates the stylesheet, and the stylesheet is copied into the site. Visitors never touch WordPress.
 
-## The control panel
+## The control panel: Barks.co
 
-- A WordPress install with only the ACSS plugin, used for nothing else. Default: a LocalWP site on Charlie's Mac named `acss-control-panel`.
-- **Never use a live WordPress site as the control panel.** Importing settings replaces that site's whole design for its visitors.
-- Control it with WP-CLI. In LocalWP: right-click the site, then **Open Site Shell**, and run commands there. If you can run commands from Claude Code directly, set `WP` in `scripts/acss-sync.sh` to a working `wp` command with `--path` (test with `wp acss status` first).
+- **Barks.co** is the control panel: an empty placeholder WordPress site (noindex, no visitors) with ACSS installed and licensed. It's hosted on a Vultr server managed with **RunCloud**, which has WP-CLI pre-installed.
+- Claude Code on Charlie's Mac reaches it over **SSH** and runs `wp acss ...` there. `scripts/acss-sync.sh` does this for you.
+- Importing settings restyles Barks.co. That's fine: nobody uses it. **Never use any other live WordPress site as the control panel.** Importing replaces that site's whole design for its visitors.
+- Fallback if the server is ever unavailable: a LocalWP install on the Mac with ACSS (set `ACSS_SSH=` empty and `ACSS_WP_PATH` to the local WordPress folder).
+
+### One-time setup (on Charlie's Mac, with Claude Code's help)
+
+1. **Make an SSH key** for this connection (Claude Code can run `ssh-keygen -t ed25519 -f ~/.ssh/barks_acss` and show Charlie the public key).
+2. **Add the public key in RunCloud:** Servers → the Barks.co server → SSH Keys → add it for the system user that owns the Barks.co web app (often `runcloud`). Charlie does this step in the RunCloud dashboard.
+3. **Find the web app folder.** RunCloud web apps live at `/home/<system user>/webapps/<web app name>`. The name is shown in RunCloud's Web Applications list.
+4. **Create the SSH alias** in `~/.ssh/config`:
+   ```
+   Host barks-acss
+     HostName <server IP from RunCloud or Vultr>
+     User <system user>
+     IdentityFile ~/.ssh/barks_acss
+   ```
+5. **Create `~/.lllc-acss`** (shared by all three site repos):
+   ```bash
+   ACSS_SSH=barks-acss
+   ACSS_WP_PATH=/home/<system user>/webapps/<web app name>
+   ```
+6. **Test:** `scripts/acss-sync.sh --status` should say "Connected. ACSS is responding."
+
+**Never commit** the server IP, user, key or these two files. Two of the site repos are public.
+
+If `wp` isn't found over SSH, find its location on the server (`which wp` in a RunCloud SSH session) and use the full path in the script, then note it here.
 
 ## Files in each site repo
 
