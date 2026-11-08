@@ -1,0 +1,118 @@
+/* LLLC reset. Adapted from the Etch reset (Digital Gravy), minus WordPress/Gutenberg helpers.
+   Layered, so ACSS and our own styles always win without !important. See agent-docs/reset.md. */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+    scrollbar-gutter: stable;
+  }
+
+  ul[role='list'],
+  ol[role='list'] {
+    list-style: none;
+  }
+
+  ul[class]:not(.list, [class*='marker']),
+  ol[class]:not(.list, [class*='marker']) {
+    padding: 0;
+    list-style: none;
+  }
+
+  body {
+    min-block-size: 100svh;
+    display: flex;
+    flex-direction: column;
+
+    main {
+      flex-grow: 1;
+    }
+  }
+
+  a:not([class]) {
+    text-decoration-skip-ink: auto;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg,
+  a:not(p > a, span > a, h1 > a, h2 > a, h3 > a, h4 > a, h5 > a, h6 > a, li > a, em > a, q > a, label > a, strong > a, figcaption > a) {
+    max-inline-size: 100%;
+    height: auto;
+    display: block;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    font-size: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    color: currentColor;
+  }
+
+  textarea:not([rows]) {
+    min-height: 10em;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+  }
+
+  figure > img {
+    inline-size: 100%;
+  }
+
+  img {
+    block-size: auto;
+  }
+
+  .screen-reader-text {
+    border: 0;
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    word-wrap: normal;
+  }
+
+  .screen-reader-text:focus {
+    clip-path: none;
+    display: block;
+    height: auto;
+    width: auto;
+    padding: 0.75em 1em;
+    inset-block-start: 0.5rem;
+    inset-inline-start: 0.5rem;
+    z-index: 100000;
+    background: Canvas;
+    color: CanvasText;
+  }
+}
