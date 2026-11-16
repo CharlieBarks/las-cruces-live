@@ -4,3 +4,8 @@ https://:worker.:subdomain.workers.dev/*
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Read by the Las Cruces Events calendar's build (another site), so it needs this.
+/directory.json
+  Access-Control-Allow-Origin: *
+  X-Robots-Tag: noindex

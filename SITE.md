@@ -22,6 +22,7 @@ The who's who of the Las Cruces music scene: local musicians, bands and the venu
 | Genre sorting rules | `scripts/lib/shape.mjs` | Carefully |
 
 - Builds without `NOTION_TOKEN` / `BEEHIIV_API_KEY` use the saved JSON.
+- `/directory.json` lists every act (name, page, genres) and venue (name, page) for the Las Cruces Events calendar, which reads it at build time to show genres next to shows and link here. Names and links only, never dates or times. Built Nov 15, 2026.
 - A GitHub Action (`thursday-rebuild.yml`) rebuilds after each Thursday issue so "Playing this week" badges update. Keep it.
 - Musician listings are free. Venues are where the money is (venue promos, banners, sponsored sections). `Listing Tier` (Free / Premium / Founding) exists in Notion.
 
