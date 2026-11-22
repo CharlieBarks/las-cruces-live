@@ -292,6 +292,8 @@ async function main() {
       pinned: pinned(m),
       // Local (blank), Regional or Touring. Non-local acts get a tag and list after local ones.
       homeBase: (text(m, 'Home Base') || 'Local').toLowerCase(),
+      // Yes/no only (never the email): claimed acts list first on /musicians/
+      claimed: Boolean(email(m, 'Owner Email')),
       siteStatus: status,
       ...(PREVIEW ? {
         // Preview site only: the Review queue, Approve buttons and private edit links
