@@ -1,0 +1,41 @@
+---
+// Stands in for the photo on a musician page that doesn't have one yet: a gig poster of the
+// act's name (same look as the cards), plus a nudge to add a real photo.
+import { typeLabel, genreName, posterColor } from '../lib/site.js';
+const { m, claimUrl, share = false } = Astro.props;
+const genres = m.genres.slice(0, 3).map(genreName).join(' · ');
+---
+<figure class="poster-wrap" data-pagefind-ignore>
+  <div class={`poster c-${posterColor(m)}`} role="img" aria-label={`${m.name} poster`}>
+    {genres && <span class="g">{genres}</span>}
+    <span class="foot">
+      <span class="star" aria-hidden="true">✦</span>
+      <span class="nm">{m.name}</span>
+      {typeLabel(m) && <span class="kind">{typeLabel(m)}</span>}
+    </span>
+  </div>
+  {!share && <figcaption><a href={claimUrl}>Is this you? Add a photo →</a></figcaption>}
+</figure>
+
+<style>
+  .poster-wrap { margin: 0; display: grid; gap: 10px; }
+  .poster { display: flex; flex-direction: column; justify-content: space-between; gap: 20px; aspect-ratio: 4 / 5; padding: 26px; border-radius: 12px; box-sizing: border-box; }
+  .g { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .foot { display: grid; gap: 10px; }
+  .star { font-size: 1.3rem; line-height: 1; }
+  .nm { font: 900 clamp(2.6rem, 4vw, 3.6rem)/0.9 var(--display); text-transform: uppercase; text-wrap: balance; overflow-wrap: anywhere; }
+  .kind { font-size: 1rem; font-weight: 600; }
+  figcaption a { font-weight: 700; }
+  .c-chile { background: var(--chile); color: var(--cream); box-shadow: inset 0 0 0 8px rgba(245, 239, 226, 0.18); }
+  .c-chile .star { color: var(--gold); }
+  .c-plum { background: var(--night-2); color: var(--gold); box-shadow: inset 0 0 0 8px rgba(244, 182, 62, 0.16); }
+  .c-plum .g, .c-plum .kind { color: var(--cream); }
+  .c-plum .star { color: var(--turq-bright); }
+  .c-turq { background: var(--turq); color: var(--cream); box-shadow: inset 0 0 0 8px rgba(245, 239, 226, 0.18); }
+  .c-turq .star { color: var(--gold); }
+  .c-night { background: var(--night); color: var(--cream); box-shadow: inset 0 0 0 8px rgba(245, 239, 226, 0.14); }
+  .c-night .star { color: var(--turq-bright); }
+  .c-gold { background: var(--gold); color: var(--night); box-shadow: inset 0 0 0 8px rgba(29, 23, 53, 0.14); }
+  .c-gold .star { color: var(--chile); }
+  .c-sea { background: var(--turq-bright); color: var(--night); box-shadow: inset 0 0 0 8px rgba(29, 23, 53, 0.14); }
+</style>

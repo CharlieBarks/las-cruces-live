@@ -63,6 +63,10 @@ export const TURNSTILE_SITEKEY = '0x4AAAAAAF3l-lKGwLZNR-iU';
 const live = (r) => !r.siteStatus || r.siteStatus === 'Approved' || process.env.LIVE_PREVIEW === '1';
 export const musicians = musiciansRaw.filter((m) => live(m) && m.name).sort((a, b) => a.name.localeCompare(b.name));
 export const venues = venuesRaw.filter((v) => live(v) && v.name).sort((a, b) => a.name.localeCompare(b.name));
+// Featured venues: Listing Tier "Featured" in Notion, or on the Live Music sponsor list (SPONSORS.liveMusic).
+// Listed first with a gold highlight, a "Featured venue" badge on their page, a halo and name label on the map.
+export const isFeaturedVenue = (v) => ['featured', 'sponsor'].includes((v?.tier || '').toLowerCase()) || (SPONSORS.liveMusic || []).some((s) => s.venue === v?.slug);
+export const featuredVenueFirst = (list) => [...list].sort((a, b) => Number(isFeaturedVenue(b)) - Number(isFeaturedVenue(a)));
 export const musicianBySlug = (s) => musicians.find((m) => m.slug === s);
 export const venueBySlug = (s) => venues.find((v) => v.slug === s);
 

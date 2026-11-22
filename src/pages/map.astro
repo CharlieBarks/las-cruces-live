@@ -1,12 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import VenueMap from '../components/VenueMap.astro';
+import SponsorBand from '../components/SponsorBand.astro';
 import { venues, genres, venueWeek, thisWeek, WHEN, WHEN_SHORT, SPONSORS } from '../lib/site.js';
 const unmapped = venues.filter((v) => !v.lat || !v.lng);
 const weekGenres = genres.filter((g) => venues.some((v) => venueWeek(v).acts.length && g.acts.some((a) => venueWeek(v).acts.includes(a.slug))));
 const sponsor = SPONSORS.map;
 ---
 <Layout title="Live Music Venue Map" description="Map of every live music venue in Las Cruces, Mesilla and the Mesilla Valley. Gold pins have shows this week and next.">
+  <SponsorBand source="map" />
   <div class="wrap">
     <p class="crumbs"><a href="/">Home</a> / Map</p>
     <header class="top">

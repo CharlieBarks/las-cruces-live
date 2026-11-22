@@ -64,6 +64,8 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
   - Acts with Listing Tier "Premium" are always in the homepage lineup, first, labeled "Featured" (the paid spotlight hook).
   - Cards with no photo become a poster of the act's name, colored by genre (`posterColor` in `src/lib/site.js`).
   - Newsletter sponsors sit in a band right under the hero, and their venues lead "Where they play".
+- Featured venues = Listing Tier "Featured" in Notion or on `SPONSORS.liveMusic` (`isFeaturedVenue`). They're listed first with a gold highlight, get a "Featured venue" badge on their page, and a halo and name label on the map. The sponsor band also shows on /venues/ and /map/.
+- Musician pages without a photo show the name poster with "Is this you? Add a photo" (`Poster.astro`).
 
 ## Site-specific rules
 
