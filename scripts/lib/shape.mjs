@@ -143,6 +143,11 @@ export function matchLineup(text, musicians, venues, issueDate) {
     const acts = musicians
       .filter((m) => (core(m.name).length ? actIn(m.name, searchText) : stripMd(parts[0]).toLowerCase() === m.name.toLowerCase()))
       .map((m) => m.slug);
+    // "Burt Ferguson & Tim Thompson" with a duo listing: credit the duo, not each solo act
+    // inside its name. Without a duo listing, both solo acts still get credit.
+    const keyOf = (slug) => core(musicians.find((m) => m.slug === slug).name).join('');
+    const kept = acts.filter((a) => !acts.some((b) => b !== a && keyOf(b).length > keyOf(a).length && keyOf(b).includes(keyOf(a))));
+    acts.splice(0, acts.length, ...kept);
     shows.push({ date, venue: venue?.slug || null, acts });
   }
   const acts = {};

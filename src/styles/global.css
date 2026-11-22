@@ -68,6 +68,8 @@ a.tag:hover { border-color: var(--turq); color: var(--turq); }
 
 .crumbs { font-size: 0.9rem; color: var(--muted); padding-top: 28px; }
 .crumbs a { color: var(--muted); }
+.on-night .crumbs, .on-night .crumbs a { color: #cfc8de; }
+.on-night .crumbs a:hover { color: var(--gold); }
 
 .night { background: var(--night); color: var(--cream); }
 .night p { color: #cfc8de; }
