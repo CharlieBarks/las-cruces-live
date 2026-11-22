@@ -1,0 +1,76 @@
+---
+// Every act playing this week (and next, when the issue covers two weeks), as cards.
+// Shuffled on every visit so no act is always on top; featured (paid) acts stay first.
+// Who and where only. Days and times stay in the newsletter.
+import Layout from '../layouts/Layout.astro';
+import Stage from '../components/Stage.astro';
+import ActCard from '../components/ActCard.astro';
+import SponsorBand from '../components/SponsorBand.astro';
+import ThisWeek from '../components/ThisWeek.astro';
+import { SITE, WHEN_SHORT, playingActs, isFeatured } from '../lib/site.js';
+const acts = [...playingActs.filter(isFeatured), ...playingActs.filter((m) => !isFeatured(m))];
+const has = acts.length > 0;
+---
+<Layout
+  title={has ? `Playing ${WHEN_SHORT} in Las Cruces` : 'Who’s playing this week in Las Cruces'}
+  description={`The local musicians and bands playing ${WHEN_SHORT} in Las Cruces and Mesilla. Meet them here; days, times and venues are in the free Thursday Live Music issue from ${SITE.publisher}.`}
+>
+  <section class="hero night on-night">
+    <Stage />
+    <div class="wrap inner">
+      <p class="crumbs"><a href="/">Home</a> / Playing {WHEN_SHORT}</p>
+      <h1>{has ? `Playing ${WHEN_SHORT}` : 'Who’s playing this week?'}</h1>
+      <p class="sub">{has
+        ? `${acts.length} local acts on stages around the valley. Tap one to meet them.`
+        : 'The new lineup lands every Thursday at 1 pm.'}</p>
+    </div>
+  </section>
+
+  <SponsorBand source="thisweek" />
+
+  <div class="wrap page">
+    {has ? (
+      <ul class="cards" data-shuffle aria-label={`Acts playing ${WHEN_SHORT}`}>
+        {acts.map((m) => <li data-pin={isFeatured(m) ? '1' : undefined}><ActCard m={m} /></li>)}
+      </ul>
+    ) : (
+      <p class="lede">Meanwhile, <a href="/musicians/">meet every act in the valley</a>.</p>
+    )}
+
+    <ThisWeek
+      heading={has ? 'Want to catch them?' : 'Never miss a show'}
+      source="thisweek_page"
+      idle={!has}
+    />
+
+    <section class="musicians" aria-labelledby="mus">
+      <h2 id="mus">Playing out this week and not up here?</h2>
+      <p class="lede">Get your free page, then add your shows to the events calendar. Shows on the calendar make Thursday's issue, which goes to {SITE.subscribers} locals, and your page here gets a “Playing this week” badge.</p>
+      <div class="btns">
+        <a class="btn btn-chile" href="/get-listed/">Get listed free</a>
+        <a class="btn btn-line" href={SITE.eventsUrl}>Add your shows</a>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<script is:inline>
+  document.querySelectorAll('[data-shuffle]').forEach(function (ul) {
+    var items = Array.prototype.slice.call(ul.children);
+    var pinned = items.filter(function (li) { return li.dataset.pin; });
+    var rest = items.filter(function (li) { return !li.dataset.pin; });
+    for (var i = rest.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = rest[i]; rest[i] = rest[j]; rest[j] = t; }
+    pinned.concat(rest).forEach(function (li) { ul.appendChild(li); });
+  });
+</script>
+
+<style>
+  .hero { padding: clamp(40px, 6vw, 72px) 0 clamp(48px, 7vw, 88px); position: relative; overflow: hidden; }
+  .inner { position: relative; z-index: 1; display: grid; gap: 14px; }
+  .hero h1 { color: var(--cream); }
+  .sub { font-size: 1.2rem; }
+  .page { display: grid; gap: clamp(40px, 6vw, 72px); padding-top: clamp(32px, 5vw, 56px); padding-bottom: clamp(48px, 7vw, 88px); }
+  @media (max-width: 560px) { .cards { grid-template-columns: 1fr 1fr !important; gap: 12px !important; } }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  .musicians { display: grid; gap: 14px; border-top: 2px solid var(--ink); padding-top: 36px; }
+</style>

@@ -1,0 +1,39 @@
+---
+// The Thursday Live Music issue's sponsors, front and center. Edit the list in SPONSORS.liveMusic (src/lib/site.js).
+import { SPONSORS, venueBySlug, AREAS, utm } from '../lib/site.js';
+const { source = 'page' } = Astro.props;
+const sponsors = (SPONSORS.liveMusic || []).map((s) => ({ ...s, v: s.venue ? venueBySlug(s.venue) : null }));
+---
+{sponsors.length > 0 && (
+  <section class="sponsors" aria-labelledby={`sp-${source}`} data-pagefind-ignore>
+    <div class="wrap row">
+      <p class="label" id={`sp-${source}`}>Las Cruces live music is brought to you by</p>
+      <ul>
+        {sponsors.map((s) => (
+          <li>
+            {s.logo && <img src={s.logo} alt="" loading="lazy" />}
+            <span class="txt">
+              <a class="name" href={s.v ? `/venues/${s.v.slug}/` : utm(s.url, source)}>{s.name}</a>
+              {s.v && AREAS[s.v.area] && <span class="where">{AREAS[s.v.area].name}</span>}
+            </span>
+            {s.url && s.v && <a class="site" href={utm(s.url, `sponsor_${source}`)} rel="noopener">Visit site</a>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .sponsors { background: var(--cream); border-bottom: 1px solid var(--line); padding: 22px 0; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 40px; }
+  .label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 14px 40px; flex: 1 1 auto; }
+  li { display: flex; align-items: center; gap: 14px; }
+  img { height: 48px; width: auto; max-width: 140px; object-fit: contain; }
+  .txt { display: grid; gap: 2px; }
+  .name { font: 800 1.7rem/1 var(--display); color: var(--ink); text-decoration: none; }
+  .name:hover { color: var(--turq); }
+  .where { font-size: 0.88rem; color: var(--muted); }
+  .site { font-weight: 700; font-size: 0.92rem; min-height: 44px; display: inline-flex; align-items: center; }
+</style>
