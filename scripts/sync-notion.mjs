@@ -7,7 +7,7 @@
 //   (the preview build, LIVE_PREVIEW=1, also shows "Submitted" and "In Review").
 //   Until the field is added, every named record shows.
 // - Private contact info (email, phone) in the Musician Contact List is never read.
-// - Venues missing Latitude/Longitude are looked up from their address (US Census geocoder)
+// - Venues missing Latitude/Longitude are looked up from their address (US Census geocoder, then OpenStreetMap)
 //   and, if the fields exist, saved back to Notion so it only happens once.
 // - If Notion can't be reached or returns too little, the build stops on purpose,
 //   so Cloudflare keeps the last good version of the site online.
@@ -138,7 +138,28 @@ async function geocode(address) {
     const hit = await geocodeOnce(a);
     if (hit) return hit;
   }
+  // Last try: OpenStreetMap, which knows rural and Mesilla addresses the Census misses.
+  // Its data is free to reuse (credit: © OpenStreetMap contributors). One request per second, max.
+  for (const a of [...new Set(variants)]) {
+    const hit = await geocodeOsm(a);
+    if (hit) return hit;
+  }
   return null;
+}
+
+async function geocodeOsm(address) {
+  await new Promise((r) => setTimeout(r, 1100));
+  const u = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=us&q=${encodeURIComponent(address)}`;
+  try {
+    const res = await fetch(u, { headers: { 'User-Agent': 'LasCrucesLive/1.0 (https://lascruceslive.com; events@livelovelascruces.com)' } });
+    if (!res.ok) return null;
+    const hit = (await res.json())?.[0];
+    if (!hit) return null;
+    const lat = Number(Number(hit.lat).toFixed(6));
+    const lng = Number(Number(hit.lon).toFixed(6));
+    // Only accept pins in the Las Cruces area (Hatch to the Texas line), never a same-named street elsewhere
+    return lat > 31.7 && lat < 32.8 && lng > -107.4 && lng < -106.4 ? { lat, lng } : null;
+  } catch { return null; }
 }
 
 async function geocodeOnce(address) {
