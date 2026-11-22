@@ -7,6 +7,7 @@ import ActList from './ActList.astro';
 import PreviewBar from './PreviewBar.astro';
 import Editor from './Editor.astro';
 import Poster from './Poster.astro';
+import Comments from './Comments.astro';
 import {
   SITE, PREVIEW, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
   genreName, listJoin, baseLabel, musicianJsonLd, songEmbed, songService,
@@ -171,6 +172,8 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
         )}
       </div>
     </article>
+
+    {!share && <Comments record={m} kind="musician" about={m.name} prompt={`What's it like seeing ${m.name} live?`} placeholder="The song that got everyone dancing, the night you first caught them…" />}
 
     {similar.length > 0 && (
       <section class="more" data-pagefind-ignore>

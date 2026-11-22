@@ -5,6 +5,7 @@
 //   GET  /api/listing  visual editor: load a listing fresh from Notion
 //   POST /api/listing  visual editor: save changes
 //   POST /api/photo    visual editor: upload a photo
+//   POST /api/comment  Review queue: Approve / Hide a visitor's comment
 // Each request must carry Charlie's Cloudflare Access login; it is checked here, then passed to
 // the intake Worker's Admin entrypoint, which talks to Notion and rebuilds the sites.
 //
@@ -16,7 +17,7 @@ const TEAM = 'https://quiet-recipe-3d16.cloudflareaccess.com';
 const AUD = 'ebe939ac10d620e9818adb35663042368d74a35a15c63e0b6542745f54b531da';
 const ALLOWED = ['cjbarks@gmail.com'];
 
-const API = ['/api/status', '/api/listing', '/api/photo', '/api/pending', '/api/owner'];
+const API = ['/api/status', '/api/listing', '/api/photo', '/api/pending', '/api/owner', '/api/comment'];
 // Claim this page tools (POST /api/owner { id, action }): Admin entrypoint methods taking (id, by)
 const OWNER_ACTIONS = ['sendEditLink', 'dismissClaim', 'revokeEditLink', 'undoLast', 'changeLog'];
 // Musicians and bands editing their own listing from their private share link. These paths are
@@ -48,6 +49,7 @@ export default {
         try { body = await request.json(); } catch { return Response.json({ ok: false, error: 'Bad request.' }, { status: 400 }); }
         if (url.pathname === '/api/owner' && !OWNER_ACTIONS.includes(body.action)) return Response.json({ ok: false, error: 'Unknown action.' }, { status: 400 });
         result = url.pathname === '/api/status' ? await env.INTAKE.setStatus(body.id, body.status, email)
+          : url.pathname === '/api/comment' ? await env.INTAKE.setCommentStatus(body.id, body.status, email)
           : url.pathname === '/api/pending' ? await env.INTAKE.resolvePending(body.id, Boolean(body.apply), email, Boolean(body.trust))
           : url.pathname === '/api/owner' ? (body.action === 'changeLog' ? await env.INTAKE.changeLog(body.id)
             : body.action === 'sendEditLink' ? await env.INTAKE.sendEditLink(body.id, email, Boolean(body.fresh))

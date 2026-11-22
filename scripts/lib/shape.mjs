@@ -62,9 +62,9 @@ export function areaFor(address = '') {
   const a = address.toLowerCase();
   if (!a) return 'around';
   if (/hatch/.test(a)) return 'hatch';
-  if (/mesilla, nm|avenida de mesilla|calle de guadalupe|san albino|calle de alvarez/.test(a)) return 'mesilla';
-  if (/main st|melendres/.test(a)) return 'downtown';
-  if (/university ave|espina/.test(a)) return 'university';
+  if (/mesilla, nm|avenida de mesilla|calle de guadalupe|san albino|calle de alvarez|calle de parian/.test(a)) return 'mesilla';
+  if (/main st|melendres|court ave|mesquite st/.test(a)) return 'downtown';
+  if (/university ave|espina|wimberly/.test(a)) return 'university';
   if (/telshor|lohman|northrise/.test(a)) return 'east';
   if (/picacho|via campestre|harrelson/.test(a)) return 'west';
   if (/valley dr|el camino real/.test(a)) return 'north';

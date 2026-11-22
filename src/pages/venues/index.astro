@@ -1,10 +1,15 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SponsorBand from '../../components/SponsorBand.astro';
-import { venues, AREAS, venueWeek, whenText, isFeaturedVenue, featuredVenueFirst } from '../../lib/site.js';
+import VenueCard from '../../components/VenueCard.astro';
+import { venues, AREAS, SPONSORS, isFeaturedVenue, featuredVenueFirst } from '../../lib/site.js';
 const groups = Object.entries(AREAS)
   .map(([k, a]) => ({ k, a, list: featuredVenueFirst(venues.filter((v) => v.area === k)) }))
   .filter((g) => g.list.length);
+// Sponsor venues up top, in the order of SPONSORS.liveMusic
+const sponsorOrder = (SPONSORS.liveMusic || []).map((s) => s.venue);
+const sponsorVenues = venues.filter(isFeaturedVenue)
+  .sort((a, b) => ((sponsorOrder.indexOf(a.slug) + 1) || 99) - ((sponsorOrder.indexOf(b.slug) + 1) || 99));
 ---
 <Layout title="Live Music Venues" description={`${venues.length} places to hear live music in Las Cruces, Mesilla, the South Valley wineries and Hatch, grouped by neighborhood.`}>
   <SponsorBand source="venues" />
@@ -17,23 +22,20 @@ const groups = Object.entries(AREAS)
         {groups.map((g) => <a class="tag" href={`#${g.k}`}>{g.a.name}</a>)}
       </nav>
     </header>
+    {sponsorVenues.length > 0 && (
+      <section class="sponsors" aria-labelledby="sp-title">
+        <h2 id="sp-title" class="sp-label">Our sponsors</h2>
+        <ul class="vsponsors">{sponsorVenues.map((v) => <li><VenueCard v={v} wide /></li>)}</ul>
+      </section>
+    )}
     {groups.map((g) => (
       <section class="area" id={g.k}>
         <div class="area-head">
           <h2>{g.a.name}</h2>
           <p>{g.a.blurb}</p>
         </div>
-        <ul class="vlist">
-          {g.list.map((v) => {
-            const w = venueWeek(v);
-            return (
-              <li class={isFeaturedVenue(v) ? 'feat' : undefined}>
-                <a href={`/venues/${v.slug}/`}>{v.name}{isFeaturedVenue(v) && <em class="ftag">Featured</em>}</a>
-                <span class="addr">{v.address ? v.address.replace(/,\s*NM\s*\d{5}$/, '') : ''}</span>
-                {w.shows > 0 && <span class="playing">{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span>}
-              </li>
-            );
-          })}
+        <ul class="vcards">
+          {g.list.map((v) => <li><VenueCard v={v} /></li>)}
         </ul>
       </section>
     ))}
@@ -42,17 +44,14 @@ const groups = Object.entries(AREAS)
 
 <style>
   .top { padding: 18px 0 32px; }
-  .vlist li.feat, li.feat { background: rgba(244,182,62,.14); box-shadow: inset 4px 0 0 var(--gold); padding-left: 12px; }
-  .ftag { font: 700 .72rem var(--text); font-style: normal; background: var(--gold); color: var(--night); padding: 3px 8px; border-radius: 999px; margin-left: 10px; vertical-align: .3em; }
   .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-  .area { display: grid; grid-template-columns: minmax(220px, 1fr) 2fr; gap: 32px; padding: 32px 0; border-top: 2px solid var(--ink); scroll-margin-top: 20px; }
+  .sponsors { padding-bottom: 40px; display: grid; gap: 14px; }
+  .sp-label { font: 700 0.85rem var(--text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .vsponsors { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 20px; }
+  .area { display: grid; gap: 20px; padding: 32px 0; border-top: 2px solid var(--ink); scroll-margin-top: 20px; }
   .area:last-child { padding-bottom: 80px; }
-  .area-head p { margin-top: 10px; color: var(--muted); }
-  .vlist { list-style: none; margin: 0; padding: 0; }
-  .vlist li { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-  .vlist a { font: 700 1.5rem/1.05 var(--display); color: var(--ink); text-decoration: none; }
-  .vlist a:hover { color: var(--turq); }
-  .addr { grid-column: 1; color: var(--muted); font-size: 0.92rem; }
-  .vlist .playing { grid-column: 2; grid-row: 1; }
-  @media (max-width: 760px) { .area { grid-template-columns: 1fr; gap: 12px; } }
+  .area-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; }
+  .area-head p { color: var(--muted); }
+  .vcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+  @media (max-width: 560px) { .vcards { grid-template-columns: 1fr 1fr; gap: 12px; } }
 </style>

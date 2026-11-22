@@ -1,0 +1,169 @@
+---
+// "What people say about …" on musician and venue pages. Shows approved comments, then a short
+// form folded into one line. Comments go to the intake Worker (POST /comment) and only appear after
+// Charlie approves them in the Review queue. Spam checks: Cloudflare Turnstile (loaded only when
+// someone starts typing), a hidden "website" field and a rate limit. Modeled on the Art Trail's
+// visitor notes.
+import { SITE, INTAKE_URL, TURNSTILE_SITEKEY } from '../lib/site.js';
+const { record, kind, about, prompt, placeholder = '' } = Astro.props;
+const shown = (record.comments || []).slice(0, 6);
+const pageUrl = `${SITE.url}${Astro.url.pathname}`;
+---
+{record?.notionId && (
+  <section class:list={['comments', { empty: shown.length === 0 }]} aria-labelledby={`cm-${record.slug}`} data-pagefind-ignore>
+    {shown.length > 0 && (
+      <>
+        <h2 id={`cm-${record.slug}`}>What people say about {about}</h2>
+        <ul class="list" role="list">
+          {shown.map((c) => (
+            <li>
+              <blockquote>“{c.text}”</blockquote>
+              <p class="who">{[c.firstName, c.town].filter(Boolean).join(', ')}</p>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <details class="box" id="leave-a-comment">
+      <summary>
+        <span class="icon" aria-hidden="true">★</span>
+        <span class="sum">
+          <span class="sum-title" id={shown.length ? undefined : `cm-${record.slug}`}>{prompt}</span>
+          <span class="sum-sub">{shown.length === 0 ? 'Be the first to leave a comment' : 'Leave a comment'}</span>
+        </span>
+        <svg class="chev" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 15.5 5.5 9l1.4-1.4 5.1 5.1 5.1-5.1L18.5 9 12 15.5Z"/></svg>
+      </summary>
+      <form class="form" data-comment-form data-kind={kind} data-id={record.notionId} data-page={pageUrl} data-sitekey={TURNSTILE_SITEKEY} data-endpoint={`${INTAKE_URL}/comment`} novalidate>
+        <p class="muted full">Every comment gets a quick look before it shows up here.</p>
+        <label class="field full">
+          <span class="sr-only">{prompt}</span>
+          <textarea name="comment" rows="3" maxlength="600" required placeholder={placeholder}></textarea>
+        </label>
+        <label class="field"><span>First name</span><input name="firstName" maxlength="40" required autocomplete="given-name" /></label>
+        <label class="field"><span>Town <em>(optional)</em></span><input name="town" maxlength="60" placeholder="Las Cruces" autocomplete="address-level2" /></label>
+        <label class="field full"><span>Email <em>(optional, never shown)</em></span><input name="email" type="email" maxlength="120" autocomplete="email" /></label>
+        <label class="check full"><input type="checkbox" name="newsletter" /> <span>Send me Thursday's Live Music issue too, with every show in town ({SITE.subscribers} subscribers).</span></label>
+        <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+        <div class="ts full"></div>
+        <div class="actions full">
+          <button class="btn btn-chile" type="submit">Share it</button>
+          <p class="msg" role="status" aria-live="polite"></p>
+        </div>
+        <p class="fine full">Only your first name and town are shown. Your email stays private and is never shared.</p>
+      </form>
+    </details>
+  </section>
+)}
+
+<script>
+  declare global { interface Window { turnstile?: any } }
+  let loading: Promise<void> | null = null;
+  const loadTurnstile = () => (loading ||= new Promise<void>((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => resolve();
+    document.head.appendChild(s);
+  }));
+  const openFromHash = () => {
+    if (location.hash !== '#leave-a-comment') return;
+    const box = document.getElementById('leave-a-comment') as HTMLDetailsElement | null;
+    if (box) box.open = true;
+  };
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+
+  document.querySelectorAll<HTMLFormElement>('[data-comment-form]').forEach((form) => {
+    const msg = form.querySelector<HTMLElement>('.msg')!;
+    const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const box = form.querySelector<HTMLElement>('.ts')!;
+    let token = '';
+    let widget: string | undefined;
+    const start = async () => {
+      if (widget !== undefined || !form.dataset.sitekey) return;
+      widget = '';
+      await loadTurnstile();
+      widget = window.turnstile?.render(box, {
+        sitekey: form.dataset.sitekey, size: 'flexible',
+        callback: (t: string) => (token = t), 'expired-callback': () => (token = ''),
+      });
+    };
+    form.addEventListener('focusin', start, { once: true });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const comment = String(data.get('comment') || '').trim();
+      const firstName = String(data.get('firstName') || '').trim();
+      if (comment.length < 5 || !firstName) {
+        msg.className = 'msg err';
+        msg.textContent = 'Add a few words and your first name.';
+        return;
+      }
+      btn.disabled = true;
+      msg.className = 'msg';
+      msg.textContent = 'Sending…';
+      try {
+        const res = await fetch(form.dataset.endpoint!, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            kind: form.dataset.kind, id: form.dataset.id, page: form.dataset.page,
+            comment, firstName, town: data.get('town'), email: data.get('email'),
+            newsletter: data.get('newsletter') === 'on', website: data.get('website'), token,
+          }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || 'Something went wrong. Please try again.');
+        const safe = firstName.replace(/[<>&"]/g, '');
+        form.innerHTML = `<div class="thanks"><h3>Thank you, ${safe}!</h3><p>Your comment is in. Charlie gives every comment a quick look, and it'll show up here soon.</p></div>`;
+      } catch (err) {
+        msg.className = 'msg err';
+        msg.textContent = (err as Error).message;
+        btn.disabled = false;
+        token = '';
+        if (widget) window.turnstile?.reset(widget);
+      }
+    });
+  });
+</script>
+
+<style>
+  .comments { padding: 40px 0 8px; border-top: 2px solid var(--ink); display: grid; gap: 22px; }
+  .comments.empty { padding-top: 32px; }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .list li { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+  blockquote { margin: 0; font: 700 1.35rem/1.25 var(--display); }
+  .who { color: var(--muted); font-size: .92rem; font-weight: 600; }
+  .box { max-width: 760px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+  .box summary { list-style: none; display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; border-radius: 10px; min-height: 44px; }
+  .box summary::-webkit-details-marker { display: none; }
+  .box summary:hover .sum-sub { text-decoration: underline; }
+  .box summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--night); color: var(--gold); font-size: 1.1rem; }
+  .sum { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .sum-title { font: 800 1.25rem/1.2 var(--display); }
+  .sum-sub { color: var(--turq); font-weight: 700; font-size: .92rem; }
+  .chev { flex: none; color: var(--muted); transition: transform .2s; }
+  .box[open] .chev { transform: rotate(180deg); }
+  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; padding: 0 22px 22px; }
+  .full { grid-column: 1 / -1; }
+  .muted { color: var(--muted); font-size: .92rem; }
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: .9rem; font-weight: 700; }
+  .field em { font-style: normal; font-weight: 400; color: var(--muted); }
+  .field input, .field textarea { font: inherit; font-weight: 400; font-size: 1rem; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+  .field textarea { resize: vertical; min-height: 96px; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--turq); }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-size: .92rem; }
+  .check input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--turq); flex: none; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .msg:empty { display: none; }
+  .msg.err { color: var(--chile); font-weight: 700; }
+  .fine { font-size: .82rem; color: var(--muted); }
+  .form :global(.thanks) { grid-column: 1 / -1; display: grid; gap: 6px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+  @media (max-width: 560px) { .form { grid-template-columns: 1fr; padding: 0 16px 18px; } .box summary { padding: 14px 16px; } }
+</style>
