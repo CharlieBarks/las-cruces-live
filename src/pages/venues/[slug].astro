@@ -3,6 +3,8 @@ import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import VenueMap from '../../components/VenueMap.astro';
 import Comments from '../../components/Comments.astro';
+import CrowdPhotos from '../../components/CrowdPhotos.astro';
+import PinnedPosts from '../../components/PinnedPosts.astro';
 import { SITE, utm, out, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, isFeaturedVenue, isSponsorVenue, featuredVenueFirst } from '../../lib/site.js';
 
 export function getStaticPaths() {
@@ -82,6 +84,8 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
         </aside>}
       </div>
     </article>
+    <PinnedPosts record={v} about={v.name} />
+    <CrowdPhotos record={v} kind="venue" about={v.name} />
     <Comments record={v} kind="venue" about={v.name} prompt={`What do you love about ${v.name}?`} placeholder="The patio, the crowd, the music, the best night you had there…" />
     {nearby.length > 0 && (
       <section class="nearby" data-pagefind-ignore>

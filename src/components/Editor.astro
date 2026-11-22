@@ -82,6 +82,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     'Image Permission': ['I own these photos (or have permission) and allow Las Cruces Live and Live Love Las Cruces to show them on the site, in the newsletter and on social media, with credit.', 'photo'],
     Website: ['Website', 'links'], Instagram: ['Instagram', 'links'], Facebook: ['Facebook', 'links'], YouTube: ['YouTube', 'links'],
     'Song Link': ['A song people can play', 'links', 'One Spotify, YouTube, SoundCloud or Bandcamp link. Spotify, YouTube and SoundCloud play right on your page.'],
+    'Pinned Posts': ['Pinned posts (up to 3)', 'links', 'Paste links to up to 3 public Instagram or Facebook posts, one per line. They show on your page. Pick your best show photos or videos.'],
     'Booking Link': ['How should people book you?', 'links', 'Your booking email or a link to your booking page. It shows on your page as a big Book button.'],
   };
   function el(tag, attrs, kids) {
@@ -127,8 +128,8 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       ['', ...(f.options || [])].forEach(function (o) { var op = el('option', { value: o, text: o || 'Pick one' }); if (o === f.value) op.selected = true; input.appendChild(op); });
       input.addEventListener('change', function () { f.value = input.value; showBand(); });
     } else {
-      var long = f.name === 'Bio';
-      input = el(long ? 'textarea' : 'input', { id: id, rows: long ? 5 : undefined, type: f.type === 'url' ? 'url' : f.type === 'email' ? 'email' : 'text', maxlength: f.name === 'Genre' ? 120 : long ? 1500 : 300 });
+      var long = f.name === 'Bio' || f.name === 'Pinned Posts';
+      input = el(long ? 'textarea' : 'input', { id: id, rows: long ? (f.name === 'Bio' ? 5 : 3) : undefined, type: f.type === 'url' ? 'url' : f.type === 'email' ? 'email' : 'text', maxlength: f.name === 'Genre' ? 120 : long ? 1500 : 300 });
       if (long) input.removeAttribute('type');
       input.value = f.value || '';
       input.addEventListener('input', function () { f.value = input.value; });

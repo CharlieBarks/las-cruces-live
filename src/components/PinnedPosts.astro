@@ -1,0 +1,49 @@
+---
+// Up to 3 public Instagram or Facebook posts an act or venue picked to show on their page
+// (Notion "Pinned Posts", one link per line; acts can edit it from their private edit link).
+// Uses Instagram's and Facebook's own embeds, loaded only when the section scrolls into view.
+const { record, about } = Astro.props;
+const posts = (record.pinned || []).map((url) => ({ url, ig: /instagram\.com/i.test(url) }));
+---
+{posts.length > 0 && (
+  <section class="pinned" aria-labelledby={`pp-${record.slug}`} data-pagefind-ignore data-pinned>
+    <h2 id={`pp-${record.slug}`}>From {about}'s socials</h2>
+    <ul role="list">
+      {posts.map((p) => (
+        <li>
+          {p.ig ? (
+            <blockquote class="instagram-media" data-instgrm-permalink={p.url} data-instgrm-version="14">
+              <a href={p.url} rel="noopener">See this post on Instagram</a>
+            </blockquote>
+          ) : (
+            <iframe data-src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(p.url)}&show_text=true&width=500`} title={`Facebook post from ${about}`} width="500" height="620" loading="lazy" allow="encrypted-media; picture-in-picture; web-share" scrolling="no"></iframe>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<script is:inline>
+  (function () {
+    var box = document.querySelector('[data-pinned]');
+    if (!box) return;
+    function load() {
+      box.querySelectorAll('iframe[data-src]').forEach(function (f) { f.src = f.getAttribute('data-src'); });
+      if (box.querySelector('.instagram-media')) {
+        var s = document.createElement('script'); s.async = true; s.src = 'https://www.instagram.com/embed.js'; document.body.appendChild(s);
+      }
+    }
+    if (!('IntersectionObserver' in window)) return load();
+    var io = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io.disconnect(); load(); } }, { rootMargin: '400px' });
+    io.observe(box);
+  })();
+</script>
+
+<style>
+  .pinned { padding: 40px 0 8px; border-top: 2px solid var(--ink); display: grid; gap: 20px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  li { flex: 0 1 360px; min-width: 0; }
+  li :global(.instagram-media) { margin: 0 !important; min-width: 0 !important; width: 100% !important; }
+  iframe { display: block; width: 100%; max-width: 500px; border: 0; border-radius: 8px; background: #fff; }
+</style>
