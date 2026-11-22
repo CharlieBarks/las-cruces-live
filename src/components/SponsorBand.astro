@@ -16,7 +16,6 @@ const sponsors = (SPONSORS.liveMusic || []).map((s) => ({ ...s, v: s.venue ? ven
               <a class="name" href={s.v ? `/venues/${s.v.slug}/` : utm(s.url, source)}>{s.name}</a>
               {s.v && AREAS[s.v.area] && <span class="where">{AREAS[s.v.area].name}</span>}
             </span>
-            {s.url && s.v && <a class="site" href={utm(s.url, `sponsor_${source}`)} rel="noopener">Visit site</a>}
           </li>
         ))}
       </ul>
@@ -35,5 +34,4 @@ const sponsors = (SPONSORS.liveMusic || []).map((s) => ({ ...s, v: s.venue ? ven
   .name { font: 800 1.7rem/1 var(--display); color: var(--ink); text-decoration: none; }
   .name:hover { color: var(--turq); }
   .where { font-size: 0.88rem; color: var(--muted); }
-  .site { font-weight: 700; font-size: 0.92rem; min-height: 44px; display: inline-flex; align-items: center; }
 </style>
