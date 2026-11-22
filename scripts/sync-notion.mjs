@@ -197,6 +197,8 @@ async function main() {
     const captions = text(m, 'Photo Captions').split('\n');
     const photo = photosOk ? await keepPhoto(files(m, 'Photo')[0], `${slug}/photo`, 1800) : '';
     const thumb = photo ? await keepPhoto(files(m, 'Photo')[0], `${slug}/thumb`, 240) : '';
+    // Mid-size copy for the homepage and "Playing this week" cards, so they don't load the full photo
+    const card = photo ? await keepPhoto(files(m, 'Photo')[0], `${slug}/card`, 720) : '';
     const gallery = [];
     if (photosOk) {
       for (const [i, src] of files(m, 'Gallery').slice(0, 8).entries()) {
@@ -211,7 +213,7 @@ async function main() {
       sound: text(m, 'Genre'),
       genres: genresFor(text(m, 'Genre'), multi(m, 'Genres (checklist)')),
       bio: text(m, 'Bio'),
-      photo, thumb, photoCredit: photo ? text(m, 'Photo Credit') : '',
+      photo, thumb, card, photoCredit: photo ? text(m, 'Photo Credit') : '',
       gallery,
       song: cleanUrl(text(m, 'Song Link')),
       booking: bookingHref(text(m, 'Booking Link')),

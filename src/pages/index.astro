@@ -1,106 +1,94 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Stage from '../components/Stage.astro';
-import { SITE, whenText, WHEN_SHORT, lineupTitle, musicians, venues, genres, playingActs, thisWeek, venueWeek, issueLink, subscribeLink, AREAS, SPONSORS } from '../lib/site.js';
+import ActCard from '../components/ActCard.astro';
+import SponsorBand from '../components/SponsorBand.astro';
+import { SITE, WHEN_SHORT, musicians, venues, genres, playingActs, venueWeek, issueLink, SPONSORS, isFeatured } from '../lib/site.js';
 
+// Who gets a card: everyone playing this week (featured first), shuffled in the browser on every
+// visit so each act gets the same shot at the top spots. In a week with no lineup, a mix of
+// local acts instead, with photo acts in the pool first.
+const SHOW = 8;
+const featuredFirst = (a) => [...a.filter(isFeatured), ...a.filter((m) => !isFeatured(m))];
+const hasLineup = playingActs.length > 0;
+const pool = hasLineup
+  ? featuredFirst(playingActs)
+  : featuredFirst([...musicians.filter((m) => m.photo), ...musicians.filter((m) => !m.photo)]).slice(0, 40);
+// Sponsor venues first, then the busiest stages from the latest issue
+const sponsorVenues = (SPONSORS.liveMusic || []).map((s) => s.venue).filter(Boolean);
 const busy = venues
-  .map((v) => ({ v, w: venueWeek(v) }))
-  .filter((x) => x.w.shows > 0)
-  .sort((a, b) => b.w.shows - a.w.shows || a.v.name.localeCompare(b.v.name));
-const areaCounts = Object.entries(AREAS)
-  .map(([k, a]) => ({ k, a, n: venues.filter((v) => v.area === k).length }))
-  .filter((x) => x.n > 0);
-const playing = new Set(playingActs.map((m) => m.slug));
+  .map((v) => ({ v, n: venueWeek(v).shows, sp: sponsorVenues.includes(v.slug) }))
+  .sort((a, b) => b.sp - a.sp || b.n - a.n || a.v.name.localeCompare(b.v.name))
+  .slice(0, 6)
+  .map((x) => x.v);
 const sponsor = SPONSORS.home;
 ---
 <Layout
   title={SITE.name}
-  description={`Meet the ${musicians.length} local musicians and bands of Las Cruces and Mesilla, find them by genre, and see the venues that host live music across the Mesilla Valley.`}
+  description={`Meet the local musicians and bands of Las Cruces and Mesilla, see who's playing this week, find them by genre, and find the venues that host live music across the Mesilla Valley.`}
   jsonLd={[{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: SITE.url, potentialAction: { '@type': 'SearchAction', target: `${SITE.url}/search/?q={q}`, 'query-input': 'required name=q' } }]}
 >
   <section class="hero night on-night">
     <Stage />
     <div class="wrap inner">
-      <h1>Live music every night in Las Cruces.</h1>
-      <p class="sub">{musicians.length} local acts and {venues.length} stages, from Hatch to the Texas line.</p>
-
-      {playingActs.length > 0 ? (
-        <div class="poster">
-          <p class="poster-top">{lineupTitle()}</p>
-          <ul class="lineup" id="lineup" aria-label={`Acts playing ${WHEN_SHORT}`}>
-            {playingActs.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a></li>)}
-          </ul>
-          <script is:inline>
-            // New order and new headliners on every visit.
-            (function () {
-              var ul = document.getElementById('lineup');
-              if (!ul) return;
-              var items = Array.prototype.slice.call(ul.children);
-              for (var i = items.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = items[i]; items[i] = items[j]; items[j] = t; }
-              items.forEach(function (li, k) { li.className = k < 3 ? 'head' : k < 9 ? 'mid' : ''; ul.appendChild(li); });
-            })();
-          </script>
-          <p class="poster-foot">Days and times for all {thisWeek.shows} shows are in Thursday's Live Music issue.</p>
-          <div class="btns">
-            <a class="btn btn-gold" href={issueLink('home_hero')}>See days and times</a>
-            <a class="btn btn-line" href={subscribeLink('home_hero')}>Get it free every Thursday</a>
-          </div>
-        </div>
-      ) : (
-        <div class="poster">
-          <p class="poster-top">Who's playing this week?</p>
-          <p class="poster-foot">The week's live music lands every Thursday at 1 pm, free.</p>
-          <div class="btns"><a class="btn btn-gold" href={subscribeLink('home_hero')}>Get the Thursday issue</a></div>
-        </div>
-      )}
+      <p class="kicker">Las Cruces + Mesilla, New Mexico</p>
+      <h1>The best band in town is probably playing down the street.</h1>
+      <p class="sub">Meet the musicians of Las Cruces and Mesilla. Then go hear them.</p>
     </div>
   </section>
 
+  <SponsorBand source="home" />
   {sponsor && (
     <div class="sponsor wrap"><span>Presented by</span> <a href={sponsor.url}>{sponsor.name}</a></div>
   )}
 
-  <section class="section">
-    <div class="wrap">
+  <section class="section acts-band">
+    <div class="wrap stack">
       <div class="head-row">
-        <h2>Find your sound</h2>
-        <a href="/musicians/">Browse all {musicians.length} acts</a>
+        <div class="stack-tight">
+          <h2>{hasLineup ? `Playing ${WHEN_SHORT}` : 'Meet the musicians'}</h2>
+          {hasLineup
+            ? <p class="lede">Tap an act to meet them. Days, times and venues are in <a href={issueLink('home_acts')}>Thursday's Live Music issue</a>.</p>
+            : <p class="lede">A different handful every visit.</p>}
+        </div>
+        {hasLineup
+          ? <a class="more" href="/this-week/">See all {playingActs.length} acts playing {WHEN_SHORT} →</a>
+          : <a class="more" href="/musicians/">See every act →</a>}
       </div>
-      <ul class="genres">
-        {genres.map((g) => (
-          <li><a href={`/genres/${g.slug}/`}><span>{g.name}</span><span class="n">{g.acts.length}</span></a></li>
-        ))}
+      <ul class="cards" data-shuffle data-show={SHOW} aria-label={hasLineup ? `Acts playing ${WHEN_SHORT}` : 'Local acts'}>
+        {pool.map((m) => <li data-pin={isFeatured(m) ? '1' : undefined}><ActCard m={m} /></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="wrap stack">
+      <h2>Find your sound</h2>
+      <ul class="chips">
+        {genres.map((g) => <li><a href={`/genres/${g.slug}/`}>{g.name}</a></li>)}
       </ul>
     </div>
   </section>
 
   <section class="section venues-band">
     <div class="wrap split">
-      <div class="stack">
-        <h2>Where the music happens</h2>
-        <p class="lede">Wineries, brewery patios, plaza cantinas and roadhouses. These stages had the most going on in the latest issue.</p>
-        <ol class="busy">
-          {busy.slice(0, 8).map(({ v, w }) => (
-            <li><a href={`/venues/${v.slug}/`}>{v.name}</a><span>{w.shows} {w.shows === 1 ? 'show' : 'shows'} {whenText(w.weeks, true)}</span></li>
-          ))}
-        </ol>
-        <div class="btns"><a class="btn btn-line" href="/map/">Open the venue map</a><a class="btn btn-line" href="/venues/">All {venues.length} venues</a></div>
+      <div class="stack-tight">
+        <h2>Where they play</h2>
+        <p class="lede">
+          {busy.map((v, i) => <><a href={`/venues/${v.slug}/`}>{v.name}</a>{i < busy.length - 1 ? ', ' : ''}</>)}
+          {' '}and a few dozen more patios, wineries and roadhouses around the valley.
+        </p>
       </div>
-      <div class="areas">
-        <h3>By neighborhood</h3>
-        <ul>
-          {areaCounts.map(({ k, a, n }) => (
-            <li><a href={`/venues/#${k}`}>{a.name}</a><span>{n}</span></li>
-          ))}
-        </ul>
-      </div>
+      <div class="btns"><a class="btn btn-gold" href="/map/">Open the venue map</a><a class="btn btn-line" href="/venues/">All venues</a></div>
     </div>
   </section>
 
   <section class="section">
-    <div class="wrap listed">
-      <h2>Play music here, or book it?</h2>
-      <p class="lede">Every local musician, band and venue gets a free listing. Tell me what to add or fix and I'll get it up.</p>
+    <div class="wrap split listed">
+      <div class="stack-tight">
+        <h2>Play music here? Your page is free.</h2>
+        <p class="lede">Add your photo, your story, a song and a Book button so venues can reach you. Then put your shows on the events calendar so they make Thursday's issue.</p>
+      </div>
       <div class="btns">
         <a class="btn btn-chile" href="/get-listed/">Get listed free</a>
         <a class="btn btn-line" href="/get-listed/#venues">Feature your venue</a>
@@ -109,50 +97,42 @@ const sponsor = SPONSORS.home;
   </section>
 </Layout>
 
+<script is:inline>
+  // Fresh order on every visit so every act gets equal time up top. Featured (paid) acts stay first.
+  document.querySelectorAll('[data-shuffle]').forEach(function (ul) {
+    var items = Array.prototype.slice.call(ul.children);
+    var pinned = items.filter(function (li) { return li.dataset.pin; });
+    var rest = items.filter(function (li) { return !li.dataset.pin; });
+    for (var i = rest.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = rest[i]; rest[i] = rest[j]; rest[j] = t; }
+    var show = Number(ul.dataset.show) || items.length;
+    pinned.concat(rest).forEach(function (li, k) { li.hidden = k >= show; ul.appendChild(li); });
+  });
+</script>
+
 <style>
-  .hero { padding: clamp(44px, 6vw, 76px) 0 clamp(120px, 14vw, 180px); position: relative; overflow: hidden; }
-  .inner { position: relative; z-index: 1; text-align: center; display: grid; justify-items: center; }
-  .hero h1 { color: var(--cream); max-width: 16ch; text-wrap: balance; }
-  .sub { margin-top: 14px; font-size: 1.15rem; }
-
-  /* Gig-poster lineup: this week's acts, reshuffled with new headliners on every visit */
-  .poster { margin-top: 36px; width: 100%; max-width: 980px; padding: 28px clamp(16px, 4vw, 44px) 32px;
-    border: 2px solid rgba(244, 182, 62, 0.55); border-radius: 4px; background: rgba(20, 16, 38, 0.55); display: grid; justify-items: center; gap: 14px; }
-  .poster-top { font: 700 1.05rem var(--text); color: var(--turq-bright) !important; letter-spacing: 0.04em; }
-  .lineup { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 0;
-    font-family: var(--display); text-transform: uppercase; line-height: 1.08; }
-  .lineup li { font-size: clamp(1.05rem, 1.8vw, 1.45rem); font-weight: 700; }
-  .lineup li.mid { font-size: clamp(1.4rem, 2.6vw, 2.1rem); font-weight: 800; }
-  .lineup li.head { font-size: clamp(2rem, 4.6vw, 3.6rem); font-weight: 900; width: 100%; }
-  .lineup li:not(.head)::after { content: '✦'; color: var(--turq-bright); margin: 0 0.55em; font-size: 0.55em; vertical-align: 0.25em; }
-  .lineup a { color: var(--cream); text-decoration: none; }
-  .lineup li.head a { color: var(--gold); }
-  .lineup li.mid a { color: #ffd98a; }
-  .lineup a:hover { color: #fff; }
-  .poster-foot { margin-top: 6px; }
-  .poster .btns { justify-content: center; }
-
+  .hero { padding: clamp(56px, 8vw, 104px) 0 clamp(64px, 9vw, 120px); position: relative; overflow: hidden; }
+  .inner { position: relative; z-index: 1; text-align: center; display: grid; justify-items: center; gap: 16px; }
+  .kicker { color: var(--turq-bright) !important; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .hero h1 { color: var(--cream); max-width: 15ch; text-wrap: balance; }
+  .sub { font-size: 1.2rem; max-width: 46ch; }
   .sponsor { padding-top: 14px; font-size: 0.9rem; color: var(--muted); }
-
-  .head-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
-  .genres { list-style: none; margin: 0; padding: 0; columns: 3 260px; column-gap: 40px; }
-  .genres li { break-inside: avoid; border-bottom: 1px solid var(--line); }
-  .genres a { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 2px; text-decoration: none; color: var(--ink); font: 700 1.55rem/1.05 var(--display); }
-  .genres a:hover { color: var(--turq); }
-  .n { font: 600 0.95rem var(--text); color: var(--muted); }
-
-  .venues-band { background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 56px; }
-  .busy { list-style: none; margin: 8px 0 0; padding: 0; counter-reset: none; }
-  .busy li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-  .busy a { font: 700 1.35rem/1.1 var(--display); color: var(--ink); text-decoration: none; }
-  .busy a:hover { color: var(--turq); }
-  .busy span { color: var(--chile); font-weight: 600; font-size: 0.92rem; white-space: nowrap; }
-  .areas h3 { margin-bottom: 12px; }
-  .areas ul { list-style: none; margin: 0; padding: 0; }
-  .areas li { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--line); }
-  .areas span { color: var(--muted); }
-
-  .listed { display: grid; gap: 16px; justify-items: start; }
-  @media (max-width: 820px) { .split { grid-template-columns: 1fr; } }
+  .stack { display: grid; gap: 28px; }
+  .stack-tight { display: grid; gap: 10px; }
+  .head-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 24px; flex-wrap: wrap; }
+  .more { font-weight: 700; font-size: 1.05rem; min-height: 44px; display: inline-flex; align-items: center; }
+  @media (max-width: 560px) { .cards { grid-template-columns: 1fr 1fr !important; gap: 12px !important; } }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  /* Without JavaScript, still show only the first 8 */
+  .cards[data-show='8'] > li:nth-child(n + 9) { display: none; }
+  .cards > li[hidden] { display: none; }
+  .cards > li:not([hidden]) { display: block; }
+  .tight { padding-top: 0; }
+  .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .chips a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 2px solid var(--ink); border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 700; }
+  .chips a:hover { background: var(--ink); color: var(--cream); }
+  .venues-band { background: var(--sky); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .venues-band .lede { color: var(--ink); }
+  .split { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px 56px; }
+  .split > .stack-tight { flex: 1 1 520px; }
+  .listed { border-top: 2px solid var(--ink); padding-top: 40px; }
 </style>

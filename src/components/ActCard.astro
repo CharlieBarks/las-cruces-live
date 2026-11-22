@@ -1,0 +1,80 @@
+---
+// One act as a card: their photo if they have one, otherwise a gig poster made from their name,
+// colored by their sound. Used on the homepage and the "Playing this week" page.
+import { typeLabel, genreName, posterColor, isFeatured } from '../lib/site.js';
+const { m } = Astro.props;
+const genres = m.genres.slice(0, 3).map(genreName).join(' · ');
+const featured = isFeatured(m);
+const img = m.card || m.photo;
+---
+{img ? (
+  <a class="card photo" href={`/musicians/${m.slug}/`}>
+    <img src={img} alt="" loading="lazy" decoding="async" />
+    <span class="body">
+      <span class="top">
+        {genres && <span class="g">{genres}</span>}
+        {featured && <span class="badge">Featured</span>}
+      </span>
+      <span class="nm">{m.name}</span>
+      {typeLabel(m) && <span class="kind">{typeLabel(m)}</span>}
+    </span>
+  </a>
+) : (
+  <a class={`card poster c-${posterColor(m)}`} href={`/musicians/${m.slug}/`}>
+    <span class="top">
+      {genres && <span class="g">{genres}</span>}
+      {featured && <span class="badge">Featured</span>}
+    </span>
+    <span class="foot">
+      <span class="star" aria-hidden="true">✦</span>
+      <span class="nm">{m.name}</span>
+      {typeLabel(m) && <span class="kind">{typeLabel(m)}</span>}
+    </span>
+  </a>
+)}
+
+<style>
+  .card { display: flex; flex-direction: column; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; text-decoration: none; transition: transform 0.2s; }
+  .card:hover { transform: translateY(-3px); }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .g { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .badge { background: var(--gold); color: var(--night); font-size: 0.72rem; font-weight: 700; padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+  .nm { font: 900 clamp(2rem, 3vw, 2.6rem)/0.92 var(--display); text-transform: uppercase; text-wrap: balance; overflow-wrap: anywhere; }
+  .kind { font-size: 0.9rem; font-weight: 600; }
+
+  /* Photo card: photo on top, name below. Never text over the photo. */
+  .photo { background: var(--night); color: var(--cream); }
+  .photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 30%; }
+  .photo .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 14px 18px 16px; min-height: 0; }
+  .photo .g { color: var(--turq-bright); }
+  .photo .nm { font-size: clamp(1.7rem, 2.4vw, 2.1rem); }
+  .photo .kind { color: #e8e2d4; }
+
+  /* Poster card: the act's name is the picture */
+  .poster { justify-content: space-between; gap: 20px; padding: 20px; }
+  .foot { display: grid; gap: 10px; }
+  .star { font-size: 1.1rem; line-height: 1; }
+  .c-chile { background: var(--chile); color: var(--cream); box-shadow: inset 0 0 0 6px rgba(245, 239, 226, 0.18); }
+  .c-chile .star { color: var(--gold); }
+  .c-plum { background: var(--night-2); color: var(--gold); box-shadow: inset 0 0 0 6px rgba(244, 182, 62, 0.16); }
+  .c-plum .g, .c-plum .kind { color: var(--cream); }
+  .c-plum .star { color: var(--turq-bright); }
+  .c-turq { background: var(--turq); color: var(--cream); box-shadow: inset 0 0 0 6px rgba(245, 239, 226, 0.18); }
+  .c-turq .star { color: var(--gold); }
+  .c-night { background: var(--night); color: var(--cream); box-shadow: inset 0 0 0 6px rgba(245, 239, 226, 0.14); }
+  .c-night .star { color: var(--turq-bright); }
+  .c-gold { background: var(--gold); color: var(--night); box-shadow: inset 0 0 0 6px rgba(29, 23, 53, 0.14); }
+  .c-gold .star { color: var(--chile); }
+  .c-gold .badge { background: var(--night); color: var(--gold); }
+  .c-sea { background: var(--turq-bright); color: var(--night); box-shadow: inset 0 0 0 6px rgba(29, 23, 53, 0.14); }
+  /* Phones: two cards per row, smaller type */
+  @media (max-width: 560px) {
+    .poster { padding: 14px; gap: 12px; }
+    .g { font-size: 0.62rem; }
+    .nm, .photo .nm { font-size: 1.45rem; }
+    .kind { font-size: 0.8rem; }
+    .photo .body { padding: 10px 12px 12px; gap: 4px; }
+    .badge { font-size: 0.62rem; padding: 4px 7px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>

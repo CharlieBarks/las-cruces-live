@@ -19,6 +19,7 @@ The who's who of the Las Cruces music scene: local musicians, bands and the venu
 | `src/data/musicians.json`, `src/data/venues.json` | Notion, via `scripts/sync-notion.mjs` | **No**, generated each build |
 | `src/data/thisweek.json` | Newest Beehiiv "Live Music" post, via `scripts/sync-lineup.mjs` | **No**, generated each build |
 | Sponsor spots | `SPONSORS` in `src/lib/site.js` | Yes |
+| Thursday Live Music issue sponsors (homepage + /this-week/ band) | `SPONSORS.liveMusic` in `src/lib/site.js` | Yes |
 | Genre sorting rules | `scripts/lib/shape.mjs` | Carefully |
 
 - Builds without `NOTION_TOKEN` / `BEEHIIV_API_KEY` use the saved JSON.
@@ -57,7 +58,11 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
 
 ## Design status
 
-- Homepage: not started in Paper.
+- Homepage: redesigned Nov 22, 2026 (musician first). Mockup: https://claude.ai/artifact/2tvDP5MUwCucceLTAEDNqy
+  - "Playing this week" cards, shuffled on every visit so acts get equal time; `/this-week/` shows them all.
+  - Acts with Listing Tier "Premium" are always in the homepage lineup, first, labeled "Featured" (the paid spotlight hook).
+  - Cards with no photo become a poster of the act's name, colored by genre (`posterColor` in `src/lib/site.js`).
+  - Newsletter sponsors sit in a band right under the hero, and their venues lead "Where they play".
 
 ## Site-specific rules
 

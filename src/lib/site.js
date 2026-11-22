@@ -28,6 +28,13 @@ export function utm(url, content) {
 // Section sponsors. One per spot. Leave empty until sold.
 // e.g. blues: { name: 'Blue Moon Bar & Grill', url: 'https://www.bluemoonnm.com/', venue: 'blue-moon-bar-and-grill' }
 export const SPONSORS = {
+  // Thursday Live Music issue sponsors. Shown front and center on the homepage and the
+  // "Playing this week" page, and listed first under "Where they play".
+  // name, venue (slug on this site), url (their own site, optional), logo (optional, path under /public)
+  liveMusic: [
+    { name: 'Madelyn’s Mesilla', venue: 'madelyns-mesilla' },
+    { name: 'Rio Grande Winery', venue: 'rio-grande-winery', url: 'https://www.riograndewinery.com/' },
+  ],
   home: null,
   map: null,
   genres: {},
@@ -131,6 +138,19 @@ export const playingWhen = (m, short = false) => whenText(thisWeek.acts[m.slug]?
 export const playingLabel = (m) => `Playing ${playingWhen(m, true)}`;
 export const venueWeek = (v) => thisWeek.venues[v.slug] || { shows: 0, unlisted: 0, acts: [], weeks: [] };
 export const playingActs = musicians.filter(isPlaying);
+
+// Paid spotlight hook: acts with Listing Tier "Premium" in Notion always make the homepage
+// lineup, go first and carry a "Featured" label. Nobody is Premium yet, so nothing changes until then.
+export const isFeatured = (m) => m.tier === 'premium';
+// Cards with no photo are colored by the act's main sound
+const POSTER = {
+  americana: 'chile', country: 'chile', folk: 'chile', 'singer-songwriter': 'chile',
+  blues: 'plum', 'soul-rnb': 'plum', 'funk-disco': 'plum',
+  jazz: 'turq',
+  'tejano-norteno': 'gold', latin: 'gold',
+  pop: 'sea', 'oldies-variety': 'sea',
+};
+export const posterColor = (m) => POSTER[m.genres[0]] || 'night';
 
 // ---------- Genres ----------
 export const genres = GENRES.map((g) => ({
