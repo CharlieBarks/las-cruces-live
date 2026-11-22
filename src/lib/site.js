@@ -25,6 +25,24 @@ export function utm(url, content) {
   return u.toString();
 }
 
+// Outgoing links to an act's or venue's own website, socials, song and booking page. Tagged so
+// they can see in their own analytics how many visitors Las Cruces Live sends them (a good
+// talking point for sponsors). Email and phone links are left alone.
+export function out(url, content) {
+  if (!/^https?:\/\//i.test(url || '')) return url;
+  try {
+    const u = new URL(url);
+    if (u.searchParams.has('utm_source')) return url;
+    u.searchParams.set('utm_source', 'lascruceslive');
+    u.searchParams.set('utm_medium', 'referral');
+    u.searchParams.set('utm_campaign', 'profile');
+    if (content) u.searchParams.set('utm_content', content);
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 // Section sponsors. One per spot. Leave empty until sold.
 // e.g. blues: { name: 'Blue Moon Bar & Grill', url: 'https://www.bluemoonnm.com/', venue: 'blue-moon-bar-and-grill' }
 export const SPONSORS = {

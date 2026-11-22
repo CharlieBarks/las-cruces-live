@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import ThisWeek from '../../components/ThisWeek.astro';
 import VenueMap from '../../components/VenueMap.astro';
 import Comments from '../../components/Comments.astro';
-import { SITE, utm, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, isFeaturedVenue, featuredVenueFirst } from '../../lib/site.js';
+import { SITE, utm, out, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, isFeaturedVenue, featuredVenueFirst } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return venues.map((v) => ({ params: { slug: v.slug } }));
@@ -36,7 +36,7 @@ const heading = acts.length
           {v.address && <><dt>Address</dt><dd>{v.address}<br /><a href={mapsLink(v)} rel="noopener">Get directions</a></dd></>}
           {v.phone && <><dt>Phone</dt><dd><a href={`tel:${v.phone.replace(/[^\d+]/g, '')}`}>{v.phone}</a></dd></>}
         </dl>
-        {links.length > 0 && <div class="btns">{links.map(([k, n]) => <a class="btn btn-line" href={v.links[k]} rel="noopener">{n}</a>)}</div>}
+        {links.length > 0 && <div class="btns">{links.map(([k, n]) => <a class="btn btn-line" href={out(v.links[k], v.slug)} rel="noopener">{n}</a>)}</div>}
         {v.lat && v.lng && <div class="mini"><VenueMap list={[v]} height="300px" zoom={14} /></div>}
       </div>
       <div class="side stack">
@@ -61,7 +61,7 @@ const heading = acts.length
         </aside>}
       </div>
     </article>
-    <Comments record={v} kind="venue" about={v.name} prompt={`What's your favorite night at ${v.name}?`} placeholder="The patio, the crowd, the band you caught there…" />
+    <Comments record={v} kind="venue" about={v.name} prompt={`What do you love about ${v.name}?`} placeholder="The patio, the crowd, the music, the best night you had there…" />
     {nearby.length > 0 && (
       <section class="nearby" data-pagefind-ignore>
         <h2>More in {area?.name}</h2>
