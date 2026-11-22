@@ -68,10 +68,17 @@ const links = { issue: issueLink('map_pin'), subscribe: subscribeLink('map_pin')
     const points = JSON.parse(el.dataset.points || '[]');
     const links = JSON.parse(el.dataset.links || '{}');
     const single = points.length === 1;
+    // Open on the heart of town, stretched so every featured (sponsor) venue is in view, with a little margin
+    const start: [[number, number], [number, number]] = [[...CORE[0]], [...CORE[1]]] as any;
+    for (const p of points) {
+      if (!p.feat) continue;
+      start[0][0] = Math.min(start[0][0], p.lng - 0.006); start[0][1] = Math.min(start[0][1], p.lat - 0.006);
+      start[1][0] = Math.max(start[1][0], p.lng + 0.006); start[1][1] = Math.max(start[1][1], p.lat + 0.006);
+    }
     const map = new Map({
       container: el,
       style: 'https://tiles.openfreemap.org/styles/liberty',
-      ...(single ? { center: [points[0].lng, points[0].lat], zoom: Number(el.dataset.zoom) || 14 } : { bounds: CORE }),
+      ...(single ? { center: [points[0].lng, points[0].lat], zoom: Number(el.dataset.zoom) || 14 } : { bounds: start }),
       scrollZoom: false,
       cooperativeGestures: true,
       attributionControl: { compact: true },
