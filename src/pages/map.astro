@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import VenueMap from '../components/VenueMap.astro';
 import SponsorBand from '../components/SponsorBand.astro';
 import { venues, genres, venueWeek, thisWeek, WHEN, WHEN_SHORT, SPONSORS } from '../lib/site.js';
-const unmapped = venues.filter((v) => !v.lat || !v.lng);
 const weekGenres = genres.filter((g) => venues.some((v) => venueWeek(v).acts.length && g.acts.some((a) => venueWeek(v).acts.includes(a.slug))));
 const sponsor = SPONSORS.map;
 ---
@@ -30,13 +29,6 @@ const sponsor = SPONSORS.map;
         <output aria-live="polite"></output>
       </form>
     </VenueMap>
-    {unmapped.length > 0 && (
-      <section class="unmapped">
-        <h2>Not on the map yet</h2>
-        <p class="muted">Pop-ups, presenters and places still waiting on an address.</p>
-        <ul>{unmapped.map((v) => <li><a href={`/venues/${v.slug}/`}>{v.name}</a></li>)}</ul>
-      </section>
-    )}
   </div>
 </Layout>
 
@@ -48,7 +40,5 @@ const sponsor = SPONSORS.map;
   .check { display: inline-flex; align-items: center; gap: 8px; }
   .check input { width: 18px; height: 18px; accent-color: var(--chile); }
   output { margin-left: auto; color: var(--muted); font-weight: 400; font-size: 0.92rem; }
-  .unmapped { padding: 48px 0 72px; }
-  .unmapped ul { columns: 3 220px; padding-left: 18px; margin-top: 14px; }
   .muted { color: var(--muted); margin-top: 6px; }
 </style>

@@ -7,6 +7,7 @@
 //
 //   POST /tally?key=INTAKE_KEY   Tally webhook (form RWdbxl). New act -> Site Status = Submitted.
 //   POST /claim                  "Claim this page" from lascruceslive.com/claim/
+//   POST /comment                Comment box on musician and venue pages (shown after Charlie approves)
 //   GET  /photo/<key>            Photos copied out of Tally and uploaded in the editor (public)
 //
 // The Admin entrypoint (bottom) has no web address. Only the las-cruces-live-preview Worker can call
@@ -20,6 +21,8 @@ import { WorkerEntrypoint } from 'cloudflare:workers';
 
 const MUSICIANS_DB = 'b8aa6b26746c4ddf9967e8fd2010d08e';
 const MEMBERS_DB = 'c7d3f6b775f34477851b55a6a6f7dbe0';
+const VENUES_DB = '59ba83b7e42d4115b54ee3d349c3f697';
+const COMMENTS_DB = '42054e00081a81e59d01fb3020f87705';
 const TALLY_FORMS = { RWdbxl: 'musician' };
 
 const INTAKE_ORIGIN = 'https://lc-live-intake.cf2-99b.workers.dev';
@@ -225,14 +228,14 @@ export async function handleSubmission(payload, env) {
 }
 
 const BEEHIIV_PUB = 'pub_30ababf5-8907-4822-935d-a896d2c7f1a6';
-async function joinNewsletter(env, properties) {
+async function joinNewsletter(env, properties, medium = 'musician-form') {
   const email = properties['Submitter Email']?.email;
   if (!env.BEEHIIV_API_KEY || !email || !properties['Newsletter Opt-in']?.checkbox) return;
   try {
     const res = await fetch(`https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB}/subscriptions`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${env.BEEHIIV_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, reactivate_existing: false, send_welcome_email: true, utm_source: 'lascruceslive', utm_medium: 'musician-form' }),
+      body: JSON.stringify({ email, reactivate_existing: false, send_welcome_email: true, utm_source: 'lascruceslive', utm_medium: medium }),
     });
     if (!res.ok) console.warn(`Beehiiv signup failed: HTTP ${res.status}`);
   } catch (err) {
@@ -255,6 +258,7 @@ export default {
       return new Response(obj.value, { headers: { 'content-type': obj.metadata?.type || 'image/jpeg', 'cache-control': 'public, max-age=31536000, immutable', 'access-control-allow-origin': '*' } });
     }
     if (url.pathname === '/claim') return handleClaim(request, env, ctx);
+    if (url.pathname === '/comment') return handleComment(request, env, ctx);
     if (url.pathname === '/notify' && request.method === 'POST' && env.INTAKE_KEY && url.searchParams.get('key') === env.INTAKE_KEY) {
       try {
         if (url.searchParams.get('test') === 'charlie') {
@@ -469,6 +473,60 @@ async function handleClaim(request, env, ctx) {
   }
 }
 
+// ---------- Comments on musician and venue pages ----------
+// Saves a Notion record in Las Cruces Live Comments with Site Status = Submitted. Nothing shows
+// until Charlie approves it. Spam checks: Turnstile, a hidden "website" field and a rate limit.
+async function handleComment(request, env, ctx) {
+  const origin = request.headers.get('origin') || '';
+  const cors = PUBLIC_ORIGINS.includes(origin) ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {};
+  if (request.method === 'OPTIONS') return new Response(null, { headers: { ...cors, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '86400' } });
+  const reply = (body, status = 200) => Response.json(body, { status, headers: cors });
+  if (request.method !== 'POST' || !cors['Access-Control-Allow-Origin']) return reply({ ok: false, error: 'Not allowed.' }, 403);
+  const ip = request.headers.get('cf-connecting-ip') || '';
+  if (await limited(env, `comment:${ip}`)) return reply({ ok: false, error: 'Too many tries. Please wait a minute and try again.' }, 429);
+  let b;
+  try { b = await request.json(); } catch { return reply({ ok: false, error: 'Bad request.' }, 400); }
+  const clip = (v, n) => String(v || '').replace(CONTROL, '').replace(/\s+/g, ' ').trim().slice(0, n);
+  const comment = clip(b.comment, 600), firstName = clip(b.firstName, 40), town = clip(b.town, 60), email = clip(b.email, 120).toLowerCase();
+  const id = dashless(b.id);
+  if (b.website) return reply({ ok: true }); // honeypot
+  if (comment.length < 5 || !firstName) return reply({ ok: false, error: 'Please add a few words and your first name.' }, 400);
+  if (email && !isEmail(email)) return reply({ ok: false, error: "That email doesn't look right." }, 400);
+  if (!/^[0-9a-f]{32}$/.test(id) || !['musician', 'venue'].includes(b.kind)) return reply({ ok: false, error: 'Unknown page.' }, 400);
+  if (!(await turnstileOk(env, b.token, ip))) return reply({ ok: false, error: "The spam check didn't go through. Please try again." }, 400);
+  const page = /^https:\/\/(www\.)?lascruceslive\.com\//.test(b.page || '') ? String(b.page).slice(0, 300) : '';
+  const properties = clean({
+    Comment: P.title(comment),
+    'Site Status': P.select('Submitted'),
+    'First Name': P.text(firstName),
+    Town: P.text(town),
+    Email: P.email(email),
+    'Newsletter Opt-in': P.check(Boolean(email && b.newsletter)),
+    [b.kind === 'musician' ? 'Musician' : 'Venue']: P.relation([id]),
+    Page: P.url(page),
+    'Submitted On': P.date(new Date().toISOString().slice(0, 10)),
+  });
+  let about = '';
+  try {
+    about = plain((await notion(env, `pages/${id}`, undefined, 'GET')).properties?.[b.kind === 'musician' ? TITLE : 'Name']);
+    await notion(env, 'pages', { parent: { database_id: COMMENTS_DB }, properties });
+  } catch (err) {
+    console.error(`comment save failed: ${err.message}`);
+    return reply({ ok: false, error: 'Something went wrong saving your comment. Please try again in a minute.' }, 502);
+  }
+  const after = Promise.all([
+    joinNewsletter(env, { 'Submitter Email': properties.Email, 'Newsletter Opt-in': properties['Newsletter Opt-in'] }, 'comment'),
+    rebuild(env.PREVIEW_HOOK),
+    tellCharlie(env, `new comment on ${about || 'a page'}`, [
+      `${firstName}${town ? ` (${town})` : ''} left a comment on ${about || 'a page'}:`, '', `"${comment}"`, '',
+      'Approve or hide it from the review queue (about 2 minutes from now). Nothing shows on the site until you approve it.',
+    ]),
+  ]).catch(() => {});
+  ctx.waitUntil(after);
+  console.log(JSON.stringify({ comment: 'saved', kind: b.kind, id }));
+  return reply({ ok: true });
+}
+
 async function turnstileOk(env, token, ip) {
   if (!env.TURNSTILE_SECRET) return true; // not configured: rely on the honeypot, the rate limit and review
   if (!token) return false;
@@ -584,6 +642,24 @@ export class Admin extends WorkerEntrypoint {
       return { ok: true, status, rebuilding: { live, preview } };
     } catch (err) {
       return { ok: false, error: err instanceof UserError ? err.message : "Notion didn't accept the change. Try again in a minute." };
+    }
+  }
+
+  // Review queue: Approve / Hide a comment. Approving rebuilds the live site so it shows up.
+  async setCommentStatus(id, status, by = '') {
+    try {
+      if (!['Approved', 'Hidden'].includes(status)) return { ok: false, error: 'Unknown status.' };
+      if (!/^[0-9a-f]{32}$/.test(dashless(id))) return { ok: false, error: 'Unknown comment.' };
+      const page = await notion(this.env, `pages/${dashless(id)}`, undefined, 'GET');
+      if (dashless(page.parent?.database_id) !== COMMENTS_DB) return { ok: false, error: 'That is not a comment.' };
+      await notion(this.env, `pages/${dashless(id)}`, { properties: { 'Site Status': { select: { name: status } } } }, 'PATCH');
+      console.log(JSON.stringify({ admin: 'setCommentStatus', id: dashless(id), status, by }));
+      const live = status === 'Approved' ? await rebuild(this.env.LIVE_HOOK) : false;
+      const preview = await rebuild(this.env.PREVIEW_HOOK);
+      return { ok: true, status, rebuilding: { live, preview } };
+    } catch (err) {
+      console.error(`setCommentStatus failed: ${err.message}`);
+      return { ok: false, error: "Notion didn't accept the change. Try again in a minute." };
     }
   }
 

@@ -24,6 +24,7 @@ const MUSICIANS_DB = 'b8aa6b26746c4ddf9967e8fd2010d08e';
 const CONTACTS_DB = '36454e00081a80b680b1dab51a210a4a';
 const VENUES_DB = '59ba83b7e42d4115b54ee3d349c3f697';
 const MEMBERS_DB = 'c7d3f6b775f34477851b55a6a6f7dbe0'; // Band Members (shown only under their band)
+const COMMENTS_DB = '42054e00081a81e59d01fb3020f87705'; // Las Cruces Live Comments (shown after Charlie approves)
 const PREVIEW_SITE_URL = (process.env.PREVIEW_SITE_URL || '').replace(/\/+$/, '');
 const LIVE_SITE_URL = 'https://lascruceslive.com';
 const MEDIA_DIR = path.resolve('public/media');
@@ -190,10 +191,25 @@ async function main() {
   const [mStatus, vStatus, vLat] = await Promise.all([
     hasProp(MUSICIANS_DB, 'Site Status'), hasProp(VENUES_DB, 'Site Status'), hasProp(VENUES_DB, 'Latitude'),
   ]);
-  const [mPages, cPages, vPages, bPages] = await Promise.all([
+  const [mPages, cPages, vPages, bPages, nPages] = await Promise.all([
     queryAll(MUSICIANS_DB, mStatus), queryAll(CONTACTS_DB, false), queryAll(VENUES_DB, vStatus),
     queryAll(MEMBERS_DB, false).catch((err) => { console.warn(`sync-notion: couldn't read Band Members (${err.message}). Share the database with the Notion integration.`); return []; }),
+    queryAll(COMMENTS_DB, false).catch((err) => { console.warn(`sync-notion: couldn't read Comments (${err.message}). Pages will show no comments.`); return []; }),
   ]);
+
+  // Comments left on musician and venue pages. Only approved ones are ever shown; the preview
+  // site's Review queue lists the new ones with Approve / Hide buttons.
+  const commentsFor = {};
+  const newComments = [];
+  for (const n of nPages) {
+    const c = { text: text(n, 'Comment'), firstName: text(n, 'First Name'), town: text(n, 'Town'), date: date(n, 'Submitted On'), status: text(n, 'Site Status'), id: dashless(n.id) };
+    if (!c.text) continue;
+    const about = [...rel(n, 'Musician'), ...rel(n, 'Venue')];
+    for (const t of about) (commentsFor[t] ||= []).push(c);
+    if (PREVIEW && c.status === 'Submitted') newComments.push({ ...c, about: about[0] || '' });
+  }
+  const approvedComments = (id) => (commentsFor[id] || []).filter((c) => c.status === 'Approved')
+    .sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(({ text, firstName, town, date }) => ({ text, firstName, town, date }));
 
   // Public links only. Email and phone in the contact list are never read.
   const contacts = new Map(cPages.map((c) => [c.id.replace(/-/g, ''), {
@@ -246,6 +262,7 @@ async function main() {
       },
       _photosOk: photosOk, _members: rel(m, 'Members'), _memberOf: rel(m, 'Member Of'), _bandMembers: rel(m, 'Band Members'),
       tier: (text(m, 'Listing Tier') || 'Free').toLowerCase(),
+      comments: approvedComments(id),
       // Local (blank), Regional or Touring. Non-local acts get a tag and list after local ones.
       homeBase: (text(m, 'Home Base') || 'Local').toLowerCase(),
       siteStatus: status,
@@ -306,8 +323,14 @@ async function main() {
         if (vLat) await notion(`pages/${v.id}`, { properties: { Latitude: { number: lat }, Longitude: { number: lng } } }, 'PATCH').catch(() => {});
       } else console.warn(`sync-notion: couldn't place ${name} (${address}) on the map`);
     }
+    const vslug = slugify(name);
+    const vsrc = files(v, 'Photo')[0];
+    const vphoto = await keepPhoto(vsrc, `venues/${vslug}/photo`, 1800);
     venues.push({
-      name, slug: slugify(name), notionId: v.id.replace(/-/g, ''),
+      name, slug: vslug, notionId: v.id.replace(/-/g, ''),
+      photo: vphoto, card: vphoto ? await keepPhoto(vsrc, `venues/${vslug}/card`, 900) : '',
+      cardLine: text(v, 'Card Line').slice(0, 90),
+      comments: approvedComments(dashless(v.id)),
       address, area: areaFor(address), phone: text(v, 'Phone'),
       links: { website: cleanUrl(text(v, 'Website Link')), facebook: cleanUrl(text(v, 'Facebook Link')), instagram: cleanUrl(text(v, 'Instagram Link')) },
       lat, lng,
@@ -341,6 +364,9 @@ async function main() {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(path.join(DATA_DIR, 'musicians.json'), JSON.stringify(musicians, null, 2));
   await fs.writeFile(path.join(DATA_DIR, 'venues.json'), JSON.stringify(venues, null, 2));
+  // New comments waiting for approval (preview site only; the live site writes an empty list)
+  const named = new Map([...musicians.map((m) => [m.notionId, { name: m.name, href: `/musicians/${m.slug}/` }]), ...venues.map((x) => [x.notionId, { name: x.name, href: `/venues/${x.slug}/` }])]);
+  await fs.writeFile(path.join(DATA_DIR, 'comments.json'), JSON.stringify(newComments.map((c) => ({ ...c, aboutName: named.get(c.about)?.name || '', aboutHref: named.get(c.about)?.href || '' })), null, 2) + '\n');
   console.log(`sync-notion: ${musicians.length} musicians, ${venues.length} venues (${venues.filter((v) => v.lat).length} on the map)`);
 }
 

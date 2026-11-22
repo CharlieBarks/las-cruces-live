@@ -1,0 +1,91 @@
+---
+// One venue as a card, in the same family as the act cards (ActCard.astro): the venue's photo on
+// top if it has one, otherwise a name card colored by neighborhood. Sponsor venues (isFeaturedVenue)
+// get the wide "Sponsor" card with a gold frame and their Card Line from Notion.
+// Never shows days or times: only "Live music this week" and how many shows.
+import { AREAS, venueWeek, whenText, isFeaturedVenue } from '../lib/site.js';
+const { v, wide = false } = Astro.props;
+const sponsor = isFeaturedVenue(v);
+const w = venueWeek(v);
+const area = AREAS[v.area]?.name || '';
+const img = v.card || v.photo;
+const playing = w.shows > 0 ? `Live music ${whenText(w.weeks, true)}` : '';
+const count = w.shows > 0 ? `${w.shows} ${w.shows === 1 ? 'show' : 'shows'} ${whenText(w.weeks, true)}` : '';
+// Name cards are colored by neighborhood so a row of them still reads as a set
+const COLOR = { mesilla: 'chile', downtown: 'turq', west: 'night', east: 'plum', university: 'sea', north: 'gold', south: 'plum', hatch: 'chile', around: 'night' };
+const color = COLOR[v.area] || 'night';
+---
+<a class:list={['vcard', img ? 'photo' : `name c-${color}`, { sponsor, wide: wide && sponsor }]} href={`/venues/${v.slug}/`}>
+  {img && <img src={img} alt="" loading="lazy" decoding="async" />}
+  <span class="body">
+    <span class="top">
+      {area && <span class="area">{area}</span>}
+      {sponsor && <span class="badge">Sponsor</span>}
+    </span>
+    {!img && <span class="star" aria-hidden="true">✦</span>}
+    <span class="nm">{v.name}</span>
+    {sponsor && v.cardLine && <span class="line">{v.cardLine}</span>}
+    {sponsor && count ? <span class="playing">{count}</span> : playing && <span class="playing">{playing}</span>}
+  </span>
+</a>
+
+<style>
+  .vcard { display: flex; flex-direction: column; height: 100%; min-height: 300px; border-radius: 8px; overflow: hidden; text-decoration: none; transition: transform 0.2s; }
+  .vcard:hover { transform: translateY(-3px); }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .area { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .badge { background: var(--gold); color: var(--night); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+  .nm { font: 900 clamp(1.7rem, 2.4vw, 2.1rem)/0.95 var(--display); text-transform: uppercase; text-wrap: balance; overflow-wrap: anywhere; }
+  .line { font-size: 1rem; line-height: 1.35; }
+  .playing { justify-self: start; align-self: flex-start; background: var(--gold); color: var(--night); font-size: 0.82rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+  .body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+  /* Photo card: photo on top, name below. Never text over the photo. */
+  .photo { background: var(--night); color: var(--cream); }
+  .photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .photo .body { justify-content: center; padding: 14px 18px 18px; }
+  .photo .area { color: var(--turq-bright); }
+  .photo .line { color: #e8e2d4; }
+
+  /* Name card: the venue's name is the picture */
+  .name .body { justify-content: space-between; padding: 20px; }
+  .name .nm { font-size: clamp(2rem, 3vw, 2.6rem); margin-top: auto; }
+  .star { font-size: 1.1rem; line-height: 1; margin-top: auto; }
+  .c-chile { background: var(--chile); color: var(--cream); box-shadow: inset 0 0 0 6px rgba(245, 239, 226, 0.18); }
+  .c-chile .star { color: var(--gold); }
+  .c-plum { background: var(--night-2); color: var(--gold); box-shadow: inset 0 0 0 6px rgba(244, 182, 62, 0.16); }
+  .c-plum .area, .c-plum .line { color: var(--cream); }
+  .c-plum .star { color: var(--turq-bright); }
+  .c-turq { background: var(--turq); color: var(--cream); box-shadow: inset 0 0 0 6px rgba(245, 239, 226, 0.18); }
+  .c-turq .star { color: var(--gold); }
+  .c-night { background: var(--night); color: var(--cream); box-shadow: inset 0 0 0 6px rgba(245, 239, 226, 0.14); }
+  .c-night .star { color: var(--turq-bright); }
+  .c-gold { background: var(--gold); color: var(--night); box-shadow: inset 0 0 0 6px rgba(29, 23, 53, 0.14); }
+  .c-gold .star { color: var(--chile); }
+  .c-gold .badge, .c-gold .playing { background: var(--night); color: var(--gold); }
+  .c-sea { background: var(--turq-bright); color: var(--night); box-shadow: inset 0 0 0 6px rgba(29, 23, 53, 0.14); }
+
+  /* Sponsor: gold frame on every sponsor card */
+  .sponsor { outline: 4px solid var(--gold); outline-offset: -4px; }
+  .sponsor.name { box-shadow: inset 0 0 0 4px var(--gold); }
+  /* Wide sponsor card: photo beside the words on bigger screens */
+  .wide.photo { flex-direction: row; }
+  .wide.photo img { width: 55%; aspect-ratio: auto; min-height: 100%; }
+  .wide .body { padding: 22px 24px; gap: 10px; }
+  .wide .nm { font-size: clamp(2rem, 3.2vw, 2.8rem); }
+  @media (max-width: 760px) {
+    .wide.photo { flex-direction: column; }
+    .wide.photo img { width: 100%; aspect-ratio: 4 / 3; min-height: 0; }
+  }
+  @media (max-width: 560px) {
+    .vcard { min-height: 220px; }
+    .name .body { padding: 14px; }
+    .area { font-size: 0.62rem; }
+    .nm, .name .nm { font-size: 1.45rem; }
+    .wide .nm { font-size: 1.9rem; }
+    .playing { font-size: 0.72rem; }
+    .photo .body { padding: 10px 12px 12px; gap: 5px; }
+    .badge { font-size: 0.62rem; padding: 4px 7px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .vcard { transition: none; } .vcard:hover { transform: none; } }
+</style>

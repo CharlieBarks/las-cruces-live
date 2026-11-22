@@ -3,7 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import Stage from '../components/Stage.astro';
 import ActCard from '../components/ActCard.astro';
 import SponsorBand from '../components/SponsorBand.astro';
-import { SITE, WHEN_SHORT, musicians, venues, genres, playingActs, venueWeek, issueLink, SPONSORS, isFeatured } from '../lib/site.js';
+import VenueCard from '../components/VenueCard.astro';
+import { SITE, WHEN_SHORT, musicians, venues, genres, playingActs, venueWeek, issueLink, SPONSORS, isFeatured, isFeaturedVenue } from '../lib/site.js';
 
 // Who gets a card: everyone playing this week (featured first), shuffled in the browser on every
 // visit so each act gets the same shot at the top spots. In a week with no lineup, a mix of
@@ -14,13 +15,13 @@ const hasLineup = playingActs.length > 0;
 const pool = hasLineup
   ? featuredFirst(playingActs)
   : featuredFirst([...musicians.filter((m) => m.photo), ...musicians.filter((m) => !m.photo)]).slice(0, 40);
-// Sponsor venues first, then the busiest stages from the latest issue
-const sponsorVenues = (SPONSORS.liveMusic || []).map((s) => s.venue).filter(Boolean);
-const busy = venues
-  .map((v) => ({ v, n: venueWeek(v).shows, sp: sponsorVenues.includes(v.slug) }))
-  .sort((a, b) => b.sp - a.sp || b.n - a.n || a.v.name.localeCompare(b.v.name))
-  .slice(0, 6)
-  .map((x) => x.v);
+// Where they play: sponsor venues get wide cards up top (in the order of SPONSORS.liveMusic), then
+// 8 venue cards in a fresh order every visit, with venues playing this week first.
+const sponsorOrder = (SPONSORS.liveMusic || []).map((s) => s.venue);
+const sponsorVenues = venues.filter(isFeaturedVenue)
+  .sort((a, b) => ((sponsorOrder.indexOf(a.slug) + 1) || 99) - ((sponsorOrder.indexOf(b.slug) + 1) || 99));
+const VENUE_SHOW = 8;
+const venuePool = venues.filter((v) => !isFeaturedVenue(v)).sort((a, b) => Number(venueWeek(b).shows > 0) - Number(venueWeek(a).shows > 0));
 const sponsor = SPONSORS.home;
 ---
 <Layout
@@ -71,15 +72,20 @@ const sponsor = SPONSORS.home;
   </section>
 
   <section class="section venues-band">
-    <div class="wrap split">
+    <div class="wrap stack">
       <div class="stack-tight">
         <h2>Where they play</h2>
-        <p class="lede">
-          {busy.map((v, i) => <><a href={`/venues/${v.slug}/`}>{v.name}</a>{i < busy.length - 1 ? ', ' : ''}</>)}
-          {' '}and a few dozen more patios, wineries and roadhouses around the valley.
-        </p>
+        <p class="lede">Patios, wineries, breweries and roadhouses all over the valley.{venues.some((v) => venueWeek(v).shows > 0) && ` Gold tags have live music ${WHEN_SHORT}.`}</p>
       </div>
-      <div class="btns"><a class="btn btn-gold" href="/map/">Open the venue map</a><a class="btn btn-line" href="/venues/">All venues</a></div>
+      {sponsorVenues.length > 0 && (
+        <ul class="vsponsors" aria-label="Sponsor venues">
+          {sponsorVenues.map((v) => <li><VenueCard v={v} wide /></li>)}
+        </ul>
+      )}
+      <ul class="cards vcards" data-vshuffle data-show={VENUE_SHOW} aria-label="Venues">
+        {venuePool.map((v) => <li data-playing={venueWeek(v).shows > 0 ? '1' : undefined}><VenueCard v={v} /></li>)}
+      </ul>
+      <div class="btns"><a class="btn btn-gold" href="/map/">Open the venue map</a><a class="btn btn-line" href="/venues/">All {venues.length} venues</a></div>
     </div>
   </section>
 
@@ -107,6 +113,14 @@ const sponsor = SPONSORS.home;
     var show = Number(ul.dataset.show) || items.length;
     pinned.concat(rest).forEach(function (li, k) { li.hidden = k >= show; ul.appendChild(li); });
   });
+  // Venues: fresh order every visit, venues with live music this week first
+  document.querySelectorAll('[data-vshuffle]').forEach(function (ul) {
+    var mix = function (a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+    var items = Array.prototype.slice.call(ul.children);
+    var show = Number(ul.dataset.show) || items.length;
+    mix(items.filter(function (li) { return li.dataset.playing; })).concat(mix(items.filter(function (li) { return !li.dataset.playing; })))
+      .forEach(function (li, k) { li.hidden = k >= show; ul.appendChild(li); });
+  });
 </script>
 
 <style>
@@ -132,6 +146,7 @@ const sponsor = SPONSORS.home;
   .chips a:hover { background: var(--ink); color: var(--cream); }
   .venues-band { background: var(--sky); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .venues-band .lede { color: var(--ink); }
+  .vsponsors { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 20px; }
   .split { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px 56px; }
   .split > .stack-tight { flex: 1 1 520px; }
   .listed { border-top: 2px solid var(--ink); padding-top: 40px; }

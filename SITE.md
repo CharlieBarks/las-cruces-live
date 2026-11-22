@@ -66,6 +66,9 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
   - Newsletter sponsors sit in a band right under the hero, and their venues lead "Where they play".
 - Featured venues = Listing Tier "Featured" in Notion or on `SPONSORS.liveMusic` (`isFeaturedVenue`). They're listed first with a gold highlight, get a "Featured venue" badge on their page, and a halo and name label on the map. The sponsor band also shows on /venues/ and /map/.
 - Musician pages without a photo show the name poster with "Is this you? Add a photo" (`Poster.astro`).
+- **Venue cards** (Nov 22, 2026, `VenueCard.astro`): same family as the act cards. Photo on top (Notion **Photo** in Live Music Venues), else a name card colored by neighborhood. Gold "Live music this week" tag from the Thursday issue (never days or times). Sponsor venues (`isFeaturedVenue`) get a gold frame, a "Sponsor" label and, as wide cards, their **Card Line** from Notion. Homepage "Where they play": sponsor cards first, then 8 venue cards shuffled on every visit (venues with shows first). /venues/: sponsor cards at the top, then every venue as a card by neighborhood.
+- The map no longer lists venues without a pin ("Not on the map yet" removed Nov 22, 2026: those are occasional presenters or play at other venues).
+- **Comments** (Nov 22, 2026, `Comments.astro`): "What's it like seeing … live?" on musician pages and "What's your favorite night at …?" on venue pages. Saved by the intake Worker (`POST /comment`, Turnstile + honeypot + rate limit) to the Notion database **💬 Las Cruces Live Comments** as Submitted, Charlie gets a heads-up email, and they show only after he approves them in the Review queue (`/api/comment` on the preview Worker). Optional email is private and can sign them up for the newsletter.
 
 ## Site-specific rules
 
