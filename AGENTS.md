@@ -48,6 +48,17 @@ Small fixes and content changes skip steps 1 to 4.
 - **One site at a time.** Don't copy class names, copy or design choices from another LLLC site unless asked. Shared rules live here; site choices live in `SITE.md`.
 - **Plain-language summaries.** Charlie is not a developer. When you finish, say what changed and what he should check, in a few lines. No code walkthroughs unless he asks.
 
+## Modern Web Guidance: what wins
+
+[modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance) (Chrome, Edge, Firefox and MDN teams) may be installed as a skill, or run with `npx modern-web-guidance@latest`. It's a reference for current browser features. It does not override this file.
+
+- **These files win on anything visual.** Colors, spacing, type, radius, layout tokens, buttons and the reset come from ACSS and `agent-docs/`. Don't hand-write `oklch()`, `light-dark()`, fluid `clamp()` scales or color/spacing values when an ACSS token exists.
+- **These files win on choices already made.** Don't replace a library or a working module because the guidance suggests a newer approach (for example, keep `src/lib/repeat.js` for recurring events and dates; don't move it to Temporal). Ask first.
+- **Use it for:** semantic HTML, native dialog/popover/details, forms, accessibility, performance (images, loading, page speed), security, plain JavaScript, and checking browser support.
+- **Public pages use only features that work in all major browsers** ("Baseline widely available"), including Safari on iPhone. Newer features only as an extra on top of something that already works.
+- **`legacy-scan` only reports.** Treat its findings as suggestions, check them against these rules, and change nothing without Charlie's OK.
+- **Never use it on WordPress or Bricks sites.**
+
 ## Context docs: read when relevant
 
 | Doing this | Read |
