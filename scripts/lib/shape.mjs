@@ -81,17 +81,21 @@ const words = (s) => s
 const STOP = new Set(['the', 'band', 'and']);
 const core = (name) => words(name).filter((w) => !STOP.has(w));
 
-// Is this act name in this text? Handles "Sax Attitude"/"Saxattitude", "Ghetto Blaster"/"Ghetto Blasters".
+// Is this act name in this text? Handles "Sax Attitude"/"Saxattitude", "Ghetto Blaster"/"Ghetto Blasters"
+// and doubled letters ("Continuous Sky"/"Continuous Skyy") for names of 6+ letters.
+const squeeze = (s) => s.replace(/(.)\1+/g, '$1');
 function actIn(name, text) {
   const c = core(name);
   const joined = c.join('');
   if (joined.length < 3) return false;
+  const sj = joined.length >= 6 ? squeeze(joined) : null;
   const w = words(text).filter((x) => !STOP.has(x));
   for (let i = 0; i < w.length; i++) {
     let acc = '';
     for (let j = i; j < Math.min(w.length, i + 5); j++) {
       acc += w[j];
       if (acc === joined || acc === joined + 's' || acc + 's' === joined) return true;
+      if (sj && squeeze(acc) === sj) return true;
       if (acc.length > joined.length + 1) break;
     }
   }

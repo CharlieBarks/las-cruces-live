@@ -29,6 +29,12 @@ const heading = allNames.length > 4
   : allNames.length
   ? `${listJoin(allNames)}${missing > 0 ? `, plus ${missing} more ${missing === 1 ? 'show' : 'shows'}` : ''}.`
   : `${w.shows} ${w.shows === 1 ? 'show' : 'shows'} at ${v.name} ${when}.`;
+// Who's playing, split by week: this week first, next week (if the issue has it) folded below
+const weekLists = (w.byWeek || []).map((x, i) => ({
+  label: i === 0 ? 'this week' : 'next week',
+  acts: x.acts.map(musicianBySlug).filter(Boolean),
+  others: x.others,
+})).filter((x) => x.acts.length + x.others.length > 0);
 const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
 ---
 <Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v)]} searchable>
@@ -58,14 +64,21 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
         ) : (
           <ThisWeek idle heading={`See who's playing ${v.name}.`} body="Every Thursday the Live Music issue lists the week's shows here and all over town." source={`venue_${v.slug}`} />
         )}
-        {allNames.length > 0 && (
+        {weekLists.length > 0 && (
           <div class="acts-here" data-pagefind-ignore>
-            <p class="label">Playing here {when}</p>
-            <ul>
-              {acts.map((a) => <li><a href={`/musicians/${a.slug}/`}>{a.name} <span class="go" aria-hidden="true">→</span></a></li>)}
-              {otherNames.map((n) => <li><span class="nolink">{n}</span></li>)}
-            </ul>
-            {otherNames.length > 0 && <p class="addme">Playing here without a page? <a class="addlink" href="/get-listed/">Get one free →</a></p>}
+            {weekLists.map((wk, i) => {
+              const list = (
+                <ul>
+                  {wk.acts.map((a) => <li><a href={`/musicians/${a.slug}/`}>{a.name} <span class="go" aria-hidden="true">→</span></a></li>)}
+                  {wk.others.map((n) => <li><span class="nolink">{n}</span></li>)}
+                </ul>
+              );
+              // This week shows open; next week sits folded under it when both are in the issue
+              return i === 0 || weekLists.length === 1
+                ? <><p class="label">Playing here {wk.label}</p>{list}</>
+                : <details class="next"><summary>See who's playing here {wk.label} ({wk.acts.length + wk.others.length})</summary>{list}</details>;
+            })}
+            {weekLists.some((wk) => wk.others.length) && <p class="addme">Playing here without a page? <a class="addlink" href="/get-listed/">Get one free →</a></p>}
           </div>
         )}
         {sponsor && (
@@ -103,6 +116,9 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
   .acts-here .nolink { display: block; padding: 8px 0; font: 700 1.35rem/1.1 var(--display); color: var(--muted); }
   .acts-here .go { color: var(--turq); font-size: 1.1rem; }
   .acts-here a.addlink { display: inline; padding: 0; font: 700 .92rem var(--text); color: var(--turq); text-decoration: underline; }
+  .next { margin-top: 14px; }
+  .next summary { cursor: pointer; font-weight: 700; color: var(--turq); min-height: 44px; display: flex; align-items: center; }
+  .next summary:hover { text-decoration: underline; }
   .addme { margin-top: 10px; font-size: .92rem; color: var(--muted); }
   .sponsor-box { display: grid; gap: 10px; padding: 20px; border-radius: 10px; background: var(--cream); box-shadow: inset 0 0 0 3px var(--gold); }
   .sponsor-box img { display: block; width: 180px; height: auto; }

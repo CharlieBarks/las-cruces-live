@@ -132,11 +132,15 @@ function buildWeek() {
       if (!acts[a].weeks.includes(w)) acts[a].weeks.push(w);
     }
     if (s.venue) {
-      const v = (venues[s.venue] ||= { shows: 0, unlisted: 0, acts: [], others: [], weeks: [] });
+      const v = (venues[s.venue] ||= { shows: 0, unlisted: 0, acts: [], others: [], weeks: [], byWeek: [{ acts: [], others: [] }, { acts: [], others: [] }] });
       v.shows += 1;
       if (!s.acts.length) v.unlisted += 1;
       // Performers without a page here, by the name printed in the issue
       if (!s.acts.length && s.name && !v.others.some((n) => n.toLowerCase() === s.name.toLowerCase())) v.others.push(s.name);
+      // The same, split into this week (0) and next week (1)
+      const bw = v.byWeek[w];
+      for (const a of s.acts) if (!bw.acts.includes(a)) bw.acts.push(a);
+      if (!s.acts.length && s.name && !bw.others.some((n) => n.toLowerCase() === s.name.toLowerCase())) bw.others.push(s.name);
       for (const a of s.acts) if (!v.acts.includes(a)) v.acts.push(a);
       if (!v.weeks.includes(w)) v.weeks.push(w);
     }
