@@ -78,6 +78,8 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
 
 ## Site-specific rules
 
+- **Before opening a PR that touches `workers/` or `scripts/`**, check for missing names: `npx eslint@8 --no-eslintrc --env es2022,worker,node --parser-options=ecmaVersion:2023,sourceType:module --rule 'no-undef:error' workers/intake/index.js workers/preview/index.js scripts/*.mjs scripts/lib/*.mjs`. A plain build doesn't catch them in the Workers (Nov 22, 2026: the crowd photo upload shipped without its handler and failed with "Failed to fetch").
+
 - No dates or times on the site (see above).
 - Never rewrite an act's own description ("Genre" is the sound in their words).
 - Email and phone fields in Notion are never read or shown.
