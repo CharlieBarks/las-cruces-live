@@ -87,6 +87,8 @@ export const venues = venuesRaw.filter((v) => live(v) && v.name).sort((a, b) => 
 // Featured venues: Listing Tier "Featured" in Notion, or on the Live Music sponsor list (SPONSORS.liveMusic).
 // Listed first with a gold highlight, a "Featured venue" badge on their page, a halo and name label on the map.
 export const isFeaturedVenue = (v) => ['featured', 'sponsor'].includes((v?.tier || '').toLowerCase()) || (SPONSORS.liveMusic || []).some((s) => s.venue === v?.slug);
+// Newsletter sponsors (SPONSORS.liveMusic): "Proud sponsor of Live Love Las Cruces" on their page
+export const isSponsorVenue = (v) => (SPONSORS.liveMusic || []).some((s) => s.venue === v?.slug);
 export const featuredVenueFirst = (list) => [...list].sort((a, b) => Number(isFeaturedVenue(b)) - Number(isFeaturedVenue(a)));
 export const musicianBySlug = (s) => musicians.find((m) => m.slug === s);
 export const venueBySlug = (s) => venues.find((v) => v.slug === s);
@@ -130,9 +132,11 @@ function buildWeek() {
       if (!acts[a].weeks.includes(w)) acts[a].weeks.push(w);
     }
     if (s.venue) {
-      const v = (venues[s.venue] ||= { shows: 0, unlisted: 0, acts: [], weeks: [] });
+      const v = (venues[s.venue] ||= { shows: 0, unlisted: 0, acts: [], others: [], weeks: [] });
       v.shows += 1;
       if (!s.acts.length) v.unlisted += 1;
+      // Performers without a page here, by the name printed in the issue
+      if (!s.acts.length && s.name && !v.others.some((n) => n.toLowerCase() === s.name.toLowerCase())) v.others.push(s.name);
       for (const a of s.acts) if (!v.acts.includes(a)) v.acts.push(a);
       if (!v.weeks.includes(w)) v.weeks.push(w);
     }
@@ -161,7 +165,7 @@ export const isPlaying = (m) => Boolean(thisWeek.acts[m.slug]);
 export const playingVenues = (m) => (thisWeek.acts[m.slug]?.venues || []).map(venueBySlug).filter(Boolean);
 export const playingWhen = (m, short = false) => whenText(thisWeek.acts[m.slug]?.weeks, short);
 export const playingLabel = (m) => `Playing ${playingWhen(m, true)}`;
-export const venueWeek = (v) => thisWeek.venues[v.slug] || { shows: 0, unlisted: 0, acts: [], weeks: [] };
+export const venueWeek = (v) => thisWeek.venues[v.slug] || { shows: 0, unlisted: 0, acts: [], others: [], weeks: [] };
 export const playingActs = musicians.filter(isPlaying);
 
 // Paid spotlight hook: acts with Listing Tier "Premium" in Notion always make the homepage
