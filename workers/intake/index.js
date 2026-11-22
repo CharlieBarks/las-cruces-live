@@ -491,7 +491,7 @@ async function handleComment(request, env, ctx) {
   const id = dashless(b.id);
   if (b.website) return reply({ ok: true }); // honeypot
   if (comment.length < 5 || !firstName) return reply({ ok: false, error: 'Please add a few words and your first name.' }, 400);
-  if (email && !isEmail(email)) return reply({ ok: false, error: "That email doesn't look right." }, 400);
+  if (!isEmail(email)) return reply({ ok: false, error: 'Please add your email so we can let you know when your comment is up.' }, 400);
   if (!/^[0-9a-f]{32}$/.test(id) || !['musician', 'venue'].includes(b.kind)) return reply({ ok: false, error: 'Unknown page.' }, 400);
   if (!(await turnstileOk(env, b.token, ip))) return reply({ ok: false, error: "The spam check didn't go through. Please try again." }, 400);
   const page = /^https:\/\/(www\.)?lascruceslive\.com\//.test(b.page || '') ? String(b.page).slice(0, 300) : '';
@@ -525,6 +525,88 @@ async function handleComment(request, env, ctx) {
   ctx.waitUntil(after);
   console.log(JSON.stringify({ comment: 'saved', kind: b.kind, id }));
   return reply({ ok: true });
+}
+
+// "Your comment is up" thank-you, sent once when Charlie approves a comment. Comes from Charlie,
+// mentions the newsletter (unless they already ticked it), the events calendar and the Art Trail.
+// Sent through GUEST_EMAIL (Cloudflare Email Sending, any recipient). If that can't send, the
+// details go to Grok Bot's inbox so it can send the same email instead. Thank-you Sent is ticked
+// either way, so nobody gets it twice.
+const COMMENT_FROM = { email: 'charlie@livelovelascruces.com', name: 'Charlie at Live Love Las Cruces' };
+const tag = (url, content) => { const u = new URL(url); u.searchParams.set('utm_source', 'lascruceslive'); u.searchParams.set('utm_medium', 'email'); u.searchParams.set('utm_campaign', 'comment_thanks'); u.searchParams.set('utm_content', content); return u.toString(); };
+function thankYouEmail({ firstName, about, page, subscribed }) {
+  const links = {
+    page: page || 'https://lascruceslive.com/',
+    subscribe: tag('https://livelovelascruces.com/subscribe', 'newsletter'),
+    events: tag('https://events.livelovelascruces.com/', 'events_calendar'),
+    art: tag('https://lascrucesarttrail.com/', 'art_trail'),
+  };
+  const news = subscribed
+    ? "You're on the list for the Live Love Las Cruces newsletter, so watch for Thursday's Live Music issue with every show in town."
+    : 'Get every show in town in your inbox. Thursday\'s Live Music issue has the whole week, and Tuesdays and Fridays bring the best local events. Join 10,000+ locals, free:';
+  const text = [
+    `Hi ${firstName || 'there'},`,
+    '',
+    `Thanks for leaving a comment about ${about}! It's up on the page now:`,
+    links.page,
+    '',
+    "Kind words like yours mean a lot to the musicians and venues keeping live music going in Las Cruces. Feel free to share it with them.",
+    '',
+    'A few more ways to keep up with what\'s happening around town:',
+    '',
+    `* Live Love Las Cruces newsletter: ${news}${subscribed ? '' : `\n  ${links.subscribe}`}`,
+    `* Las Cruces Events calendar: everything happening around town, all in one place.\n  ${links.events}`,
+    `* Las Cruces Art Trail: the galleries, museums and artists of Las Cruces and Mesilla.\n  ${links.art}`,
+    '',
+    'See you out there,',
+    'Charlie',
+    'Live Love Las Cruces',
+  ].join('\n');
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const a = (href, label) => `<a href="${esc(href)}" style="color:#0a6f6b;font-weight:600">${esc(label)}</a>`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#1d1735;max-width:560px">
+<p>Hi ${esc(firstName || 'there')},</p>
+<p>Thanks for leaving a comment about <strong>${esc(about)}</strong>! It's up on the page now: ${a(links.page, `see it on Las Cruces Live`)}.</p>
+<p>Kind words like yours mean a lot to the musicians and venues keeping live music going in Las Cruces. Feel free to share it with them.</p>
+<p>A few more ways to keep up with what's happening around town:</p>
+<ul style="padding-left:20px">
+<li style="margin-bottom:10px"><strong>Live Love Las Cruces newsletter:</strong> ${esc(news)}${subscribed ? '' : ` ${a(links.subscribe, 'Subscribe free')}`}</li>
+<li style="margin-bottom:10px"><strong>Las Cruces Events calendar:</strong> everything happening around town, all in one place. ${a(links.events, 'See the calendar')}</li>
+<li><strong>Las Cruces Art Trail:</strong> the galleries, museums and artists of Las Cruces and Mesilla. ${a(links.art, 'Explore the Art Trail')}</li>
+</ul>
+<p>See you out there,<br>Charlie<br>Live Love Las Cruces</p>
+</div>`;
+  return { subject: `Your comment is up on Las Cruces Live`, text, html };
+}
+async function thankCommenter(env, page) {
+  try {
+    const p = page.properties;
+    const email = p.Email?.email || '';
+    if (!isEmail(email) || p['Thank-you Sent']?.checkbox) return;
+    const firstName = plain(p['First Name']);
+    const target = p.Musician?.relation?.[0]?.id || p.Venue?.relation?.[0]?.id;
+    let about = 'a Las Cruces Live page';
+    if (target) {
+      const t = await notion(env, `pages/${dashless(target)}`, undefined, 'GET').catch(() => null);
+      about = plain(t?.properties?.[TITLE]) || plain(t?.properties?.Name) || about;
+    }
+    const msg = thankYouEmail({ firstName, about, page: p.Page?.url || '', subscribed: Boolean(p['Newsletter Opt-in']?.checkbox) });
+    let how = 'direct';
+    try {
+      if (!env.GUEST_EMAIL) throw new Error('GUEST_EMAIL binding missing');
+      await env.GUEST_EMAIL.send({ to: firstName ? { email, name: firstName } : email, from: COMMENT_FROM, replyTo: COMMENT_FROM.email, ...msg });
+    } catch (err) {
+      console.warn(`comment thank-you direct send failed (${err.message}); handing it to Grok Bot`);
+      how = 'grokbot';
+      await sendNotice(env, { to: GROK_INBOX, from: NOTIFY_FROM, subject: `LC Live: send comment thank-you to ${email}`, text: [
+        'Please send this email from charlie@livelovelascruces.com.', '', `To: ${email}`, `Subject: ${msg.subject}`, '', '----', msg.text,
+      ].join('\n') });
+    }
+    await notion(env, `pages/${dashless(page.id)}`, { properties: { 'Thank-you Sent': { checkbox: true } } }, 'PATCH');
+    console.log(JSON.stringify({ comment: 'thanked', id: dashless(page.id), how }));
+  } catch (err) {
+    console.error(`comment thank-you failed: ${err.message}`);
+  }
 }
 
 async function turnstileOk(env, token, ip) {
@@ -654,6 +736,7 @@ export class Admin extends WorkerEntrypoint {
       if (dashless(page.parent?.database_id) !== COMMENTS_DB) return { ok: false, error: 'That is not a comment.' };
       await notion(this.env, `pages/${dashless(id)}`, { properties: { 'Site Status': { select: { name: status } } } }, 'PATCH');
       console.log(JSON.stringify({ admin: 'setCommentStatus', id: dashless(id), status, by }));
+      if (status === 'Approved') await thankCommenter(this.env, page);
       const live = status === 'Approved' ? await rebuild(this.env.LIVE_HOOK) : false;
       const preview = await rebuild(this.env.PREVIEW_HOOK);
       return { ok: true, status, rebuilding: { live, preview } };

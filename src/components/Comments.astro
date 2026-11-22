@@ -42,7 +42,7 @@ const pageUrl = `${SITE.url}${Astro.url.pathname}`;
         </label>
         <label class="field"><span>First name</span><input name="firstName" maxlength="40" required autocomplete="given-name" /></label>
         <label class="field"><span>Town <em>(optional)</em></span><input name="town" maxlength="60" placeholder="Las Cruces" autocomplete="address-level2" /></label>
-        <label class="field full"><span>Email <em>(optional, never shown)</em></span><input name="email" type="email" maxlength="120" autocomplete="email" /></label>
+        <label class="field full"><span>Email <em>(never shown; we'll let you know when your comment is up)</em></span><input name="email" type="email" maxlength="120" required autocomplete="email" /></label>
         <label class="check full"><input type="checkbox" name="newsletter" /> <span>Send me Thursday's Live Music issue too, with every show in town ({SITE.subscribers} subscribers).</span></label>
         <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
         <div class="ts full"></div>
@@ -97,9 +97,15 @@ const pageUrl = `${SITE.url}${Astro.url.pathname}`;
       const data = new FormData(form);
       const comment = String(data.get('comment') || '').trim();
       const firstName = String(data.get('firstName') || '').trim();
+      const email = String(data.get('email') || '').trim();
       if (comment.length < 5 || !firstName) {
         msg.className = 'msg err';
         msg.textContent = 'Add a few words and your first name.';
+        return;
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        msg.className = 'msg err';
+        msg.textContent = 'Add your email so we can let you know when your comment is up.';
         return;
       }
       btn.disabled = true;
@@ -111,14 +117,14 @@ const pageUrl = `${SITE.url}${Astro.url.pathname}`;
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             kind: form.dataset.kind, id: form.dataset.id, page: form.dataset.page,
-            comment, firstName, town: data.get('town'), email: data.get('email'),
+            comment, firstName, town: data.get('town'), email,
             newsletter: data.get('newsletter') === 'on', website: data.get('website'), token,
           }),
         });
         const out = await res.json().catch(() => ({}));
         if (!res.ok || !out.ok) throw new Error(out.error || 'Something went wrong. Please try again.');
         const safe = firstName.replace(/[<>&"]/g, '');
-        form.innerHTML = `<div class="thanks"><h3>Thank you, ${safe}!</h3><p>Your comment is in. Charlie gives every comment a quick look, and it'll show up here soon.</p></div>`;
+        form.innerHTML = `<div class="thanks"><h3>Thank you, ${safe}!</h3><p>Your comment is in. Charlie gives every comment a quick look, and we'll email you when it's up.</p></div>`;
       } catch (err) {
         msg.className = 'msg err';
         msg.textContent = (err as Error).message;
