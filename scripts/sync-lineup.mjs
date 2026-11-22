@@ -30,14 +30,55 @@ function htmlToLines(html) {
     .join('\n');
 }
 
+const API = `https://api.beehiiv.com/v2/publications/${PUB}`;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Beehiiv answers 202 ("still rendering, try again") when it's building expanded content.
+// Treat that as "wait and retry", not as an answer.
+async function get(url, tries = 6) {
+  for (let i = 0; i < tries; i++) {
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${KEY}` } });
+    if (res.status === 202 || res.status === 429) {
+      const wait = Math.min(Number(res.headers.get('retry-after')) || 5, 20);
+      console.log(`sync-lineup: Beehiiv said ${res.status}, waiting ${wait}s`);
+      await sleep(wait * 1000);
+      continue;
+    }
+    if (!res.ok) { console.warn(`sync-lineup: Beehiiv said ${res.status} for ${url.replace(API, '')}`); return null; }
+    return res.json();
+  }
+  console.warn('sync-lineup: Beehiiv kept saying "try again later"');
+  return null;
+}
+
+// The newest published Live Music issue. Tries the tag by slug, then by its display name,
+// then falls back to the newest posts with "Live Music" in the title.
+async function latestIssue() {
+  const base = `${API}/posts?status=confirmed&order_by=publish_date&direction=desc`;
+  const isIssue = (p) => p && /live music/i.test(p.title || '') && (!p.publish_date || p.publish_date * 1000 <= Date.now());
+  for (const tag of [TAG, 'Live Music']) {
+    const list = await get(`${base}&limit=5&content_tags[]=${encodeURIComponent(tag)}`);
+    const hit = (list?.data || []).find(isIssue);
+    if (hit) return hit;
+  }
+  const list = await get(`${base}&limit=20`);
+  const hit = (list?.data || []).find(isIssue);
+  if (hit) console.log('sync-lineup: found the issue by title (the tag filter came back empty)');
+  return hit || null;
+}
+
+// The issue's web version (it holds both weeks; the email holds only the first)
+async function webHtml(id) {
+  const one = await get(`${API}/posts/${id}?expand[]=free_web_content`);
+  return one?.data?.content?.free?.web || '';
+}
+
 async function main() {
   if (!KEY) { console.log('sync-lineup: no BEEHIIV_API_KEY, keeping src/data/thisweek.json'); return; }
-  const url = `https://api.beehiiv.com/v2/publications/${PUB}/posts?content_tags[]=${TAG}&status=confirmed&platform=both&order_by=publish_date&direction=desc&limit=1&expand[]=free_web_content`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${KEY}` } });
-  if (!res.ok) { console.warn(`sync-lineup: Beehiiv said ${res.status}, keeping the old file`); return; }
-  const post = (await res.json())?.data?.[0];
-  const html = post?.content?.free?.web;
-  if (!post || !html) { console.warn('sync-lineup: no Live Music issue found, keeping the old file'); return; }
+  const post = await latestIssue();
+  if (!post) { console.warn('sync-lineup: no Live Music issue found, keeping the old file'); return; }
+  const html = await webHtml(post.id);
+  if (!html) { console.warn(`sync-lineup: couldn't get the web version of "${post.title}", keeping the old file`); return; }
 
   // Only read the listings section, not the sponsor blocks above it.
   let text = htmlToLines(html);
