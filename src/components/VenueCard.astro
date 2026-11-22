@@ -42,7 +42,8 @@ const color = COLOR[v.area] || 'night';
 
   /* Photo card: photo on top, name below. Never text over the photo. */
   .photo { background: var(--night); color: var(--cream); }
-  .photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  /* Show the top part of tall photos (signs, rooflines) rather than the middle */
+  .photo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 25%; }
   .photo .body { justify-content: center; padding: 14px 18px 18px; }
   .photo .area { color: var(--turq-bright); }
   .photo .line { color: #e8e2d4; }
