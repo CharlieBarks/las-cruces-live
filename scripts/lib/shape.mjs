@@ -148,7 +148,9 @@ export function matchLineup(text, musicians, venues, issueDate) {
     const keyOf = (slug) => core(musicians.find((m) => m.slug === slug).name).join('');
     const kept = acts.filter((a) => !acts.some((b) => b !== a && keyOf(b).length > keyOf(a).length && keyOf(b).includes(keyOf(a))));
     acts.splice(0, acts.length, ...kept);
-    shows.push({ date, venue: venue?.slug || null, acts });
+    // Unlisted performers keep their name as printed in the issue, so venue pages can list
+    // everyone playing (no days or times)
+    shows.push({ date, venue: venue?.slug || null, acts, ...(acts.length ? {} : { name: parts[0].replace(/\s+/g, ' ').trim().slice(0, 80) }) });
   }
   const acts = {};
   const venueMap = {};
