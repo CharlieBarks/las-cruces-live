@@ -1,7 +1,7 @@
 ---
 // One act as a card: their photo if they have one, otherwise a gig poster made from their name,
 // colored by their sound. Used on the homepage and the "Playing this week" page.
-import { typeLabel, genreName, posterColor, isFeatured, playingVenues } from '../lib/site.js';
+import { typeLabel, genreName, posterColor, isFeatured, playingVenues, baseLabel } from '../lib/site.js';
 const { m } = Astro.props;
 const genres = m.genres.slice(0, 3).map(genreName).join(' · ');
 const featured = isFeatured(m);
@@ -19,7 +19,7 @@ const where = !vs.length ? '' : vs.length === 1 ? `at ${vs[0]}` : vs.length === 
         {featured && <span class="badge">Featured</span>}
       </span>
       <span class="nm">{m.name}</span>
-      {where ? <span class="where">{where}</span> : typeLabel(m) && <span class="kind">{typeLabel(m)}</span>}
+      {where ? <span class="where">{where}</span> : (baseLabel(m) || typeLabel(m)) && <span class="kind">{[typeLabel(m), baseLabel(m)].filter(Boolean).join(' · ')}</span>}
     </span>
   </a>
 ) : (
@@ -31,7 +31,7 @@ const where = !vs.length ? '' : vs.length === 1 ? `at ${vs[0]}` : vs.length === 
     <span class="foot">
       <span class="star" aria-hidden="true">✦</span>
       <span class="nm">{m.name}</span>
-      {where ? <span class="where">{where}</span> : typeLabel(m) && <span class="kind">{typeLabel(m)}</span>}
+      {where ? <span class="where">{where}</span> : (baseLabel(m) || typeLabel(m)) && <span class="kind">{[typeLabel(m), baseLabel(m)].filter(Boolean).join(' · ')}</span>}
     </span>
   </a>
 )}

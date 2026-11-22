@@ -9,7 +9,7 @@ import Editor from './Editor.astro';
 import Poster from './Poster.astro';
 import {
   SITE, PREVIEW, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
-  genreName, listJoin, musicianJsonLd, songEmbed, songService,
+  genreName, listJoin, baseLabel, musicianJsonLd, songEmbed, songService,
 } from '../lib/site.js';
 
 const { m, share = false } = Astro.props;
@@ -31,7 +31,7 @@ const similar = musicians
 const genreText = m.genres.length ? listJoin(m.genres.map((g) => genreName(g).toLowerCase())) : 'live music';
 const description = m.bio
   ? `${m.name}: ${m.bio}`
-  : `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} from the Las Cruces music scene playing ${genreText}. Links, band info and where they're playing this week and next.`;
+  : `${m.name}${label ? `, a ${label.toLowerCase()}` : ''} ${m.homeBase && m.homeBase !== 'local' ? 'that plays Las Cruces and the region,' : 'from the Las Cruces music scene'} playing ${genreText}. Links, band info and where they're playing this week and next.`;
 const initials = (n) => n.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 const claimed = m.claimed || Boolean(m.photo || m.bio);
 const claimUrl = `/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`;
@@ -57,10 +57,11 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
       <div class="tags" aria-label="Genres">
         {isPlaying(m) && <span class="playing">{playingLabel(m)}</span>}
         {m.genres.map((g) => <a class="tag" href={`/genres/${g}/`}>{genreName(g)}</a>)}
+        {baseLabel(m) && <span class="base">{baseLabel(m)}</span>}
       </div>
       <div>
         <h1 data-pagefind-meta="title">{m.name}</h1>
-        <p class="kind">{label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
+        <p class="kind">{m.homeBase && m.homeBase !== 'local' ? `${label || 'Act'} that plays Las Cruces and the region` : label ? `${label} from the Las Cruces music scene` : 'Part of the Las Cruces music scene'}</p>
       </div>
       {m.sound && (
         <figure class="sound">
@@ -181,6 +182,7 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
 </Layout>
 
 <style>
+  .base { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; background: var(--sky); color: var(--turq); font-weight: 700; font-size: 0.85rem; border: 1px solid var(--turq); }
   .top { display: flex; flex-wrap: wrap; gap: 32px 52px; padding-top: 8px; padding-bottom: 44px; align-items: flex-start; }
   .feature { flex: 1.15 1 440px; min-width: 0; margin: 0; }
   .poster-slot { flex: 0 1 340px; min-width: 260px; }

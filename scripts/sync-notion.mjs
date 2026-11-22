@@ -246,6 +246,8 @@ async function main() {
       },
       _photosOk: photosOk, _members: rel(m, 'Members'), _memberOf: rel(m, 'Member Of'), _bandMembers: rel(m, 'Band Members'),
       tier: (text(m, 'Listing Tier') || 'Free').toLowerCase(),
+      // Local (blank), Regional or Touring. Non-local acts get a tag and list after local ones.
+      homeBase: (text(m, 'Home Base') || 'Local').toLowerCase(),
       siteStatus: status,
       ...(PREVIEW ? {
         // Preview site only: the Review queue, Approve buttons and private edit links

@@ -61,7 +61,10 @@ export const FORM_URL = 'https://tally.so/r/RWdbxl';
 export const TURNSTILE_SITEKEY = '0x4AAAAAAF3l-lKGwLZNR-iU';
 
 const live = (r) => !r.siteStatus || r.siteStatus === 'Approved' || process.env.LIVE_PREVIEW === '1';
-export const musicians = musiciansRaw.filter((m) => live(m) && m.name).sort((a, b) => a.name.localeCompare(b.name));
+// Local acts first, then regional, then touring; A to Z within each
+const BASE_RANK = { regional: 1, touring: 2 };
+export const musicians = musiciansRaw.filter((m) => live(m) && m.name)
+  .sort((a, b) => (BASE_RANK[a.homeBase] || 0) - (BASE_RANK[b.homeBase] || 0) || a.name.localeCompare(b.name));
 export const venues = venuesRaw.filter((v) => live(v) && v.name).sort((a, b) => a.name.localeCompare(b.name));
 // Featured venues: Listing Tier "Featured" in Notion, or on the Live Music sponsor list (SPONSORS.liveMusic).
 // Listed first with a gold highlight, a "Featured venue" badge on their page, a halo and name label on the map.
@@ -165,6 +168,8 @@ export const genres = GENRES.map((g) => ({
 export const genreBySlug = (s) => genres.find((g) => g.slug === s);
 export const genreName = (s) => GENRES.find((g) => g.slug === s)?.name || s;
 
+// "Regional act" / "Touring act" for acts not based in Las Cruces; empty for local acts
+export const baseLabel = (m) => (m.homeBase === 'regional' ? 'Regional act' : m.homeBase === 'touring' ? 'Touring act' : '');
 export const typeLabel = (m) => (m.type === 'Band' ? 'Band' : m.type === 'Solo Artist' ? 'Solo artist' : '');
 
 export function mapsLink(v) {

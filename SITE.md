@@ -73,4 +73,5 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
 - Never rewrite an act's own description ("Genre" is the sound in their words).
 - Email and phone fields in Notion are never read or shown.
 - Band members show only under their band; link solo pages when a member also plays solo.
+- **Home Base** (Notion: Local / Regional / Touring; blank = Local). Non-local acts get a "Regional act" / "Touring act" tag on their page, cards and list rows, are described as playing "Las Cruces and the region", and list after local acts. No home town is shown.
 - Act names must match the newsletter's names for the "Playing this week" badges to work.
