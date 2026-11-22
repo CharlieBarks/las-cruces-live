@@ -70,6 +70,9 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
 - The map no longer lists venues without a pin ("Not on the map yet" removed Nov 22, 2026: those are occasional presenters or play at other venues).
 - **Comments** (Nov 22, 2026, `Comments.astro`): "What's it like seeing … live?" on musician pages and "What's your favorite night at …?" on venue pages. Saved by the intake Worker (`POST /comment`, Turnstile + honeypot + rate limit) to the Notion database **💬 Las Cruces Live Comments** as Submitted, Charlie gets a heads-up email, and they show only after he approves them in the Review queue (`/api/comment` on the preview Worker). Optional email is private and can sign them up for the newsletter.
 
+- **Outgoing links are tagged** (Nov 22, 2026): every link to an act's or venue's own website, socials, song or booking page goes through `out()` in `src/lib/site.js` (`utm_source=lascruceslive&utm_medium=referral&utm_campaign=profile&utm_content=<slug>`), so they can see in their own analytics what this site sends them. Links back to the newsletter keep using `utm()`.
+- **Traffic report** (Nov 22, 2026): `Track.astro` counts page views and clicks (Book, Song, Website, Instagram, Facebook, Directions, Calls, Newsletter) on lascruceslive.com only. No cookies, nothing personal. Hits go to the shared `lllc-analytics` database through the Art Trail's live Worker (`https://lascrucesarttrail.com/api/hit`) as site `live`. Report: `https://lascrucesarttrail.com/api/stats/?key=STATS_KEY&site=live`. Open any page once with `?notrack` to stop counting your own visits.
+
 ## Site-specific rules
 
 - No dates or times on the site (see above).

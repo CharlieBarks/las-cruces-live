@@ -9,7 +9,7 @@ import Editor from './Editor.astro';
 import Poster from './Poster.astro';
 import Comments from './Comments.astro';
 import {
-  SITE, PREVIEW, utm, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
+  SITE, PREVIEW, utm, out, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
   genreName, listJoin, baseLabel, musicianJsonLd, songEmbed, songService,
 } from '../lib/site.js';
 
@@ -72,8 +72,8 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
       {m.bio && <div class="bio">{m.bio.split(/\n+/).map((para) => <p>{para}</p>)}</div>}
       {(links.length > 0 || m.booking) ? (
         <div class="links btns">
-          {m.booking && <a class="btn btn-chile book" href={m.booking} rel={bookExternal ? 'noopener' : undefined}>Book {m.name}</a>}
-          {links.map(([k, name]) => <a class="btn btn-line" href={m.links[k]} rel="noopener">{name}</a>)}
+          {m.booking && <a class="btn btn-chile book" href={out(m.booking, m.slug)} rel={bookExternal ? 'noopener' : undefined} data-track="book">Book {m.name}</a>}
+          {links.map(([k, name]) => <a class="btn btn-line" href={out(m.links[k], m.slug)} rel="noopener">{name}</a>)}
         </div>
       ) : (
         <p class="muted" data-pagefind-ignore>No links yet. <a href={claimUrl}>Are you {m.name}? Add yours.</a></p>
@@ -91,7 +91,7 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
                 ? <div class="video"><iframe src={embed.src} title={`${m.name} on YouTube`} loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
                 : <iframe class="player" src={embed.src} height={embed.height} title={`${m.name} on ${songService(m.song)}`} loading="lazy" allow="encrypted-media"></iframe>
             ) : (
-              <a class="btn btn-line" href={m.song} rel="noopener">Listen on {songService(m.song)}</a>
+              <a class="btn btn-line" href={out(m.song, m.slug)} rel="noopener" data-track="song">Listen on {songService(m.song)}</a>
             )}
           </section>
         )}
@@ -136,7 +136,7 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
           {m.booking ? (
             <>
               <p>Venues, breweries, weddings, backyard parties: reach out straight to {m.type === 'Band' ? 'the band' : m.name}. No middleman, no fee from us.</p>
-              <a class="btn btn-chile" href={m.booking} rel={bookExternal ? 'noopener' : undefined}>{m.booking.startsWith('mailto:') ? `Email ${m.name}` : `Book ${m.name}`}</a>
+              <a class="btn btn-chile" href={out(m.booking, m.slug)} rel={bookExternal ? 'noopener' : undefined} data-track="book">{m.booking.startsWith('mailto:') ? `Email ${m.name}` : `Book ${m.name}`}</a>
             </>
           ) : links.length > 0 ? (
             <p>Want them at your venue or party? Message them through their {listJoin(links.map(([, n]) => n))} above. {!share && <a href={claimUrl}>Are you {m.name}? Add a booking contact.</a>}</p>

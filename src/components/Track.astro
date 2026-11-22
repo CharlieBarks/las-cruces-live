@@ -1,0 +1,56 @@
+---
+// Counts page views and the clicks acts and venues care about (Book, website, song, Instagram,
+// Facebook, directions, calls, the newsletter). No cookies, nothing personal, nothing third-party.
+// Hits go to the shared Live Love Las Cruces analytics (the lllc-analytics D1 database, answered
+// by the Art Trail's live Worker at lascrucesarttrail.com/api/hit) and show up there as site "live".
+// Only runs on lascruceslive.com, never on the preview site or private edit links.
+//
+// Tag any link or button with data-track="kind" to name it yourself; otherwise the kind is worked
+// out from the link. Visit any page with ?notrack once to stop counting your own visits on that
+// browser (?notrack=off to undo).
+---
+<script is:inline>
+  (function () {
+    var host = location.hostname;
+    if (host !== 'lascruceslive.com' && host !== 'www.lascruceslive.com') return;
+    if (location.pathname.indexOf('/share/') === 0) return;
+    try {
+      var q = new URLSearchParams(location.search).get('notrack');
+      if (q === 'off') localStorage.removeItem('lcl-notrack');
+      else if (q !== null) localStorage.setItem('lcl-notrack', '1');
+      if (localStorage.getItem('lcl-notrack')) return;
+    } catch (e) { /* storage blocked: count as normal */ }
+
+    var END = 'https://lascrucesarttrail.com/api/hit';
+    function send(kind, target, label) {
+      var body = JSON.stringify({ k: kind, u: location.href, r: document.referrer, t: target || null, l: label || null });
+      try {
+        if (navigator.sendBeacon && navigator.sendBeacon(END, new Blob([body], { type: 'text/plain' }))) return;
+        fetch(END, { method: 'POST', body: body, mode: 'no-cors', keepalive: true });
+      } catch (e) { /* never get in the visitor's way */ }
+    }
+    function kindOf(a, text) {
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf('tel:') === 0) return 'call';
+      if (href.indexOf('mailto:') === 0) return /^(book|email) /i.test(text) ? 'book' : 'email';
+      var u;
+      try { u = new URL(href, location.href); } catch (e) { return null; }
+      var h = u.hostname.replace(/^www\./, '');
+      if (h === 'lascruceslive.com') return null;
+      if (/google\.[a-z.]+$/.test(h) && u.pathname.indexOf('/maps') === 0) return 'directions';
+      if (/instagram\.com$/.test(h)) return 'instagram';
+      if (/facebook\.com$/.test(h)) return 'facebook';
+      if (/livelovelascruces\.com$/.test(h)) return 'newsletter';
+      if (/^website$/i.test(text)) return 'website';
+      return 'outbound';
+    }
+    send('view');
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('[data-track], a[href]');
+      if (!el) return;
+      var text = (el.dataset.label || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 120);
+      var kind = el.dataset.track || (el.tagName === 'A' ? kindOf(el, text) : null);
+      if (kind) send(kind, el.href || null, text);
+    }, { capture: true });
+  })();
+</script>
