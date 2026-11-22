@@ -8,6 +8,7 @@
 //   POST /tally?key=INTAKE_KEY   Tally webhook (form RWdbxl). New act -> Site Status = Submitted.
 //   POST /claim                  "Claim this page" from lascruceslive.com/claim/
 //   POST /comment                Comment box on musician and venue pages (shown after Charlie approves)
+//   POST /crowd                  "From the crowd" photo upload on musician and venue pages (same approval)
 //   GET  /photo/<key>            Photos copied out of Tally and uploaded in the editor (public)
 //
 // The Admin entrypoint (bottom) has no web address. Only the las-cruces-live-preview Worker can call
@@ -23,6 +24,7 @@ const MUSICIANS_DB = 'b8aa6b26746c4ddf9967e8fd2010d08e';
 const MEMBERS_DB = 'c7d3f6b775f34477851b55a6a6f7dbe0';
 const VENUES_DB = '59ba83b7e42d4115b54ee3d349c3f697';
 const COMMENTS_DB = '42054e00081a81e59d01fb3020f87705';
+const CROWD_DB = '42054e00081a81b7996eef156032e04e';
 const TALLY_FORMS = { RWdbxl: 'musician' };
 
 const INTAKE_ORIGIN = 'https://lc-live-intake.cf2-99b.workers.dev';
@@ -259,6 +261,7 @@ export default {
     }
     if (url.pathname === '/claim') return handleClaim(request, env, ctx);
     if (url.pathname === '/comment') return handleComment(request, env, ctx);
+    if (url.pathname === '/crowd') return handleCrowd(request, env, ctx);
     if (url.pathname === '/notify' && request.method === 'POST' && env.INTAKE_KEY && url.searchParams.get('key') === env.INTAKE_KEY) {
       try {
         if (url.searchParams.get('test') === 'charlie') {
@@ -491,7 +494,7 @@ async function handleComment(request, env, ctx) {
   const id = dashless(b.id);
   if (b.website) return reply({ ok: true }); // honeypot
   if (comment.length < 5 || !firstName) return reply({ ok: false, error: 'Please add a few words and your first name.' }, 400);
-  if (email && !isEmail(email)) return reply({ ok: false, error: "That email doesn't look right." }, 400);
+  if (!isEmail(email)) return reply({ ok: false, error: 'Please add your email so we can let you know when your comment is up.' }, 400);
   if (!/^[0-9a-f]{32}$/.test(id) || !['musician', 'venue'].includes(b.kind)) return reply({ ok: false, error: 'Unknown page.' }, 400);
   if (!(await turnstileOk(env, b.token, ip))) return reply({ ok: false, error: "The spam check didn't go through. Please try again." }, 400);
   const page = /^https:\/\/(www\.)?lascruceslive\.com\//.test(b.page || '') ? String(b.page).slice(0, 300) : '';
@@ -527,6 +530,89 @@ async function handleComment(request, env, ctx) {
   return reply({ ok: true });
 }
 
+// "Your comment is up" thank-you, sent once when Charlie approves a comment. Comes from Charlie,
+// mentions the newsletter (unless they already ticked it), the events calendar and the Art Trail.
+// Sent through GUEST_EMAIL (Cloudflare Email Sending, any recipient). If that can't send, the
+// details go to Grok Bot's inbox so it can send the same email instead. Thank-you Sent is ticked
+// either way, so nobody gets it twice.
+const COMMENT_FROM = { email: 'charlie@livelovelascruces.com', name: 'Charlie at Live Love Las Cruces' };
+const tag = (url, content) => { const u = new URL(url); u.searchParams.set('utm_source', 'lascruceslive'); u.searchParams.set('utm_medium', 'email'); u.searchParams.set('utm_campaign', 'comment_thanks'); u.searchParams.set('utm_content', content); return u.toString(); };
+function thankYouEmail({ firstName, about, page, subscribed, photos = false }) {
+  const links = {
+    page: page || 'https://lascruceslive.com/',
+    subscribe: tag('https://livelovelascruces.com/subscribe', 'newsletter'),
+    events: tag('https://events.livelovelascruces.com/', 'events_calendar'),
+    art: tag('https://lascrucesarttrail.com/', 'art_trail'),
+  };
+  const news = subscribed
+    ? "You're on the list for the Live Love Las Cruces newsletter, so watch for Thursday's Live Music issue with every show in town."
+    : 'Get every show in town in your inbox. Thursday\'s Live Music issue has the whole week, and Tuesdays and Fridays bring the best local events. Join 10,000+ locals, free:';
+  const text = [
+    `Hi ${firstName || 'there'},`,
+    '',
+    photos ? `Thanks for sharing your photos of ${about}! They're up on the page now:` : `Thanks for leaving a comment about ${about}! It's up on the page now:`,
+    links.page,
+    '',
+    photos ? 'Photos from the crowd mean a lot to the musicians and venues keeping live music going in Las Cruces. Feel free to share them.' : 'Kind words like yours mean a lot to the musicians and venues keeping live music going in Las Cruces. Feel free to share it with them.',
+    '',
+    'A few more ways to keep up with what\'s happening around town:',
+    '',
+    `* Live Love Las Cruces newsletter: ${news}${subscribed ? '' : `\n  ${links.subscribe}`}`,
+    `* Las Cruces Events calendar: everything happening around town, all in one place.\n  ${links.events}`,
+    `* Las Cruces Art Trail: the galleries, museums and artists of Las Cruces and Mesilla.\n  ${links.art}`,
+    '',
+    'See you out there,',
+    'Charlie',
+    'Live Love Las Cruces',
+  ].join('\n');
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const a = (href, label) => `<a href="${esc(href)}" style="color:#0a6f6b;font-weight:600">${esc(label)}</a>`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#1d1735;max-width:560px">
+<p>Hi ${esc(firstName || 'there')},</p>
+<p>${photos ? `Thanks for sharing your photos of <strong>${esc(about)}</strong>! They're up on the page now:` : `Thanks for leaving a comment about <strong>${esc(about)}</strong>! It's up on the page now:`} ${a(links.page, 'see it on Las Cruces Live')}.</p>
+<p>${photos ? 'Photos from the crowd mean a lot to the musicians and venues keeping live music going in Las Cruces. Feel free to share them.' : 'Kind words like yours mean a lot to the musicians and venues keeping live music going in Las Cruces. Feel free to share it with them.'}</p>
+<p>A few more ways to keep up with what's happening around town:</p>
+<ul style="padding-left:20px">
+<li style="margin-bottom:10px"><strong>Live Love Las Cruces newsletter:</strong> ${esc(news)}${subscribed ? '' : ` ${a(links.subscribe, 'Subscribe free')}`}</li>
+<li style="margin-bottom:10px"><strong>Las Cruces Events calendar:</strong> everything happening around town, all in one place. ${a(links.events, 'See the calendar')}</li>
+<li><strong>Las Cruces Art Trail:</strong> the galleries, museums and artists of Las Cruces and Mesilla. ${a(links.art, 'Explore the Art Trail')}</li>
+</ul>
+<p>See you out there,<br>Charlie<br>Live Love Las Cruces</p>
+</div>`;
+  return { subject: photos ? 'Your photos are up on Las Cruces Live' : 'Your comment is up on Las Cruces Live', text, html };
+}
+async function thankCommenter(env, page) {
+  try {
+    const p = page.properties;
+    const email = p.Email?.email || '';
+    if (!isEmail(email) || p['Thank-you Sent']?.checkbox) return;
+    const firstName = plain(p['First Name']);
+    const target = p.Musician?.relation?.[0]?.id || p.Venue?.relation?.[0]?.id;
+    let about = 'a Las Cruces Live page';
+    if (target) {
+      const t = await notion(env, `pages/${dashless(target)}`, undefined, 'GET').catch(() => null);
+      about = plain(t?.properties?.[TITLE]) || plain(t?.properties?.Name) || about;
+    }
+    const photos = dashless(page.parent?.database_id) === CROWD_DB;
+    const msg = thankYouEmail({ firstName, about, page: p.Page?.url || '', subscribed: Boolean(p['Newsletter Opt-in']?.checkbox), photos });
+    let how = 'direct';
+    try {
+      if (!env.GUEST_EMAIL) throw new Error('GUEST_EMAIL binding missing');
+      await env.GUEST_EMAIL.send({ to: firstName ? { email, name: firstName } : email, from: COMMENT_FROM, replyTo: COMMENT_FROM.email, ...msg });
+    } catch (err) {
+      console.warn(`comment thank-you direct send failed (${err.message}); handing it to Grok Bot`);
+      how = 'grokbot';
+      await sendNotice(env, { to: GROK_INBOX, from: NOTIFY_FROM, subject: `LC Live: send ${photos ? 'photo' : 'comment'} thank-you to ${email}`, text: [
+        'Please send this email from charlie@livelovelascruces.com.', '', `To: ${email}`, `Subject: ${msg.subject}`, '', '----', msg.text,
+      ].join('\n') });
+    }
+    await notion(env, `pages/${dashless(page.id)}`, { properties: { 'Thank-you Sent': { checkbox: true } } }, 'PATCH');
+    console.log(JSON.stringify({ comment: 'thanked', id: dashless(page.id), how }));
+  } catch (err) {
+    console.error(`comment thank-you failed: ${err.message}`);
+  }
+}
+
 async function turnstileOk(env, token, ip) {
   if (!env.TURNSTILE_SECRET) return true; // not configured: rely on the honeypot, the rate limit and review
   if (!token) return false;
@@ -540,7 +626,7 @@ async function turnstileOk(env, token, ip) {
 
 // ---------- Editor: fields, photos and band members ----------
 // Fields anyone with the private link can change. Everything else stays Charlie's (in Notion).
-const EDITABLE = [TITLE, 'Type', 'Genre', 'Genres (checklist)', 'Bio', 'Website', 'Instagram', 'Facebook', 'YouTube', 'Song Link', 'Booking Link', 'Photo Credit', 'Image Permission'];
+const EDITABLE = [TITLE, 'Type', 'Genre', 'Genres (checklist)', 'Bio', 'Website', 'Instagram', 'Facebook', 'YouTube', 'Song Link', 'Booking Link', 'Pinned Posts', 'Photo Credit', 'Image Permission'];
 const MAX_GALLERY = 8;
 const MAX_MEMBERS = 15;
 const sameToken = (a, b) => {
@@ -651,9 +737,10 @@ export class Admin extends WorkerEntrypoint {
       if (!['Approved', 'Hidden'].includes(status)) return { ok: false, error: 'Unknown status.' };
       if (!/^[0-9a-f]{32}$/.test(dashless(id))) return { ok: false, error: 'Unknown comment.' };
       const page = await notion(this.env, `pages/${dashless(id)}`, undefined, 'GET');
-      if (dashless(page.parent?.database_id) !== COMMENTS_DB) return { ok: false, error: 'That is not a comment.' };
+      if (![COMMENTS_DB, CROWD_DB].includes(dashless(page.parent?.database_id))) return { ok: false, error: 'That is not a comment or crowd photo.' };
       await notion(this.env, `pages/${dashless(id)}`, { properties: { 'Site Status': { select: { name: status } } } }, 'PATCH');
       console.log(JSON.stringify({ admin: 'setCommentStatus', id: dashless(id), status, by }));
+      if (status === 'Approved') await thankCommenter(this.env, page);
       const live = status === 'Approved' ? await rebuild(this.env.LIVE_HOOK) : false;
       const preview = await rebuild(this.env.PREVIEW_HOOK);
       return { ok: true, status, rebuilding: { live, preview } };
@@ -738,6 +825,14 @@ export class Admin extends WorkerEntrypoint {
       switch (def.type) {
         case 'title': props[name] = { title: chunks(clip(value, 120).trim() || 'Untitled') }; break;
         case 'rich_text': {
+          if (name === 'Pinned Posts') {
+            // Up to 3 public Instagram or Facebook post links, one per line
+            const lines = clip(value, 3000).split(/[\s,]+/).map((t) => t.trim()).filter(Boolean);
+            const ok = lines.filter((t) => /^https:\/\/(www\.)?(instagram\.com\/(p|reel)\/[\w-]+|facebook\.com\/.+)/i.test(t));
+            if (lines.length !== ok.length) throw new UserError('Pinned posts should be links to public Instagram or Facebook posts, like https://www.instagram.com/p/…');
+            props[name] = { rich_text: ok.length ? chunks(ok.slice(0, 3).join('\n')) : [] };
+            break;
+          }
           if (name === 'Booking Link') {
             const b = bookingLink(value);
             if (value && !b) throw new UserError('The booking contact should be an email address or a web link.');

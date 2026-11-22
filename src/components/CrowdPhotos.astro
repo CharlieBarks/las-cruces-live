@@ -1,0 +1,180 @@
+---
+// "From the crowd" on musician and venue pages: approved photos people took at shows, then an
+// upload form folded into one line. Photos are resized in the browser (which also strips the
+// location data phones put in photos), sent to the intake Worker (POST /crowd) and only appear
+// after Charlie approves them in the Review queue. Spam checks: Turnstile, a hidden field and a
+// rate limit.
+import { SITE, INTAKE_URL, TURNSTILE_SITEKEY } from '../lib/site.js';
+const { record, kind, about } = Astro.props;
+const photos = record.crowd || [];
+const pageUrl = `${SITE.url}${Astro.url.pathname}`;
+---
+{record?.notionId && (
+  <section class:list={['crowd', { empty: photos.length === 0 }]} aria-labelledby={`cr-${record.slug}`} data-pagefind-ignore>
+    {photos.length > 0 && (
+      <>
+        <h2 id={`cr-${record.slug}`}>From the crowd</h2>
+        <ul class="grid" role="list">
+          {photos.map((p) => (
+            <li>
+              <a href={p.src} target="_blank" rel="noopener"><img src={p.thumb || p.src} alt={p.caption || `Photo of ${about} from the crowd`} loading="lazy" decoding="async" /></a>
+              <p class="cap">{p.caption && <span>{p.caption}</span>}{p.by && <span class="by">Photo: {p.by}</span>}</p>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <details class="box" id="add-photos">
+      <summary>
+        <span class="icon" aria-hidden="true">📷</span>
+        <span class="sum">
+          <span class="sum-title" id={photos.length ? undefined : `cr-${record.slug}`}>{kind === 'venue' ? `Been to ${about}? Share your photos` : `Caught ${about} live? Share your photos`}</span>
+          <span class="sum-sub">{photos.length === 0 ? 'Be the first to add one' : 'Add your photos'}</span>
+        </span>
+        <svg class="chev" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 15.5 5.5 9l1.4-1.4 5.1 5.1 5.1-5.1L18.5 9 12 15.5Z"/></svg>
+      </summary>
+      <form class="form" data-crowd-form data-kind={kind} data-id={record.notionId} data-page={pageUrl} data-sitekey={TURNSTILE_SITEKEY} data-endpoint={`${INTAKE_URL}/crowd`} novalidate>
+        <p class="muted full">Up to 3 photos from a show. Every photo gets a quick look before it shows up here.</p>
+        <label class="field full"><span>Photos</span><input name="photos" type="file" accept="image/*" multiple required /></label>
+        <div class="previews full" aria-live="polite"></div>
+        <label class="field full"><span>Caption <em>(optional)</em></span><input name="caption" maxlength="200" placeholder="Saturday night on the patio" /></label>
+        <label class="field"><span>First name</span><input name="firstName" maxlength="40" required autocomplete="given-name" /></label>
+        <label class="field"><span>Email <em>(never shown)</em></span><input name="email" type="email" maxlength="120" required autocomplete="email" /></label>
+        <label class="check full"><input type="checkbox" name="permission" required /> <span>I took these photos, and Las Cruces Live and Live Love Las Cruces can post them with my first name.</span></label>
+        <label class="check full"><input type="checkbox" name="newsletter" /> <span>Send me Thursday's Live Music issue too, with every show in town ({SITE.subscribers} subscribers).</span></label>
+        <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+        <div class="ts full"></div>
+        <div class="actions full">
+          <button class="btn btn-chile" type="submit">Share photos</button>
+          <p class="msg" role="status" aria-live="polite"></p>
+        </div>
+        <p class="fine full">We'll email you when they're up. Location info saved inside phone photos is removed before upload.</p>
+      </form>
+    </details>
+  </section>
+)}
+
+<script>
+  declare global { interface Window { turnstile?: any } }
+  let loading: Promise<void> | null = null;
+  const loadTurnstile = () => (loading ||= new Promise<void>((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => resolve();
+    document.head.appendChild(s);
+  }));
+  if (location.hash === '#add-photos') { const d = document.getElementById('add-photos') as HTMLDetailsElement | null; if (d) d.open = true; }
+
+  // Redraw each photo at up to 2000px as a JPEG. Phones make huge files, and redrawing drops the
+  // hidden data (GPS location, camera info) stored inside them.
+  async function shrink(file: File): Promise<Blob> {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      const max = 2000, scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+      c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height);
+      return await new Promise<Blob>((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Could not read that photo.'))), 'image/jpeg', 0.85));
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  document.querySelectorAll<HTMLFormElement>('[data-crowd-form]').forEach((form) => {
+    const msg = form.querySelector<HTMLElement>('.msg')!;
+    const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const input = form.querySelector<HTMLInputElement>('input[type=file]')!;
+    const previews = form.querySelector<HTMLElement>('.previews')!;
+    let token = '';
+    let widget: string | undefined;
+    const start = async () => {
+      if (widget !== undefined || !form.dataset.sitekey) return;
+      widget = '';
+      await loadTurnstile();
+      widget = window.turnstile?.render(form.querySelector('.ts'), {
+        sitekey: form.dataset.sitekey, size: 'flexible',
+        callback: (t: string) => (token = t), 'expired-callback': () => (token = ''),
+      });
+    };
+    form.addEventListener('focusin', start, { once: true });
+    input.addEventListener('change', () => {
+      previews.innerHTML = '';
+      const files = Array.from(input.files || []);
+      if (files.length > 3) { msg.className = 'msg err'; msg.textContent = 'Up to 3 photos at a time. The first 3 will be sent.'; } else { msg.textContent = ''; }
+      files.slice(0, 3).forEach((f) => { const i = document.createElement('img'); i.alt = ''; i.src = URL.createObjectURL(f); previews.appendChild(i); });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const files = Array.from(input.files || []).slice(0, 3);
+      const firstName = String(data.get('firstName') || '').trim();
+      const email = String(data.get('email') || '').trim();
+      const fail = (t: string) => { msg.className = 'msg err'; msg.textContent = t; };
+      if (!files.length) return fail('Pick at least one photo.');
+      if (!firstName || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail('Add your first name and email.');
+      if (data.get('permission') !== 'on') return fail('Please confirm you took these photos and we can post them.');
+      btn.disabled = true;
+      msg.className = 'msg';
+      msg.textContent = 'Getting your photos ready…';
+      try {
+        const out = new FormData();
+        for (const f of files) out.append('photos', await shrink(f), 'photo.jpg');
+        for (const k of ['caption', 'firstName', 'email', 'permission', 'newsletter', 'website']) { const v = data.get(k); if (v) out.append(k, String(v)); }
+        out.append('kind', form.dataset.kind!); out.append('id', form.dataset.id!); out.append('page', form.dataset.page!); out.append('token', token);
+        msg.textContent = 'Sending…';
+        const res = await fetch(form.dataset.endpoint!, { method: 'POST', body: out });
+        const r = await res.json().catch(() => ({}));
+        if (!res.ok || !r.ok) throw new Error(r.error || 'Something went wrong. Please try again.');
+        const safe = firstName.replace(/[<>&"]/g, '');
+        form.innerHTML = `<div class="thanks"><h3>Thank you, ${safe}!</h3><p>Your photos are in. Charlie gives every photo a quick look, and we'll email you when they're up.</p></div>`;
+      } catch (err) {
+        fail((err as Error).message);
+        btn.disabled = false;
+        token = '';
+        if (widget) window.turnstile?.reset(widget);
+      }
+    });
+  });
+</script>
+
+<style>
+  .crowd { padding: 40px 0 8px; border-top: 2px solid var(--ink); display: grid; gap: 22px; }
+  .crowd.empty { padding-top: 32px; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .grid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+  .cap { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; font-size: .9rem; }
+  .by { color: var(--muted); font-size: .85rem; }
+  .box { max-width: 760px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+  .box summary { list-style: none; display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; border-radius: 10px; min-height: 44px; }
+  .box summary::-webkit-details-marker { display: none; }
+  .box summary:hover .sum-sub { text-decoration: underline; }
+  .box summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--night); font-size: 1.1rem; }
+  .sum { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .sum-title { font: 800 1.25rem/1.2 var(--display); }
+  .sum-sub { color: var(--turq); font-weight: 700; font-size: .92rem; }
+  .chev { flex: none; color: var(--muted); transition: transform .2s; }
+  .box[open] .chev { transform: rotate(180deg); }
+  .form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; padding: 0 22px 22px; }
+  .full { grid-column: 1 / -1; }
+  .muted { color: var(--muted); font-size: .92rem; }
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: .9rem; font-weight: 700; }
+  .field em { font-style: normal; font-weight: 400; color: var(--muted); }
+  .field input { font: inherit; font-weight: 400; font-size: 1rem; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+  .field input:focus { outline: none; border-color: var(--turq); }
+  .previews { display: flex; gap: 10px; flex-wrap: wrap; }
+  .previews:empty { display: none; }
+  .previews :global(img) { width: 96px; height: 96px; object-fit: cover; border-radius: 6px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-size: .92rem; }
+  .check input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--turq); flex: none; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .msg:empty { display: none; }
+  .msg.err { color: var(--chile); font-weight: 700; }
+  .fine { font-size: .82rem; color: var(--muted); }
+  .form :global(.thanks) { grid-column: 1 / -1; display: grid; gap: 6px; }
+  @media (max-width: 560px) { .form { grid-template-columns: 1fr; padding: 0 16px 18px; } .box summary { padding: 14px 16px; } .grid { grid-template-columns: 1fr 1fr; } }
+</style>

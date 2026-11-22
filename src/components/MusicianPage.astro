@@ -8,6 +8,8 @@ import PreviewBar from './PreviewBar.astro';
 import Editor from './Editor.astro';
 import Poster from './Poster.astro';
 import Comments from './Comments.astro';
+import CrowdPhotos from './CrowdPhotos.astro';
+import PinnedPosts from './PinnedPosts.astro';
 import {
   SITE, PREVIEW, utm, out, musicians, musicianBySlug, isPlaying, playingVenues, playingWhen, playingLabel, typeLabel,
   genreName, listJoin, baseLabel, musicianJsonLd, songEmbed, songService,
@@ -173,6 +175,8 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
       </div>
     </article>
 
+    <PinnedPosts record={m} about={m.name} />
+    {!share && <CrowdPhotos record={m} kind="musician" about={m.name} />}
     {!share && <Comments record={m} kind="musician" about={m.name} prompt={`What's it like seeing ${m.name} live?`} placeholder="The song that got everyone dancing, the night you first caught them…" />}
 
     {similar.length > 0 && (

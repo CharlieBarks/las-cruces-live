@@ -4,11 +4,13 @@
 import Layout from '../../layouts/Layout.astro';
 import { musicians, PREVIEW } from '../../lib/site.js';
 import commentsRaw from '../../data/comments.json';
+import crowdRaw from '../../data/crowd.json';
 const comments = PREVIEW ? commentsRaw : [];
+const crowd = PREVIEW ? crowdRaw : [];
 const newActs = musicians.filter((m) => m.siteStatus === 'Submitted' || m.siteStatus === 'In Review');
 const claims = musicians.filter((m) => m.claimRequest);
 const pending = musicians.filter((m) => m.pendingEdits);
-const empty = !newActs.length && !claims.length && !pending.length && !comments.length;
+const empty = !newActs.length && !claims.length && !pending.length && !comments.length && !crowd.length;
 ---
 <Layout title="Review queue" description="Waiting for approval" noindex>
   <div class="wrap q">
@@ -42,6 +44,25 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
                 <li data-comment={c.id}>
                   <blockquote>“{c.text}”</blockquote>
                   <p class="by">{[c.firstName, c.town].filter(Boolean).join(', ')}{c.date && ` · ${c.date}`} · on {c.aboutHref ? <a href={c.aboutHref}>{c.aboutName}</a> : (c.aboutName || 'a page')}</p>
+                  <div class="row">
+                    <button class="btn btn-gold" type="button" data-set="Approved">Approve</button>
+                    <button class="btn btn-line" type="button" data-set="Hidden">Hide</button>
+                    <span class="msg" role="status" aria-live="polite"></span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {crowd.length > 0 && (
+          <section>
+            <h2>New crowd photos ({crowd.length})</h2>
+            <ul class="cm">
+              {crowd.map((c) => (
+                <li data-comment={c.id}>
+                  <div class="shots">{c.photos.map((u) => <a href={u} target="_blank" rel="noopener"><img src={u} alt="" loading="lazy" /></a>)}</div>
+                  {c.caption && <blockquote>“{c.caption}”</blockquote>}
+                  <p class="by">{c.by}{c.date && ` · ${c.date}`} · on {c.aboutHref ? <a href={c.aboutHref}>{c.aboutName}</a> : (c.aboutName || 'a page')}</p>
                   <div class="row">
                     <button class="btn btn-gold" type="button" data-set="Approved">Approve</button>
                     <button class="btn btn-line" type="button" data-set="Hidden">Hide</button>
@@ -90,5 +111,7 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
   .cm li.done { opacity: .6; }
   .cm blockquote { margin: 0; font-size: 1.1rem; }
   .by { color: var(--muted); font-size: .92rem; }
+  .shots { display: flex; flex-wrap: wrap; gap: 8px; }
+  .shots img { width: 140px; height: 140px; object-fit: cover; border-radius: 6px; display: block; }
   .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 </style>
