@@ -581,6 +581,85 @@ function thankYouEmail({ firstName, about, page, subscribed, photos = false }) {
 </div>`;
   return { subject: photos ? 'Your photos are up on Las Cruces Live' : 'Your comment is up on Las Cruces Live', text, html };
 }
+// "Someone left a comment / photos on your page": sent once, when Charlie approves it, to the act
+// (Owner Email, else the email from their sign-up form) or the venue (Email in Live Music Venues).
+// Same route as the thank-you: GUEST_EMAIL, with Grok Bot as the backup. Owner Notified is ticked
+// either way so nobody hears about the same comment twice.
+function ownerEmail({ about, page, quote, by, photos, kind, claimed }) {
+  const links = {
+    page: page || 'https://lascruceslive.com/',
+    events: tag('https://events.livelovelascruces.com/', 'events_calendar'),
+  };
+  const what = photos ? `new photos from the crowd` : `a new comment`;
+  const text = [
+    'Hi there,',
+    '',
+    `Good news: ${about} just got ${what} on Las Cruces Live${by ? `, from ${by}` : ''}.`,
+    '',
+    ...(quote ? [photos ? `Caption: "${quote}"` : `"${quote}"`, ''] : []),
+    `See it here: ${links.page}`,
+    '',
+    'Feel free to share it on your socials. Kind words from the crowd are the best advertising there is.',
+    '',
+    ...(kind === 'musician' && !claimed ? ['Is this your page? Tap "Claim this page" on it (free) to add photos, a song and a Book button.', ''] : []),
+    `And keep your shows coming: anything on the Events Calendar makes Thursday's Live Music issue, read by 10,000+ locals.\n${links.events}`,
+    '',
+    'Thanks for keeping live music going in Las Cruces,',
+    'Charlie',
+    'Live Love Las Cruces',
+  ].join('\n');
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const a = (href, label) => `<a href="${esc(href)}" style="color:#0a6f6b;font-weight:600">${esc(label)}</a>`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#1d1735;max-width:560px">
+<p>Hi there,</p>
+<p>Good news: <strong>${esc(about)}</strong> just got ${what} on Las Cruces Live${by ? `, from ${esc(by)}` : ''}.</p>
+${quote ? `<blockquote style="margin:0 0 16px;padding:12px 16px;border-left:4px solid #f4b63e;background:#f5efe2;font-size:17px">${photos ? 'Caption: ' : ''}“${esc(quote)}”</blockquote>` : ''}
+<p>${a(links.page, photos ? 'See the photos' : 'See it on your page')}</p>
+<p>Feel free to share it on your socials. Kind words from the crowd are the best advertising there is.</p>
+${kind === 'musician' && !claimed ? `<p>Is this your page? Tap <strong>Claim this page</strong> on it (free) to add photos, a song and a Book button.</p>` : ''}
+<p>And keep your shows coming: anything on the ${a(links.events, 'Events Calendar')} makes Thursday's Live Music issue, read by 10,000+ locals.</p>
+<p>Thanks for keeping live music going in Las Cruces,<br>Charlie<br>Live Love Las Cruces</p>
+</div>`;
+  return { subject: photos ? `New crowd photos of ${about} on Las Cruces Live` : `${about} got a new comment on Las Cruces Live`, text, html };
+}
+async function notifyPageOwner(env, page) {
+  try {
+    const p = page.properties;
+    if (p['Owner Notified']?.checkbox) return;
+    const photos = dashless(page.parent?.database_id) === CROWD_DB;
+    const kind = p.Musician?.relation?.length ? 'musician' : 'venue';
+    const target = (kind === 'musician' ? p.Musician : p.Venue)?.relation?.[0]?.id;
+    if (!target) return;
+    const t = await notion(env, `pages/${dashless(target)}`, undefined, 'GET');
+    const tp = t.properties;
+    const about = kind === 'musician' ? plain(tp[TITLE]) : plain(tp.Name);
+    const to = kind === 'musician' ? (tp['Owner Email']?.email || tp['Submitter Email']?.email || '') : (tp.Email?.email || '');
+    const mark = () => notion(env, `pages/${dashless(page.id)}`, { properties: { 'Owner Notified': { checkbox: true } } }, 'PATCH').catch(() => {});
+    if (!isEmail(to) || /^test\b/i.test(about)) { await mark(); return; }
+    const msg = ownerEmail({
+      about, kind, photos, page: p.Page?.url || '',
+      quote: photos ? (plain(p.Caption).startsWith('Photos of ') ? '' : plain(p.Caption)) : plain(p.Comment),
+      by: [plain(p['First Name']), plain(p.Town)].filter(Boolean).join(' in '),
+      claimed: Boolean(tp['Owner Email']?.email),
+    });
+    let how = 'direct';
+    try {
+      if (!env.GUEST_EMAIL) throw new Error('GUEST_EMAIL binding missing');
+      await env.GUEST_EMAIL.send({ to, from: COMMENT_FROM, replyTo: COMMENT_FROM.email, ...msg });
+    } catch (err) {
+      console.warn(`page-owner notice direct send failed (${err.message}); handing it to Grok Bot`);
+      how = 'grokbot';
+      await sendNotice(env, { to: GROK_INBOX, from: NOTIFY_FROM, subject: `LC Live: send page-owner notice to ${to}`, text: [
+        'Please send this email from charlie@livelovelascruces.com.', '', `To: ${to}`, `Subject: ${msg.subject}`, '', '----', msg.text,
+      ].join('\n') });
+    }
+    await mark();
+    console.log(JSON.stringify({ ownerNotified: dashless(page.id), kind, how }));
+  } catch (err) {
+    console.error(`page-owner notice failed: ${err.message}`);
+  }
+}
+
 async function thankCommenter(env, page) {
   try {
     const p = page.properties;
@@ -740,7 +819,7 @@ export class Admin extends WorkerEntrypoint {
       if (![COMMENTS_DB, CROWD_DB].includes(dashless(page.parent?.database_id))) return { ok: false, error: 'That is not a comment or crowd photo.' };
       await notion(this.env, `pages/${dashless(id)}`, { properties: { 'Site Status': { select: { name: status } } } }, 'PATCH');
       console.log(JSON.stringify({ admin: 'setCommentStatus', id: dashless(id), status, by }));
-      if (status === 'Approved') await thankCommenter(this.env, page);
+      if (status === 'Approved') { await thankCommenter(this.env, page); await notifyPageOwner(this.env, page); }
       const live = status === 'Approved' ? await rebuild(this.env.LIVE_HOOK) : false;
       const preview = await rebuild(this.env.PREVIEW_HOOK);
       return { ok: true, status, rebuilding: { live, preview } };
