@@ -530,6 +530,78 @@ async function handleComment(request, env, ctx) {
   return reply({ ok: true });
 }
 
+// ---------- Crowd photos ("From the crowd") ----------
+// Multipart upload from musician and venue pages: up to 3 photos (resized and stripped of
+// location data in the browser), caption, first name, email, permission. Photos go to the PHOTOS
+// store (served at /photo/crowd/...), and one Notion record in Las Cruces Live Crowd Photos is made
+// as Submitted. Nothing shows until Charlie approves it in the Review queue.
+async function handleCrowd(request, env, ctx) {
+  const origin = request.headers.get('origin') || '';
+  const cors = PUBLIC_ORIGINS.includes(origin) ? { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' } : {};
+  if (request.method === 'OPTIONS') return new Response(null, { headers: { ...cors, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '86400' } });
+  const reply = (body, status = 200) => Response.json(body, { status, headers: cors });
+  try {
+    if (request.method !== 'POST' || !cors['Access-Control-Allow-Origin']) return reply({ ok: false, error: 'Not allowed.' }, 403);
+    if (Number(request.headers.get('content-length') || 0) > 20 * 1024 * 1024) return reply({ ok: false, error: 'Those photos are too big together. Try fewer at a time.' }, 413);
+    const ip = request.headers.get('cf-connecting-ip') || '';
+    if (await limited(env, `crowd:${ip}`)) return reply({ ok: false, error: 'Too many tries. Please wait a minute and try again.' }, 429);
+    let f;
+    try { f = await request.formData(); } catch { return reply({ ok: false, error: 'Bad request.' }, 400); }
+    const clip = (v, n) => String(v || '').replace(CONTROL, '').replace(/\s+/g, ' ').trim().slice(0, n);
+    const caption = clip(f.get('caption'), 200), firstName = clip(f.get('firstName'), 40), email = clip(f.get('email'), 120).toLowerCase();
+    const kind = String(f.get('kind') || ''), id = dashless(f.get('id'));
+    if (f.get('website')) return reply({ ok: true }); // honeypot
+    const files = f.getAll('photos').filter((x) => x && typeof x === 'object' && x.size > 0).slice(0, 3);
+    if (!files.length) return reply({ ok: false, error: 'Pick at least one photo.' }, 400);
+    if (!firstName || !isEmail(email)) return reply({ ok: false, error: 'Add your first name and email.' }, 400);
+    if (f.get('permission') !== 'on') return reply({ ok: false, error: 'Please confirm you took these photos and we can post them.' }, 400);
+    if (!/^[0-9a-f]{32}$/.test(id) || !['musician', 'venue'].includes(kind)) return reply({ ok: false, error: 'Unknown page.' }, 400);
+    for (const x of files) {
+      if (!/^image\/(jpeg|png|webp)$/.test(x.type)) return reply({ ok: false, error: 'Photos must be JPG, PNG or WebP.' }, 400);
+      if (x.size > 8 * 1024 * 1024) return reply({ ok: false, error: 'One of those photos is too big (8 MB max).' }, 400);
+    }
+    if (!(await turnstileOk(env, f.get('token'), ip))) return reply({ ok: false, error: "The spam check didn't go through. Please try again." }, 400);
+    if (!env.PHOTOS) return reply({ ok: false, error: 'Photo uploads are not set up yet.' }, 500);
+    const page = /^https:\/\/(www\.)?lascruceslive\.com\//.test(String(f.get('page') || '')) ? String(f.get('page')).slice(0, 300) : '';
+    const about = plain((await notion(env, `pages/${id}`, undefined, 'GET')).properties?.[kind === 'musician' ? TITLE : 'Name']);
+    const urls = [];
+    for (const x of files) {
+      const ext = x.type === 'image/png' ? 'png' : x.type === 'image/webp' ? 'webp' : 'jpg';
+      const key = `crowd/${id}/${Date.now().toString(36)}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+      await env.PHOTOS.put(key, await x.arrayBuffer(), { metadata: { type: x.type } });
+      urls.push(`${INTAKE_ORIGIN}/photo/${key}`);
+    }
+    const properties = clean({
+      Caption: P.title(caption || `Photos of ${about || 'a show'}`),
+      Photos: P.files(urls, 'crowd'),
+      'Site Status': P.select('Submitted'),
+      'First Name': P.text(firstName),
+      Email: P.email(email),
+      Permission: P.check(true),
+      'Newsletter Opt-in': P.check(f.get('newsletter') === 'on'),
+      [kind === 'musician' ? 'Musician' : 'Venue']: P.relation([id]),
+      Page: P.url(page),
+      'Submitted On': P.date(new Date().toISOString().slice(0, 10)),
+    });
+    await notion(env, 'pages', { parent: { database_id: CROWD_DB }, properties });
+    ctx.waitUntil(Promise.all([
+      joinNewsletter(env, { 'Submitter Email': properties.Email, 'Newsletter Opt-in': properties['Newsletter Opt-in'] }, 'crowd-photo'),
+      rebuild(env.PREVIEW_HOOK),
+      tellCharlie(env, `new crowd photos for ${about || 'a page'}`, [
+        `${firstName} uploaded ${urls.length} photo${urls.length === 1 ? '' : 's'} for ${about || 'a page'}${caption ? `: "${caption}"` : '.'}`, '',
+        ...urls, '',
+        'Approve or hide them from the review queue (about 2 minutes from now). Nothing shows on the site until you approve.',
+      ]),
+    ]).catch(() => {}));
+    console.log(JSON.stringify({ crowd: 'saved', kind, id, photos: urls.length }));
+    return reply({ ok: true });
+  } catch (err) {
+    // Always answer with the CORS header, so the page shows a real message instead of "Failed to fetch"
+    console.error(`crowd save failed: ${err.message}`);
+    return reply({ ok: false, error: 'Something went wrong saving your photos. Please try again in a minute.' }, 502);
+  }
+}
+
 // "Your comment is up" thank-you, sent once when Charlie approves a comment. Comes from Charlie,
 // mentions the newsletter (unless they already ticked it), the events calendar and the Art Trail.
 // Sent through GUEST_EMAIL (Cloudflare Email Sending, any recipient). If that can't send, the
