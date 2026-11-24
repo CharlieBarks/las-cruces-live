@@ -102,6 +102,41 @@ async function keepPhoto(src, dest, size = 1600) {
   }
 }
 
+// Facebook share card (1200x630) for an act's or venue's page. The whole photo sits in the middle
+// (never cropped, so tall band shots keep their heads) over a blurred, darkened copy of itself,
+// with the Las Cruces Live wordmark (cut from og-default.png) in the corner. Built from the photo
+// already saved in public/media. No photo = the page keeps og-default.png.
+let shareBadge;
+async function keepShareCard(saved, dest) {
+  if (!saved) return '';
+  try {
+    const src = path.join(path.resolve('public'), saved);
+    if (!shareBadge) {
+      const mark = await sharp(path.resolve('public/og-default.png'))
+        .extract({ left: 60, top: 60, width: 1090, height: 380 }).resize({ width: 220 }).png().toBuffer();
+      const { height } = await sharp(mark).metadata();
+      shareBadge = await sharp({ create: { width: 240, height: height + 20, channels: 4, background: { r: 29, g: 23, b: 53, alpha: 0.92 } } })
+        .composite([{ input: mark, left: 10, top: 10 }]).png().toBuffer();
+    }
+    const W = 1200, H = 630;
+    const back = await sharp(src).resize(W, H, { fit: 'cover' }).blur(28).modulate({ brightness: 0.55 }).toBuffer();
+    const front = await sharp(src).resize(W, H, { fit: 'inside' }).toBuffer();
+    const fm = await sharp(front).metadata();
+    const bm = await sharp(shareBadge).metadata();
+    const out = await sharp(back).composite([
+      { input: front, left: Math.round((W - fm.width) / 2), top: Math.round((H - fm.height) / 2) },
+      { input: shareBadge, left: W - bm.width - 20, top: H - bm.height - 20 },
+    ]).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+    const file = path.join(MEDIA_DIR, `${dest}.jpg`);
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, out);
+    return `/media/${dest}.jpg`;
+  } catch (err) {
+    console.warn(`sync-notion: couldn't make a share card for ${dest}: ${err.message}`);
+    return '';
+  }
+}
+
 // Booking contact (email or link) -> where the Book button goes
 function bookingHref(v = '') {
   const t = v.trim().replace(/^mailto:/i, '');
@@ -261,6 +296,7 @@ async function main() {
     const thumb = photo ? await keepPhoto(files(m, 'Photo')[0], `${slug}/thumb`, 240) : '';
     // Mid-size copy for the homepage and "Playing this week" cards, so they don't load the full photo
     const card = photo ? await keepPhoto(files(m, 'Photo')[0], `${slug}/card`, 720) : '';
+    const share = photo ? await keepShareCard(photo, `${slug}/share`) : '';
     const gallery = [];
     if (photosOk) {
       for (const [i, src] of files(m, 'Gallery').slice(0, 8).entries()) {
@@ -275,7 +311,7 @@ async function main() {
       sound: text(m, 'Genre'),
       genres: genresFor(text(m, 'Genre'), multi(m, 'Genres (checklist)')),
       bio: text(m, 'Bio'),
-      photo, thumb, card, photoCredit: photo ? text(m, 'Photo Credit') : '',
+      photo, thumb, card, share, photoCredit: photo ? text(m, 'Photo Credit') : '',
       gallery,
       song: cleanUrl(text(m, 'Song Link')),
       booking: bookingHref(text(m, 'Booking Link')),
@@ -355,9 +391,10 @@ async function main() {
     const vslug = slugify(name);
     const vsrc = files(v, 'Photo')[0];
     const vphoto = await keepPhoto(vsrc, `venues/${vslug}/photo`, 1800);
+    const vshare = vphoto ? await keepShareCard(vphoto, `venues/${vslug}/share`) : '';
     venues.push({
       name, slug: vslug, notionId: v.id.replace(/-/g, ''),
-      photo: vphoto, card: vphoto ? await keepPhoto(vsrc, `venues/${vslug}/card`, 900) : '',
+      photo: vphoto, share: vshare, card: vphoto ? await keepPhoto(vsrc, `venues/${vslug}/card`, 900) : '',
       cardLine: text(v, 'Card Line').slice(0, 90),
       comments: approvedComments(dashless(v.id)),
       crowd: crowdOf(dashless(v.id)),

@@ -37,7 +37,7 @@ const weekLists = (w.byWeek || []).map((x, i) => ({
 })).filter((x) => x.acts.length + x.others.length > 0);
 const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
 ---
-<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v)]} searchable>
+<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v)]} image={v.share} imageAlt={v.share ? `${v.name}, live music venue` : ''} searchable>
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
     <article class:list={['grid', { feat }]}>
