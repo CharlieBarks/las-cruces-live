@@ -42,7 +42,7 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
     <article class:list={['grid', { feat }]}>
       <div class="main stack">
-        {v.photo && <img class="vphoto" src={v.photo} alt={v.name} width="1200" height="900" decoding="async" fetchpriority="high" />}
+        {v.photo && <img class="vphoto" src={v.photo} alt={`${v.name}, live music venue in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} width="1200" height="900" decoding="async" fetchpriority="high" />}
         {(feat || w.shows > 0) && (
           <div class="tags">
             {sponsor ? <a class="fpill" href={lllc} rel="noopener">★ Proud sponsor of Live Love Las Cruces</a> : feat && <p class="fpill">Featured venue</p>}
