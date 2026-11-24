@@ -51,7 +51,7 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
     {m.photo && (
       <figure class="feature">
         <a class="mat" href={m.photo} target="_blank" rel="noopener" aria-label={`View larger photo of ${m.name} (opens in a new tab)`}>
-          <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}`} fetchpriority="high" data-pagefind-meta="image[src]" />
+          <img src={m.photo} alt={`${m.name}${m.type === 'Band' ? ' playing live' : ''}${m.genres.length ? ` (${listJoin(m.genres.map(genreName))})` : ''}`} fetchpriority="high" data-pagefind-meta="image[src]" />
         </a>
         {m.photoCredit && <figcaption>{m.photoCredit}</figcaption>}
       </figure>
