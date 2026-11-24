@@ -7,7 +7,7 @@ import Footer from '../components/Footer.astro';
 import Track from '../components/Track.astro';
 import { SITE } from '../lib/site.js';
 
-const { title, description, jsonLd = [], noindex = false, searchable = false } = Astro.props;
+const { title, description, jsonLd = [], noindex = false, searchable = false, image = '', imageAlt = '' } = Astro.props;
 function trim(text = '', max = 155) {
   const clean = text.replace(/\s+/g, ' ').trim();
   if (clean.length <= max) return clean;
@@ -17,7 +17,8 @@ function trim(text = '', max = 155) {
 const metaDescription = trim(description);
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const fullTitle = title === SITE.name ? `${SITE.name} | Local Musicians, Bands & Live Music Venues in Las Cruces, NM` : `${title} | ${SITE.name}`;
-const ogImage = new URL('/og-default.png', SITE.url).href;
+// Act and venue pages pass their own share card (see keepShareCard in scripts/sync-notion.mjs)
+const ogImage = new URL(image || '/og-default.png', SITE.url).href;
 const preview = process.env.LIVE_PREVIEW === '1';
 ---
 <!doctype html>
@@ -39,6 +40,8 @@ const preview = process.env.LIVE_PREVIEW === '1';
   <meta property="og:image" content={ogImage} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+  <meta name="twitter:image" content={ogImage} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="geo.region" content="US-NM" />
   <meta name="geo.placename" content="Las Cruces" />

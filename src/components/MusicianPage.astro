@@ -40,7 +40,7 @@ const claimed = m.claimed || Boolean(m.photo || m.bio);
 const claimUrl = `/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`;
 const bookExternal = m.booking && !m.booking.startsWith('mailto:');
 ---
-<Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} searchable={!share} noindex={share}>
+<Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m)]} image={m.share} imageAlt={m.share ? `${m.name}, live music in Las Cruces` : ''} searchable={!share} noindex={share}>
   {PREVIEW && !share && <PreviewBar m={m} />}
   {share && <Editor m={m} />}
   <div class="wrap">
