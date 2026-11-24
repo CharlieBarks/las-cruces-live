@@ -96,14 +96,18 @@ export const venueBySlug = (s) => venues.find((v) => v.slug === s);
 // ---------- This week & next (from the latest Thursday issue) ----------
 // The issue covers two weeks, Thursday to Wednesday: the first in the email, the second
 // web-only. Each show carries its date, so the site can say "this week", "next week" or both.
-// Weeks are counted from the issue date, and past shows drop off at each build.
+// On the site, weeks count from the day of the build, not the issue date: "this week" is
+// the next 7 days and "next week" the 7 after, so a Tuesday visitor doesn't see this
+// Thursday's shows called "next week". The site rebuilds daily, and past shows drop off.
 // Old snapshots without dates count as this week. Everything switches off two weeks out,
 // so the site never advertises old shows.
 const DAY = 864e5;
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date());
 const daysOld = (Date.parse(today) - Date.parse(thisweekRaw.issueDate || '1970-01-01')) / DAY;
 export const THIS_WEEK_CURRENT = process.env.LIVE_IGNORE_STALE === '1' || daysOld < (thisweekRaw.list ? 14 : 8);
-const weekStart = Date.parse(thisweekRaw.issueDate || '1970-01-01') + Math.max(0, Math.floor(daysOld / 7)) * 7 * DAY;
+const weekStart = process.env.LIVE_IGNORE_STALE === '1'
+  ? Date.parse(thisweekRaw.issueDate || '1970-01-01') + Math.max(0, Math.floor(daysOld / 7)) * 7 * DAY
+  : Date.parse(today);
 const weekOf = (date) => {
   if (!date) return 0;
   if (Date.parse(date) < Date.parse(today) && process.env.LIVE_IGNORE_STALE !== '1') return -1;
