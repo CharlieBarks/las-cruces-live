@@ -81,6 +81,9 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
 
 - **Before opening a PR that touches `workers/` or `scripts/`**, check for missing names: `npx eslint@8 --no-eslintrc --env es2022,worker,node --parser-options=ecmaVersion:2023,sourceType:module --rule 'no-undef:error' workers/intake/index.js workers/preview/index.js scripts/*.mjs scripts/lib/*.mjs`. A plain build doesn't catch them in the Workers (Nov 22, 2026: the crowd photo upload shipped without its handler and failed with "Failed to fetch").
 
+- **`btn-line` on a dark background needs light text.** It defaults to `--ink`, so on `--night` it's invisible until hover. Use `.on-night` on the section, or set the color in that component (the editor does). Nov 24, 2026: "Add a band member" only showed on hover.
+- **A new act can go live without photos.** If the live build log shows `couldn't save a photo … HTTP 403` for intake `/photo/` links, the request was blocked before reaching `lc-live-intake`; retrying the build fixed it (Nov 24, 2026, Rebel Creek Radio).
+
 - No dates or times on the site (see above).
 - Never rewrite an act's own description ("Genre" is the sound in their words).
 - Email and phone fields in Notion are never read or shown.

@@ -293,7 +293,6 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   .editor .ed-kicker { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: var(--gold); font-weight: 700; }
   .editor h2 { font-size: clamp(2rem, 4vw, 2.8rem); color: #fff; }
   .editor .ed-note { max-width: 60ch; color: #d8d4ea; margin-top: 6px; }
-  .editor .ed-toggle { color: #fff; }
   .editor .ed-status { margin-top: 14px; font-weight: 600; }
   .editor .ed-status.bad, .editor .ed-saved.bad { color: #ffb4b4; }
   .editor .ed-status.ok, .editor .ed-saved.ok { color: #9fe3c9; }
@@ -312,7 +311,10 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   .editor .chip:has(input:checked) { background: var(--gold); color: var(--night); border-color: var(--gold); }
   .editor .check { display: flex; gap: 10px; align-items: start; font-weight: 500; }
   .editor .check input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
-  .editor .file { color: #fff; justify-self: start; }
+  /* Outline buttons default to dark text, which disappears on the night background */
+  .editor .btn-line { color: #fff; }
+  .editor .btn-line:hover { color: var(--gold); }
+  .editor .file, .editor [data-add-member] { justify-self: start; }
   .editor .ed-photo { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
   .editor .ed-main img { max-width: 320px; max-height: 200px; border-radius: 8px; display: block; object-fit: cover; }
   .editor .ed-main .empty { color: #c9c4de; }
