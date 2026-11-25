@@ -1,15 +1,17 @@
 ---
 // Preview site only: everything waiting for Charlie. New acts from the form, claim requests from
-// people whose email isn't on file, and owners' changes to live pages.
+// people whose email isn't on file (acts and venues), and owners' changes to live pages.
 import Layout from '../../layouts/Layout.astro';
-import { musicians, PREVIEW } from '../../lib/site.js';
+import { musicians, venues, PREVIEW } from '../../lib/site.js';
 import commentsRaw from '../../data/comments.json';
 import crowdRaw from '../../data/crowd.json';
 const comments = PREVIEW ? commentsRaw : [];
 const crowd = PREVIEW ? crowdRaw : [];
 const newActs = musicians.filter((m) => m.siteStatus === 'Submitted' || m.siteStatus === 'In Review');
-const claims = musicians.filter((m) => m.claimRequest);
-const pending = musicians.filter((m) => m.pendingEdits);
+// Acts and venues together; venue rows link to /venues/
+const pages = [...musicians.map((m) => ({ ...m, href: `/musicians/${m.slug}/` })), ...venues.map((v) => ({ ...v, href: `/venues/${v.slug}/`, venue: true }))];
+const claims = pages.filter((m) => m.claimRequest);
+const pending = pages.filter((m) => m.pendingEdits);
 const empty = !newActs.length && !claims.length && !pending.length && !comments.length && !crowd.length;
 ---
 <Layout title="Review queue" description="Waiting for approval" noindex>
@@ -27,13 +29,13 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
         {claims.length > 0 && (
           <section>
             <h2>Claim requests ({claims.length})</h2>
-            <ul>{claims.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{m.claimRequest.split('\n')[0]}</span></li>)}</ul>
+            <ul>{claims.map((m) => <li><a href={m.href}>{m.name}</a>{m.venue && ' (venue)'} <span>{m.claimRequest.split('\n')[0]}</span></li>)}</ul>
           </section>
         )}
         {pending.length > 0 && (
           <section>
             <h2>Changes to live pages ({pending.length})</h2>
-            <ul>{pending.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{(m.pendingEdits.at || '').slice(0, 10)}</span></li>)}</ul>
+            <ul>{pending.map((m) => <li><a href={m.href}>{m.name}</a>{m.venue && ' (venue)'} <span>{(m.pendingEdits.at || '').slice(0, 10)}</span></li>)}</ul>
           </section>
         )}
         {comments.length > 0 && (

@@ -2,9 +2,11 @@
 import Layout from '../../layouts/Layout.astro';
 import SponsorBand from '../../components/SponsorBand.astro';
 import VenueCard from '../../components/VenueCard.astro';
-import { venues, AREAS, SPONSORS, isFeaturedVenue, featuredVenueFirst } from '../../lib/site.js';
+import { venues, AREAS, SPONSORS, isFeaturedVenue } from '../../lib/site.js';
+// In each neighborhood: sponsor/featured venues, then claimed venues, then the rest (A to Z within each)
+const rank = (v) => (isFeaturedVenue(v) ? 0 : v.claimed ? 1 : 2);
 const groups = Object.entries(AREAS)
-  .map(([k, a]) => ({ k, a, list: featuredVenueFirst(venues.filter((v) => v.area === k)) }))
+  .map(([k, a]) => ({ k, a, list: venues.filter((v) => v.area === k).sort((x, y) => rank(x) - rank(y)) }))
   .filter((g) => g.list.length);
 // Sponsor venues up top, in the order of SPONSORS.liveMusic
 const sponsorOrder = (SPONSORS.liveMusic || []).map((s) => s.venue);

@@ -392,10 +392,21 @@ async function main() {
     const vsrc = files(v, 'Photo')[0];
     const vphoto = await keepPhoto(vsrc, `venues/${vslug}/photo`, 1800);
     const vshare = vphoto ? await keepShareCard(vphoto, `venues/${vslug}/share`) : '';
+    // More photos, added from the venue's private edit link (shown only with Image Permission)
+    const vgallery = [];
+    if (check(v, 'Image Permission')) {
+      const vcaps = text(v, 'Photo Captions').split('\n');
+      for (const [i, src] of files(v, 'Gallery').slice(0, 8).entries()) {
+        const kept = await keepPhoto(src, `venues/${vslug}/gallery-${i + 1}`);
+        if (kept) vgallery.push({ src: kept, caption: (vcaps[i] || '').trim() });
+      }
+    }
     venues.push({
       name, slug: vslug, notionId: v.id.replace(/-/g, ''),
       photo: vphoto, share: vshare, card: vphoto ? await keepPhoto(vsrc, `venues/${vslug}/card`, 900) : '',
       cardLine: text(v, 'Card Line').slice(0, 90),
+      about: text(v, 'About').slice(0, 1500),
+      gallery: vgallery,
       comments: approvedComments(dashless(v.id)),
       crowd: crowdOf(dashless(v.id)),
       pinned: pinned(v),
@@ -404,6 +415,13 @@ async function main() {
       lat, lng,
       tier: (text(v, 'Listing Tier') || 'Free').toLowerCase(),
       siteStatus: (vStatus && text(v, 'Site Status')) || 'Approved',
+      // Yes/no only (never the email): claimed venues list first on /venues/
+      claimed: Boolean(email(v, 'Owner Email')),
+      ...(PREVIEW ? {
+        // Preview site only: the Review queue, Approve buttons and the private edit link page
+        shareToken: text(v, 'Share Token'), claimRequest: text(v, 'Claim Request'),
+        ownerEmail: email(v, 'Owner Email'), pendingEdits: pendingSummary(text(v, 'Pending Edits')),
+      } : {}),
     });
   }
 

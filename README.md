@@ -72,6 +72,14 @@ Where it runs: `workers/intake` (lc-live-intake) and the preview build both live
 Cloudflare account, next to the Art Trail. Only the public site is in the lascruceslive.com account.
 Intake secrets: NOTION_TOKEN, INTAKE_KEY, PREVIEW_HOOK, LIVE_HOOK, TURNSTILE_SECRET (BEEHIIV_API_KEY optional).
 
+## Venues: claim and edit (Nov 2026)
+
+- **Claim this page** is on every venue page (`/claim/?id=…&kind=venue`). If the email matches **Owner Email** or
+  **Email** in 🎵 Live Music Venues, the private edit link goes into Notion and is emailed to them from
+  charlie@livelovelascruces.com (Grok Bot gets it to send if that fails). Otherwise it waits in the Review queue.
+- Venues edit About, Address, Phone, links, Pinned Posts and photos. Not the name or Listing Tier.
+- Same Approve / Hide / Edit buttons, waiting changes and Trusted Editor box as musicians. Blank Site Status = live.
+
 ## Sponsors
 
 Sponsor spots (home, map, genre pages, neighborhoods) are set in `SPONSORS` in `src/lib/site.js`.

@@ -1,25 +1,25 @@
 ---
-// "Claim this page": a musician or band asks for the private edit link to their own page.
-// Linked from every musician page (/claim/?id=…&name=…). Posts to the lc-live-intake Worker
+// "Claim this page": a musician, band or venue asks for the private edit link to their own page.
+// Linked from every musician page (/claim/?id=…&name=…) and venue page (…&kind=venue). Posts to the lc-live-intake Worker
 // (POST /claim). If the email matches one on file, Grok Bot emails the private edit link;
 // otherwise the request goes to Charlie's Review queue. Same answer either way.
 // Copied from the Art Trail's claim page.
 import Layout from '../layouts/Layout.astro';
 import { SITE, INTAKE_URL, TURNSTILE_SITEKEY, FORM_URL } from '../lib/site.js';
 ---
-<Layout title="Claim your page" description="Musicians and bands on Las Cruces Live can claim their page to add photos, band members and changes themselves. Free." noindex>
+<Layout title="Claim your page" description="Musicians, bands and venues on Las Cruces Live can claim their page to add photos and changes themselves. Free." noindex>
   <section class="wrap claim">
     <h1>Claim your page</h1>
-    <p class="lede" data-intro>Your page, your words. Claim it and you can add photos, your story, a song, your band members and links yourself, any time. Free, always.</p>
+    <p class="lede" data-intro data-venue="Your venue, your words. Claim it and you can add photos, a few lines about the place and your links yourself, any time. Free, always. Claimed venues are listed first.">Your page, your words. Claim it and you can add photos, your story, a song, your band members and links yourself, any time. Free, always.</p>
 
     <form class="claim-form" data-claim-form data-endpoint={`${INTAKE_URL}/claim`} data-sitekey={TURNSTILE_SITEKEY} novalidate>
       <p class="for" data-for hidden>Claiming <strong data-name></strong> · <a data-back href="/">back to the page</a></p>
-      <p class="missing" data-missing hidden>Open this from the "Claim this page" button on your page. <a href="/musicians/">Find your page</a>, or if you're not listed yet, <a href={FORM_URL}>add your act</a>.</p>
+      <p class="missing" data-missing hidden>Open this from the "Claim this page" button on your page (musicians or venues). <a href="/musicians/">Find your page</a>, or if you're not listed yet, <a href={FORM_URL}>add your act</a>.</p>
       <label class="field"><span>Your name</span><input name="name" maxlength="80" required autocomplete="name" /></label>
       <label class="field"><span>Email</span><input name="email" type="email" maxlength="120" required autocomplete="email" /></label>
       <p class="hint">Use the email you've used with Live Love Las Cruces and your private edit link comes straight to you. Different email? No problem: I'll check it's really you first.</p>
-      <label class="field" data-role-field><span>Your role <em>(optional)</em></span><input name="role" maxlength="80" placeholder="Lead singer, drummer, manager…" /></label>
-      <label class="field"><span>Anything that helps me confirm it's you <em>(optional)</em></span><textarea name="note" rows="3" maxlength="500" placeholder="The band's Instagram, or a note like “I post our shows on the band Facebook page”"></textarea></label>
+      <label class="field" data-role-field><span>Your role <em>(optional)</em></span><input name="role" maxlength="80" placeholder="Lead singer, drummer, manager…" data-venue-ph="Owner, manager, talent booker…" /></label>
+      <label class="field"><span>Anything that helps me confirm it's you <em>(optional)</em></span><textarea name="note" rows="3" maxlength="500" placeholder="The band's Instagram, or a note like “I post our shows on the band Facebook page”" data-venue-ph="Your role there, or a note like “I run the venue's Instagram”"></textarea></label>
       <label class="hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
       <div class="ts"></div>
       <div class="actions">
@@ -33,9 +33,9 @@ import { SITE, INTAKE_URL, TURNSTILE_SITEKEY, FORM_URL } from '../lib/site.js';
       <h2>How it works</h2>
       <ol>
         <li><strong>You get a private link</strong> by email, usually within the hour. Don't share it: anyone with it can edit your page.</li>
-        <li><strong>Open it.</strong> Add photos, your story, a song, band members and links, then tap Save.</li>
+        <li data-venue="&lt;strong&gt;Open it.&lt;/strong&gt; Add photos, a few lines about the place and your links, then tap Save."><strong>Open it.</strong> Add photos, your story, a song, band members and links, then tap Save.</li>
         <li><strong>I give your first update a quick look</strong> before it goes live. After that, your edits can go live on their own.</li>
-        <li><strong>Add your shows to the <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=claim">LLLC Events Calendar</a>.</strong> Your page doesn't add them, and it's how your gigs make the Thursday Live Music issue.</li>
+        <li><strong>Add your <span data-venue="music nights">shows</span> to the <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=claim">LLLC Events Calendar</a>.</strong> Your page doesn't add them, and it's how your gigs make the Thursday Live Music issue.</li>
       </ol>
       <p class="muted">Lost your link or it expired? Just claim your page again. Questions? <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a></p>
     </div>
@@ -48,6 +48,11 @@ import { SITE, INTAKE_URL, TURNSTILE_SITEKEY, FORM_URL } from '../lib/site.js';
     const q = new URLSearchParams(location.search);
     const id = (q.get('id') || '').replace(/[^0-9a-f]/gi, '');
     const name = (q.get('name') || '').slice(0, 120);
+    // Venue claims: swap in venue wording (the intake handles both kinds the same way)
+    if (q.get('kind') === 'venue') {
+      document.querySelectorAll<HTMLElement>('[data-venue]').forEach((n) => { n.innerHTML = n.dataset.venue!; });
+      document.querySelectorAll<HTMLInputElement>('[data-venue-ph]').forEach((n) => { n.placeholder = n.dataset.venuePh!; });
+    }
     const msg = form.querySelector<HTMLElement>('.msg')!;
     const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
     if (id.length === 32 && name) {

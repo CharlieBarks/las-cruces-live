@@ -1,9 +1,9 @@
 ---
-// Preview site only: Charlie's controls on each act's page. Approve / Hide, edit the page, handle a
+// Preview site only: Charlie's controls on each act's or venue's page (kind="venue"). Approve / Hide, edit the page, handle a
 // claim request or an owner's waiting changes, and manage the private edit link.
 import Editor from './Editor.astro';
 import { PREVIEW_URL } from '../lib/site.js';
-const { m } = Astro.props;
+const { m, kind = 'musician' } = Astro.props;
 const status = m.siteStatus || 'Approved';
 const pe = m.pendingEdits;
 const notionUrl = `https://www.notion.so/${m.notionId}`;
@@ -62,7 +62,7 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
     <p class="pb-msg" role="status" aria-live="polite"></p>
   </div>
 </section>
-<Editor m={m} mode="admin" />
+<Editor m={m} mode="admin" kind={kind} />
 
 <script is:inline>
 (function () {
