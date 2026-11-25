@@ -1,8 +1,9 @@
 ---
 // Every act as a card. 12 at a time with a "Show more" button; search and filters cover them all.
-// Order: acts playing this week or next first, then claimed acts with a photo, then claimed acts,
-// then unclaimed ones. Local before regional/touring inside each group. Shuffled inside each group
-// on every visit so no act is always on top. Featured (paid) acts stay first in their group.
+// Order: claimed acts always first (playing this week or next, then with a photo, then the rest),
+// then unclaimed acts (playing first). Local before regional/touring inside each group. Shuffled
+// inside each group on every visit, so the shuffle never moves an unclaimed act above a claimed one.
+// Featured (paid) acts stay first in their group.
 // Every card is in the HTML, so all profile links stay crawlable even when hidden.
 import Layout from '../../layouts/Layout.astro';
 import ActCard from '../../components/ActCard.astro';
@@ -13,8 +14,7 @@ const PER_PAGE = 12;
 const hasPhoto = (m) => Boolean(m.card || m.photo);
 // Same test the act's own page uses for "Claim this page" vs "Edit this page"
 const isClaimed = (m) => Boolean(m.claimed || m.photo || m.bio);
-const claimLevel = (m) => (isClaimed(m) && hasPhoto(m) ? 0 : isClaimed(m) ? 1 : 2);
-const group = (m) => [isPlaying(m) ? 0 : 1, isFeatured(m) ? 0 : 1, claimLevel(m), m.homeBase && m.homeBase !== 'local' ? 1 : 0].join('');
+const group = (m) => [isClaimed(m) ? 0 : 1, isPlaying(m) ? 0 : 1, isFeatured(m) ? 0 : 1, hasPhoto(m) ? 0 : 1, m.homeBase && m.homeBase !== 'local' ? 1 : 0].join('');
 const acts = [...musicians].sort((a, b) => group(a).localeCompare(group(b)) || a.name.localeCompare(b.name));
 const claimUrl = (m) => `/claim/?id=${m.notionId}&name=${encodeURIComponent(m.name)}`;
 const typeKey = (m) => (m.type === 'Band' ? 'band' : m.type === 'Solo Artist' ? 'solo' : 'other');
@@ -98,8 +98,8 @@ const typeKey = (m) => (m.type === 'Band' ? 'band' : m.type === 'Solo Artist' ? 
   const state = { type: 'all', genre: '', playing: false, q: '' };
   let limit = PER_PAGE;
 
-  // Shuffle inside each group (playing soon, claimed with photo, claimed, unclaimed), so every act
-  // gets its turn near the top. Featured acts stay first in their group.
+  // Shuffle inside each group (claimed acts' groups always sort first), so every act gets its turn
+  // near the top of its group without an unclaimed act jumping a claimed one. Featured stay first.
   const all = [...list.children] as HTMLLIElement[];
   const byGroup = new Map<string, HTMLLIElement[]>();
   for (const li of all) {
