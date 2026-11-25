@@ -8,7 +8,7 @@ const status = m.siteStatus || 'Approved';
 const pe = m.pendingEdits;
 const notionUrl = `https://www.notion.so/${m.notionId}`;
 ---
-<section class="pbar" data-id={m.notionId} data-pagefind-ignore>
+<section class="pbar" data-id={m.notionId} data-kind={kind} data-pagefind-ignore>
   <div class="wrap">
     <div class="pb-row">
       <p><span class={`pill ${status.replace(/\s/g, '').toLowerCase()}`}>{status === 'Approved' ? 'Live' : status}</span>
@@ -23,6 +23,7 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
         <a class="btn btn-line" href="/review/">Review queue</a>
       </div>
     </div>
+    <p class="pb-msg" role="status" aria-live="polite"></p>
     {m.formNotes && <p class="pb-note"><strong>From the form:</strong> {m.formNotes}</p>}
     {m.hasPhotoWithoutPermission && <p class="pb-note warn">This act has photos in Notion, but Image Permission isn't ticked, so they don't show.</p>}
     {m.claimRequest && (
@@ -59,7 +60,6 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
         {m.shareToken && <a class="btn btn-line" href={`${PREVIEW_URL}/share/${m.shareToken}/`} target="_blank" rel="noopener">Open their edit page</a>}
       </div>
     </details>
-    <p class="pb-msg" role="status" aria-live="polite"></p>
   </div>
 </section>
 <Editor m={m} mode="admin" kind={kind} />
@@ -69,23 +69,35 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
   var bar = document.querySelector('.pbar');
   var id = bar.getAttribute('data-id');
   var msg = bar.querySelector('.pb-msg');
-  function post(path, body, done) {
-    msg.textContent = 'Working…';
+  var venue = bar.getAttribute('data-kind') === 'venue';
+  // Shows the result right under the buttons. A claim or waiting-changes box that was handled turns
+  // into a green "done" note, since the page itself only refreshes after the ~2 minute rebuild.
+  function post(path, body, done, btn) {
+    var box = btn && btn.closest('.pb-box');
+    var btns = box ? box.querySelectorAll('button') : btn ? [btn] : [];
+    btns.forEach(function (x) { x.disabled = true; });
+    msg.className = 'pb-msg'; msg.textContent = 'Working…';
     fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ id: id }, body)) })
       .then(function (r) { return r.json(); })
-      .then(function (d) { msg.textContent = d.ok ? done(d) : (d.error || 'That didn’t work.'); })
-      .catch(function () { msg.textContent = 'That didn’t work. Check your connection.'; });
+      .then(function (d) {
+        btns.forEach(function (x) { x.disabled = false; });
+        if (!d.ok) { msg.className = 'pb-msg bad'; msg.textContent = d.error || 'That didn’t work.'; return; }
+        var text = done(d);
+        msg.className = 'pb-msg ok'; msg.textContent = '✓ ' + text;
+        if (box) { box.className = 'pb-box pb-done'; box.textContent = '✓ ' + text + ' It drops off the Review queue in about 2 minutes.'; }
+      })
+      .catch(function () { btns.forEach(function (x) { x.disabled = false; }); msg.className = 'pb-msg bad'; msg.textContent = 'That didn’t work. Check your connection.'; });
   }
   bar.querySelectorAll('[data-status]').forEach(function (b) {
     b.addEventListener('click', function () {
       var s = b.getAttribute('data-status');
-      post('/api/status', { status: s }, function () { return s === 'Approved' ? 'Approved. It goes live in about 2 minutes.' : 'Hidden. It comes off the site in about 2 minutes.'; });
+      post('/api/status', { status: s }, function () { return s === 'Approved' ? 'Approved. It goes live in about 2 minutes.' : 'Hidden. It comes off the site in about 2 minutes.'; }, b);
     });
   });
   bar.querySelectorAll('[data-pending]').forEach(function (b) {
     b.addEventListener('click', function () {
       var k = b.getAttribute('data-pending');
-      post('/api/pending', { apply: k !== 'discard', trust: k === 'trust' }, function () { return k === 'discard' ? 'Discarded.' : 'Applied. The live page updates in about 2 minutes.'; });
+      post('/api/pending', { apply: k !== 'discard', trust: k === 'trust' }, function () { return k === 'discard' ? 'Changes discarded.' : k === 'trust' ? 'Applied, and they’re now a trusted editor. The live page updates in about 2 minutes.' : 'Applied. The live page updates in about 2 minutes.'; }, b);
     });
   });
   bar.querySelectorAll('[data-owner]').forEach(function (b) {
@@ -93,9 +105,11 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
       var a = b.getAttribute('data-owner');
       if (a === 'revokeEditLink' && !confirm('Turn off their edit link? It stops working right away.')) return;
       post('/api/owner', { action: a, fresh: b.hasAttribute('data-fresh') }, function (d) {
-        return a === 'sendEditLink' ? 'Edit link set for ' + d.email + '. Grok Bot emails it on its next run.'
+        return a === 'sendEditLink' ? 'Claim approved. Their edit link is on its way to ' + d.email + (venue ? ' (from charlie@, within a few minutes).' : ' (Grok Bot sends it, usually within a few minutes).')
+          : a === 'dismissClaim' ? 'Claim dismissed. No email was sent.'
+          : a === 'revokeEditLink' ? 'Edit link turned off.'
           : a === 'undoLast' ? 'Undone: ' + (d.undid || []).join(', ') : 'Done.';
-      });
+      }, b);
     });
   });
   var edit = bar.querySelector('[data-edit]');
@@ -119,4 +133,9 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
   .pb-more { margin-top: 10px; }
   .pb-more summary { cursor: pointer; font-weight: 700; margin-bottom: 8px; }
   .pb-msg { margin-top: 8px; font-weight: 700; }
+  .pb-msg:empty { display: none; }
+  .pb-msg.ok { color: #0b5d3b; }
+  .pb-msg.bad { color: var(--chile); }
+  .pb-box.pb-done { background: #dff5e9; box-shadow: inset 0 0 0 2px #0b5d3b; color: #0b5d3b; font-weight: 700; }
+  .pbar button:disabled { opacity: .55; cursor: default; }
 </style>
