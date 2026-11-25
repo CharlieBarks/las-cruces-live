@@ -3,13 +3,15 @@
 //   owner: on a private edit link (/share/<token>/). Talks to /share-api/* with the token.
 //   admin: Charlie on the preview site (opened from the preview bar). Talks to /api/*, which checks his login.
 // Everything is saved through the lc-live-intake Worker, which writes to Notion.
+// kind="venue" edits a venue (no band members; the intake decides which fields it may change).
 import { musicians } from '../lib/site.js';
 
-const { m, mode = 'owner' } = Astro.props;
-const soloChoices = musicians
+const { m, mode = 'owner', kind = 'musician' } = Astro.props;
+const venue = kind === 'venue';
+const soloChoices = venue ? [] : musicians
   .filter((x) => x.type === 'Solo Artist' && x.slug !== m.slug)
   .map((x) => ({ id: x.notionId, name: x.name }));
-const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mode, name: m.name, soloChoices };
+const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mode, name: m.name, soloChoices, kind };
 ---
 <section class={`editor ${mode}`} id="editor" hidden={mode === 'admin'} data-pagefind-ignore>
   <div class="wrap">
@@ -17,7 +19,8 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       <div>
         <p class="ed-kicker">{mode === 'owner' ? 'Your private edit link' : 'Editing as Charlie'}</p>
         <h2>{mode === 'owner' ? `Edit your page, ${m.name}` : `Edit ${m.name}`}</h2>
-        {mode === 'owner' && <p class="ed-note">Only you have this link, so keep it to yourself and bookmark it to come back anytime. Add photos{m.type === 'Band' ? ', a photo and short bio for each band member' : ''}, your links and a booking contact below, then tap <strong>Save</strong>. Charlie gives changes a quick look before they go public. Your page is shown underneath.</p>}
+        {mode === 'owner' && !venue && <p class="ed-note">Only you have this link, so keep it to yourself and bookmark it to come back anytime. Add photos{m.type === 'Band' ? ', a photo and short bio for each band member' : ''}, your links and a booking contact below, then tap <strong>Save</strong>. Charlie gives changes a quick look before they go public. Your page is shown underneath.</p>}
+        {mode === 'owner' && venue && <p class="ed-note">Only you have this link, so keep it to yourself and bookmark it to come back anytime. Add photos, a few lines about the place and your links below, then tap <strong>Save</strong>. Charlie gives changes a quick look before they go public. Your page is shown underneath.</p>}
       </div>
       <button class="btn btn-line ed-toggle" type="button" aria-expanded="true" aria-controls="ed-body">Hide editor</button>
     </div>
@@ -29,7 +32,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       </fieldset>
       <fieldset>
         <legend>Photos</legend>
-        <p class="hint">A main photo shows big at the top of your page. Wide (landscape) photos look best. Add up to 8 more below it.</p>
+        <p class="hint">A main photo shows big at the top of your page{venue ? ' and on your venue card' : ''}. Wide (landscape) photos look best. Add up to 8 more below it.</p>
         <div class="ed-photo">
           <div class="ed-main"></div>
           <label class="file btn btn-line">Upload a main photo<input type="file" accept="image/jpeg,image/png,image/webp" data-upload="main" class="vh" /></label>
@@ -53,7 +56,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
         <p class="ed-saved" role="status" aria-live="polite"></p>
       </div>
       <aside class="ed-shows">
-        <strong>Don't forget your shows.</strong> Your page doesn't add them. Put your gigs on the
+        <strong>Don't forget your shows.</strong> Your page doesn't add them. Put {venue ? 'your music nights' : 'your gigs'} on the
         <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=editor" target="_blank" rel="noopener">LLLC Events Calendar</a>
         so they make the Thursday Live Music issue.
       </aside>
@@ -84,6 +87,14 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     'Song Link': ['A song people can play', 'links', 'One Spotify, YouTube, SoundCloud or Bandcamp link. Spotify, YouTube and SoundCloud play right on your page.'],
     'Pinned Posts': ['Pinned posts (up to 3)', 'links', 'Paste links to up to 3 public Instagram or Facebook posts, one per line. They show on your page. Pick your best show photos or videos.'],
     'Booking Link': ['How should people book you?', 'links', 'Your booking email or a link to your booking page. It shows on your page as a big Book button.'],
+  };
+  if (cfg.kind === 'venue') LABELS = {
+    About: ['About the place', 'basics', '2 to 4 sentences: the vibe, the food and drinks, what kind of music you book. Please no dates or times; those go on the Events Calendar.'],
+    Address: ['Address', 'basics', 'Street, city, NM and ZIP, like: 2540 El Paseo Rd, Las Cruces, NM 88001. It moves your map pin.'],
+    Phone: ['Phone', 'basics', 'The number people should call. It shows on your page.'],
+    'Image Permission': ['I own these photos (or have permission) and allow Las Cruces Live and Live Love Las Cruces to show them on the site, in the newsletter and on social media.', 'photo'],
+    'Website Link': ['Website', 'links'], 'Facebook Link': ['Facebook', 'links'], 'Instagram Link': ['Instagram', 'links'],
+    'Pinned Posts': ['Pinned posts (up to 3)', 'links', 'Paste links to up to 3 public Instagram or Facebook posts, one per line. They show on your page. Pick your best nights.'],
   };
   function el(tag, attrs, kids) {
     var e = document.createElement(tag);
@@ -128,8 +139,8 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
       ['', ...(f.options || [])].forEach(function (o) { var op = el('option', { value: o, text: o || 'Pick one' }); if (o === f.value) op.selected = true; input.appendChild(op); });
       input.addEventListener('change', function () { f.value = input.value; showBand(); });
     } else {
-      var long = f.name === 'Bio' || f.name === 'Pinned Posts';
-      input = el(long ? 'textarea' : 'input', { id: id, rows: long ? (f.name === 'Bio' ? 5 : 3) : undefined, type: f.type === 'url' ? 'url' : f.type === 'email' ? 'email' : 'text', maxlength: f.name === 'Genre' ? 120 : long ? 1500 : 300 });
+      var long = f.name === 'Bio' || f.name === 'About' || f.name === 'Pinned Posts';
+      input = el(long ? 'textarea' : 'input', { id: id, rows: long ? (f.name === 'Pinned Posts' ? 3 : 5) : undefined, type: f.type === 'url' ? 'url' : f.type === 'email' ? 'email' : f.type === 'phone_number' ? 'tel' : 'text', maxlength: f.name === 'Genre' ? 120 : long ? 1500 : 300 });
       if (long) input.removeAttribute('type');
       input.value = f.value || '';
       input.addEventListener('input', function () { f.value = input.value; });
@@ -246,7 +257,9 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     if (JSON.stringify(cleanMembers) !== JSON.stringify(original.members)) changes.members = cleanMembers;
     var hasPhotos = state.photo || state.gallery.length || cleanMembers.some(function (p) { return p.photo; });
     var perm = field('Image Permission');
-    if (hasPhotos && perm && !perm.value) { saved.textContent = 'Tick the photo permission box (under Photos) so your photos can show.'; saved.className = 'ed-saved bad'; return; }
+    // Venue photos already in Notion show without the box (Charlie added them), so venues only need it for new photos
+    var photosChanged = 'photo' in changes || 'gallery' in changes;
+    if (hasPhotos && perm && !perm.value && (cfg.kind !== 'venue' || photosChanged)) { saved.textContent = 'Tick the photo permission box (under Photos) so your photos can show.'; saved.className = 'ed-saved bad'; return; }
     if (!Object.keys(changes.fields).length) delete changes.fields;
     if (!Object.keys(changes).length) { saved.textContent = 'Nothing has changed yet.'; saved.className = 'ed-saved'; return; }
     var btn = form.querySelector('[type=submit]'); btn.disabled = true; saved.textContent = 'Saving…'; saved.className = 'ed-saved';
@@ -303,7 +316,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   .editor .ed-field { display: grid; gap: 6px; }
   .editor .ed-field > label { font-weight: 700; }
   .editor .hint { font-size: 0.88rem; color: #c9c4de; }
-  .editor input[type=text], .editor input[type=url], .editor input[type=email], .editor textarea, .editor select {
+  .editor input[type=text], .editor input[type=url], .editor input[type=email], .editor input[type=tel], .editor textarea, .editor select {
     width: 100%; font: inherit; padding: 10px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.35); background: #fff; color: var(--ink);
   }
   .editor .chips { display: flex; flex-wrap: wrap; gap: 8px; }

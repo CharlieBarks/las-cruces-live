@@ -1,12 +1,12 @@
 // Las Cruces Live intake: turns the Tally musician form into Notion records, handles
-// "Claim this page", and saves changes from the editor (Charlie's preview site and each act's
-// private edit link). Modeled on the Art Trail intake Worker.
+// "Claim this page" (musicians and venues), and saves changes from the editor (Charlie's preview
+// site and each act's or venue's private edit link). Modeled on the Art Trail intake Worker.
 //
 // Runs in the Live Love Las Cruces Cloudflare account as lc-live-intake
 // (https://lc-live-intake.cf2-99b.workers.dev), next to the Art Trail Workers.
 //
 //   POST /tally?key=INTAKE_KEY   Tally webhook (form RWdbxl). New act -> Site Status = Submitted.
-//   POST /claim                  "Claim this page" from lascruceslive.com/claim/
+//   POST /claim                  "Claim this page" from lascruceslive.com/claim/ (musicians and venues)
 //   POST /comment                Comment box on musician and venue pages (shown after Charlie approves)
 //   POST /crowd                  "From the crowd" photo upload on musician and venue pages (same approval)
 //   GET  /photo/<key>            Photos copied out of Tally and uploaded in the editor (public)
@@ -31,6 +31,8 @@ const INTAKE_ORIGIN = 'https://lc-live-intake.cf2-99b.workers.dev';
 const PREVIEW_ORIGIN = 'https://las-cruces-live-preview.cf2-99b.workers.dev';
 const PUBLIC_ORIGINS = ['https://lascruceslive.com', 'https://www.lascruceslive.com', PREVIEW_ORIGIN];
 const TITLE = "Musician's Name";
+// A musician's or venue's name, whichever database the record is in
+const titleOf = (page) => plain(page?.properties?.[TITLE]) || plain(page?.properties?.Name);
 
 // ---------- Small helpers ----------
 const dashless = (id) => String(id || '').replace(/-/g, '').toLowerCase();
@@ -312,13 +314,13 @@ const NOTIFY_KINDS = [
 ];
 const notionLink = (id) => `https://www.notion.so/${dashless(id)}`;
 
-function notifyMessage(kind, act, record, to, link, test = false) {
+function notifyMessage(kind, act, record, to, link, test = false, venue = false) {
   const what = { preview: 'New act: send the private preview link (Email 1)', 'edit-link': 'Send the private edit link (Email 2)', live: "They're live: send the you're-live email (Email 3)" }[kind];
   const text = [
     test ? 'TEST NOTIFICATION. Do not email anyone. Just confirm you received it.\n' : '',
     `Notification: ${kind}`,
     what,
-    `Act: ${act}`,
+    `${venue ? 'Venue' : 'Act'}: ${act}`,
     `Notion record: ${record}`,
     `Send to: ${to}`,
     `Link to include: ${link}`,
@@ -370,6 +372,24 @@ async function notifyAll(env) {
         }
       }
     }
+    // Venues: only the edit-link email. It goes straight from charlie@ (Grok Bot's emails are written
+    // for musicians); if that can't send, Grok Bot gets the details to send it instead.
+    const vres = await notion(env, `databases/${VENUES_DB}/query`, { filter: { and: [
+      { property: 'Edit Link', url: { is_not_empty: true } }, { property: 'Owner Email', email: { is_not_empty: true } }, { property: 'Edit Link Sent', checkbox: { equals: false } },
+    ] }, page_size: 50 }).catch((err) => { failed.push(`venues: ${err.message}`); return { results: [] }; });
+    for (const page of vres.results || []) {
+      const p = page.properties;
+      const venue = plain(p.Name);
+      if (/^test\b/i.test(venue)) continue;
+      const to = p['Owner Email'].email;
+      try {
+        await sendVenueEditLink(env, { venue, to, link: p['Edit Link'].url, record: notionLink(page.id) });
+        await notion(env, `pages/${dashless(page.id)}`, { properties: { 'Edit Link Sent': { checkbox: true } } }, 'PATCH');
+        sent.push(`venue edit-link: ${venue}`);
+      } catch (err) {
+        failed.push(`venue edit-link: ${venue}: ${err.message}`);
+      }
+    }
     const out = { sent, failed };
     console.log(JSON.stringify({ notify: out }));
     return out;
@@ -377,9 +397,55 @@ async function notifyAll(env) {
   return notifyRunning;
 }
 
+// The private edit link email for a venue that claimed its page. From charlie@ through GUEST_EMAIL;
+// if that fails, Grok Bot's inbox gets the same email to send.
+function venueEditLinkEmail({ venue, link }) {
+  const events = tag('https://events.livelovelascruces.com/', 'venue_edit_link');
+  const text = [
+    'Hi there,',
+    '',
+    `Here's your private link to edit the ${venue} page on Las Cruces Live:`,
+    link,
+    '',
+    'Open it to add photos, a few lines about the place, your links and up to 3 Instagram or Facebook posts, then tap Save. I give the first update a quick look before it goes live.',
+    '',
+    "Keep this link to yourself and bookmark it. Anyone who has it can edit your page. If it ever gets lost, just claim your page again.",
+    '',
+    `One more thing: the page doesn't list your shows. Add them to the Events Calendar and they make Thursday's Live Music issue, read by 10,000+ locals:\n${events}`,
+    '',
+    'Thanks for keeping live music going in Las Cruces,',
+    'Charlie',
+    'Live Love Las Cruces',
+  ].join('\n');
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const a = (href, label) => `<a href="${esc(href)}" style="color:#0a6f6b;font-weight:600">${esc(label)}</a>`;
+  const html = `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#1d1735;max-width:560px">
+<p>Hi there,</p>
+<p>Here's your private link to edit the <strong>${esc(venue)}</strong> page on Las Cruces Live:</p>
+<p><a href="${esc(link)}" style="display:inline-block;background:#b01f2c;color:#fff;font-weight:700;padding:12px 20px;border-radius:8px;text-decoration:none">Edit your venue page</a></p>
+<p>Add photos, a few lines about the place, your links and up to 3 Instagram or Facebook posts, then tap Save. I give the first update a quick look before it goes live.</p>
+<p>Keep this link to yourself and bookmark it. Anyone who has it can edit your page. If it ever gets lost, just claim your page again.</p>
+<p>One more thing: the page doesn't list your shows. Add them to the ${a(events, 'Events Calendar')} and they make Thursday's Live Music issue, read by 10,000+ locals.</p>
+<p>Thanks for keeping live music going in Las Cruces,<br>Charlie<br>Live Love Las Cruces</p>
+</div>`;
+  return { subject: `Your private link to edit ${venue} on Las Cruces Live`, text, html };
+}
+async function sendVenueEditLink(env, { venue, to, link, record }) {
+  const msg = venueEditLinkEmail({ venue, link });
+  try {
+    if (!env.GUEST_EMAIL) throw new Error('GUEST_EMAIL binding missing');
+    await env.GUEST_EMAIL.send({ to, from: COMMENT_FROM, replyTo: COMMENT_FROM.email, ...msg });
+  } catch (err) {
+    console.warn(`venue edit link direct send failed (${err.message}); handing it to Grok Bot`);
+    await sendNotice(env, { to: GROK_INBOX, from: NOTIFY_FROM, subject: `LC Live: send venue edit link to ${to}`, text: [
+      'Please send this email from charlie@livelovelascruces.com.', '', `To: ${to}`, `Subject: ${msg.subject}`, `Notion record: ${record}`, '', '----', msg.text,
+    ].join('\n') });
+  }
+}
+
 // ---------- Claim this page ----------
-// From lascruceslive.com/claim/?id=<notion id>. If the email matches the one on file (Owner Email,
-// Email, Booking Email or the Musician Contact List), the private edit link goes into Notion's
+// From lascruceslive.com/claim/?id=<notion id> (a musician or a venue). If the email matches the one
+// on file (Owner Email, Email, Booking Email or the Musician Contact List), the private edit link goes into Notion's
 // Edit Link with Edit Link Sent unticked, and we email Grok Bot to send it. Otherwise the claim waits in
 // Claim Request for Charlie (Review queue on the preview site). Same answer either way.
 const newShareToken = () => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -440,7 +506,8 @@ async function handleClaim(request, env, ctx) {
   try {
     const page = await notion(env, `pages/${id}`, undefined, 'GET');
     const status = page.properties['Site Status']?.select?.name || 'Approved'; // blank = live
-    if (dashless(page.parent?.database_id) !== MUSICIANS_DB || status !== 'Approved') return reply({ ok: false, error: "That page can't be claimed." }, 400);
+    if (![MUSICIANS_DB, VENUES_DB].includes(dashless(page.parent?.database_id)) || status !== 'Approved') return reply({ ok: false, error: "That page can't be claimed." }, 400);
+    const pageName = titleOf(page);
     await env.PHOTOS?.put(`_claimwait/${id}`, '1', { expirationTtl: 600 });
     if ((await onFileEmails(env, page)).includes(email)) {
       // Matches. If a link is already out, re-send the same one rather than replacing it.
@@ -451,8 +518,8 @@ async function handleClaim(request, env, ctx) {
         await giveEditLink(env, id, page, email);
       }
       console.log(JSON.stringify({ claim: 'matched', id }));
-      ctx.waitUntil(tellCharlie(env, `${plain(page.properties[TITLE])} claimed their page`, [
-        `${name} <${email}> claimed ${plain(page.properties[TITLE])}. The email matched what's on file, so their private edit link is on its way. Nothing to do.`,
+      ctx.waitUntil(tellCharlie(env, `${pageName} claimed their page`, [
+        `${name} <${email}> claimed ${pageName}. The email matched what's on file, so their private edit link is on its way. Nothing to do.`,
         "If they change their live page, you'll get another email to approve the changes.",
         '', `Notion record: ${notionLink(id)}`,
       ]));
@@ -462,8 +529,8 @@ async function handleClaim(request, env, ctx) {
       await notion(env, `pages/${id}`, { properties: { 'Claim Request': { rich_text: chunks(`${name} <${email}>${role ? ` · ${role}` : ''} · ${day}${note ? `\n${note}` : ''}`) } } }, 'PATCH');
       ctx.waitUntil(rebuild(env.PREVIEW_HOOK).catch(() => {}));
       console.log(JSON.stringify({ claim: 'to-review', id }));
-      ctx.waitUntil(tellCharlie(env, `claim to check: ${plain(page.properties[TITLE])}`, [
-        `${name} <${email}>${role ? ` (${role})` : ''} wants to claim ${plain(page.properties[TITLE])}, but that email isn't on file.`,
+      ctx.waitUntil(tellCharlie(env, `claim to check: ${pageName}`, [
+        `${name} <${email}>${role ? ` (${role})` : ''} wants to claim ${pageName}, but that email isn't on file.`,
         note ? `Their note: ${note}` : '',
         'If they check out, tap "Send edit link" on their page in the review queue. Otherwise dismiss it.',
         '', `Notion record: ${notionLink(id)}`,
@@ -674,6 +741,7 @@ function ownerEmail({ about, page, quote, by, photos, kind, claimed }) {
     'Feel free to share it on your socials. Kind words from the crowd are the best advertising there is.',
     '',
     ...(kind === 'musician' && !claimed ? ['Is this your page? Tap "Claim this page" on it (free) to add photos, a song and a Book button.', ''] : []),
+    ...(kind === 'venue' && !claimed ? ['Run this place? Tap "Claim this page" on it (free) to add your photos, a few lines about the place and your links.', ''] : []),
     `And keep your shows coming: anything on the Events Calendar makes Thursday's Live Music issue, read by 10,000+ locals.\n${links.events}`,
     '',
     'Thanks for keeping live music going in Las Cruces,',
@@ -689,6 +757,7 @@ ${quote ? `<blockquote style="margin:0 0 16px;padding:12px 16px;border-left:4px 
 <p>${a(links.page, photos ? 'See the photos' : 'See it on your page')}</p>
 <p>Feel free to share it on your socials. Kind words from the crowd are the best advertising there is.</p>
 ${kind === 'musician' && !claimed ? `<p>Is this your page? Tap <strong>Claim this page</strong> on it (free) to add photos, a song and a Book button.</p>` : ''}
+${kind === 'venue' && !claimed ? `<p>Run this place? Tap <strong>Claim this page</strong> on it (free) to add your photos, a few lines about the place and your links.</p>` : ''}
 <p>And keep your shows coming: anything on the ${a(links.events, 'Events Calendar')} makes Thursday's Live Music issue, read by 10,000+ locals.</p>
 <p>Thanks for keeping live music going in Las Cruces,<br>Charlie<br>Live Love Las Cruces</p>
 </div>`;
@@ -705,7 +774,7 @@ async function notifyPageOwner(env, page) {
     const t = await notion(env, `pages/${dashless(target)}`, undefined, 'GET');
     const tp = t.properties;
     const about = kind === 'musician' ? plain(tp[TITLE]) : plain(tp.Name);
-    const to = kind === 'musician' ? (tp['Owner Email']?.email || tp['Submitter Email']?.email || '') : (tp.Email?.email || '');
+    const to = kind === 'musician' ? (tp['Owner Email']?.email || tp['Submitter Email']?.email || '') : (tp['Owner Email']?.email || tp.Email?.email || '');
     const mark = () => notion(env, `pages/${dashless(page.id)}`, { properties: { 'Owner Notified': { checkbox: true } } }, 'PATCH').catch(() => {});
     if (!isEmail(to) || /^test\b/i.test(about)) { await mark(); return; }
     const msg = ownerEmail({
@@ -778,6 +847,13 @@ async function turnstileOk(env, token, ip) {
 // ---------- Editor: fields, photos and band members ----------
 // Fields anyone with the private link can change. Everything else stays Charlie's (in Notion).
 const EDITABLE = [TITLE, 'Type', 'Genre', 'Genres (checklist)', 'Bio', 'Website', 'Instagram', 'Facebook', 'YouTube', 'Song Link', 'Booking Link', 'Pinned Posts', 'Photo Credit', 'Image Permission'];
+// Venues can't rename themselves (the name has to match the newsletter's) or change their tier.
+const VENUE_EDITABLE = ['About', 'Address', 'Phone', 'Website Link', 'Facebook Link', 'Instagram Link', 'Pinned Posts', 'Image Permission'];
+// Which database a record is in decides what can be edited
+const KINDS = {
+  [MUSICIANS_DB]: { kind: 'musician', editable: EDITABLE },
+  [VENUES_DB]: { kind: 'venue', editable: VENUE_EDITABLE },
+};
 const MAX_GALLERY = 8;
 const MAX_MEMBERS = 15;
 const sameToken = (a, b) => {
@@ -807,6 +883,7 @@ async function writable(env, id, p) {
     case 'checkbox': return { checkbox: Boolean(p.checkbox) };
     case 'url': return { url: p.url || null };
     case 'email': return { email: p.email || null };
+    case 'phone_number': return { phone_number: p.phone_number || null };
     case 'files': {
       const files = [];
       for (const [i, f] of (p.files || []).entries()) {
@@ -859,13 +936,15 @@ export class Admin extends WorkerEntrypoint {
   async #load(id, token) {
     if (!/^[0-9a-f]{32}$/.test(dashless(id))) throw new UserError('Unknown listing.');
     const page = await notion(this.env, `pages/${dashless(id)}`, undefined, 'GET');
-    if (dashless(page.parent?.database_id) !== MUSICIANS_DB) throw new UserError('That page is not a Las Cruces Live listing.');
+    const db = dashless(page.parent?.database_id);
+    const cfg = KINDS[db];
+    if (!cfg) throw new UserError('That page is not a Las Cruces Live listing.');
     const status = page.properties['Site Status']?.select?.name || 'Approved';
     if (token !== undefined && (!sameToken(token, plain(page.properties['Share Token'])) || status === 'Hidden')) {
       throw new UserError('This private link no longer works. Ask Charlie for a new one.');
     }
-    const schema = (await notion(this.env, `databases/${MUSICIANS_DB}`, undefined, 'GET')).properties;
-    return { page, schema, owner: token !== undefined, live: status === 'Approved', status };
+    const schema = (await notion(this.env, `databases/${db}`, undefined, 'GET')).properties;
+    return { page, schema, owner: token !== undefined, live: status === 'Approved', status, ...cfg };
   }
 
   async setStatus(id, status, by = '') {
@@ -873,7 +952,7 @@ export class Admin extends WorkerEntrypoint {
       if (!['Approved', 'Hidden', 'In Review'].includes(status)) return { ok: false, error: 'Unknown status.' };
       const { page } = await this.#load(id);
       await notion(this.env, `pages/${dashless(id)}`, { properties: { 'Site Status': { select: { name: status } } } }, 'PATCH');
-      console.log(JSON.stringify({ admin: 'setStatus', id: dashless(id), name: plain(page.properties[TITLE]), status, by }));
+      console.log(JSON.stringify({ admin: 'setStatus', id: dashless(id), name: titleOf(page), status, by }));
       const live = await rebuild(this.env.LIVE_HOOK);
       const preview = await rebuild(this.env.PREVIEW_HOOK);
       return { ok: true, status, rebuilding: { live, preview } };
@@ -903,15 +982,15 @@ export class Admin extends WorkerEntrypoint {
 
   async getListing(id, token) {
     try {
-      const { page, schema, owner, live, status } = await this.#load(id, token);
+      const { page, schema, owner, live, status, kind, editable } = await this.#load(id, token);
       const pending = owner ? readPending(page) : null;
       const fields = [];
-      for (const name of EDITABLE) {
+      for (const name of editable) {
         const def = schema[name], v = page.properties[name];
         if (!def || !v) continue;
         const t = def.type;
         let value = t === 'title' || t === 'rich_text' ? plain(v) : t === 'select' ? v.select?.name || '' : t === 'multi_select' ? (v.multi_select || []).map((o) => o.name)
-          : t === 'checkbox' ? Boolean(v.checkbox) : t === 'url' ? v.url || '' : t === 'email' ? v.email || '' : null;
+          : t === 'checkbox' ? Boolean(v.checkbox) : t === 'url' ? v.url || '' : t === 'email' ? v.email || '' : t === 'phone_number' ? v.phone_number || '' : null;
         if (value === null) continue;
         if (pending?.changes?.fields && name in pending.changes.fields) value = pending.changes.fields[name];
         const options = def[t]?.options?.map((o) => o.name);
@@ -920,14 +999,14 @@ export class Admin extends WorkerEntrypoint {
       const captions = plain(page.properties['Photo Captions']).split('\n');
       let photo = fileUrl(page.properties.Photo?.files?.[0]);
       let gallery = (page.properties.Gallery?.files || []).map((f, i) => ({ url: fileUrl(f), caption: (captions[i] || '').trim() }));
-      let members = await loadMembers(this.env, page);
+      let members = kind === 'musician' ? await loadMembers(this.env, page) : [];
       if (pending?.changes) {
         if ('photo' in pending.changes) photo = pending.changes.photo;
         if (pending.changes.gallery) gallery = pending.changes.gallery;
         if (pending.changes.members) members = pending.changes.members;
       }
       return {
-        ok: true, siteStatus: status, live, pending: Boolean(pending),
+        ok: true, kind, siteStatus: status, live, pending: Boolean(pending),
         trusted: Boolean(page.properties['Trusted Editor']?.checkbox),
         ...(owner ? {} : { notionUrl: page.url, access: {
           email: page.properties['Owner Email']?.email || '', link: page.properties['Edit Link']?.url || '',
@@ -960,7 +1039,7 @@ export class Admin extends WorkerEntrypoint {
   }
 
   // Editor changes -> Notion properties for the act (validated). Members are handled separately.
-  async #buildProps(id, page, schema, changes) {
+  async #buildProps(id, page, schema, changes, editable = EDITABLE) {
     const props = {};
     const clip = (v, n = 6000) => String(v ?? '').slice(0, n);
     const httpUrl = (v) => {
@@ -970,7 +1049,7 @@ export class Admin extends WorkerEntrypoint {
       try { return new URL(u).protocol.startsWith('http') ? u : null; } catch { return null; }
     };
     for (const [name, value] of Object.entries(changes.fields || {})) {
-      if (!EDITABLE.includes(name) || !schema[name]) continue;
+      if (!editable.includes(name) || !schema[name]) continue;
       const def = schema[name];
       const opts = def[def.type]?.options?.map((o) => o.name) || [];
       switch (def.type) {
@@ -990,7 +1069,11 @@ export class Admin extends WorkerEntrypoint {
             props[name] = { rich_text: b ? chunks(b) : [] };
             break;
           }
-          props[name] = { rich_text: value ? chunks(clip(value, name === 'Genre' ? 160 : 1500)) : [] };
+          props[name] = { rich_text: value ? chunks(clip(value, name === 'Genre' ? 160 : name === 'Address' ? 200 : 1500)) : [] };
+          // A new address moves the map pin: clear it so the next build looks it up again
+          if (name === 'Address' && schema.Latitude && schema.Longitude && clip(value, 200).trim() !== plain(page.properties.Address).trim()) {
+            props.Latitude = { number: null }; props.Longitude = { number: null };
+          }
           break;
         }
         case 'select': props[name] = { select: value && opts.includes(value) ? { name: value } : null }; break;
@@ -1006,6 +1089,12 @@ export class Admin extends WorkerEntrypoint {
           const e = clip(value, 200).trim();
           if (e && !isEmail(e)) throw new UserError(`${name} doesn't look like an email address.`);
           props[name] = { email: e || null };
+          break;
+        }
+        case 'phone_number': {
+          const ph = clip(value, 40).trim();
+          if (ph && !/^[\d\s()+.-]{7,}$/.test(ph)) throw new UserError('The phone number should be just numbers, like (575) 555-1234.');
+          props[name] = { phone_number: ph || null };
           break;
         }
       }
@@ -1084,8 +1173,9 @@ export class Admin extends WorkerEntrypoint {
   async updateListing(id, changes = {}, by = '', token) {
     try {
       if (JSON.stringify(changes).length > 150000) throw new UserError("That's too much to save at once.");
-      const { page, schema, owner, live } = await this.#load(id, token);
-      const props = await this.#buildProps(id, page, schema, changes);
+      const { page, schema, owner, live, kind, editable } = await this.#load(id, token);
+      if (kind !== 'musician') delete changes.members; // only bands have members
+      const props = await this.#buildProps(id, page, schema, changes, editable);
       const hasMembers = Array.isArray(changes.members);
       if (!Object.keys(props).length && !hasMembers) return { ok: true, saved: 0 };
 
@@ -1100,7 +1190,7 @@ export class Admin extends WorkerEntrypoint {
         }
         const prev = readPending(page)?.changes || {};
         const merged = {
-          fields: { ...(prev.fields || {}), ...Object.fromEntries(Object.entries(changes.fields || {}).filter(([n]) => EDITABLE.includes(n))) },
+          fields: { ...(prev.fields || {}), ...Object.fromEntries(Object.entries(changes.fields || {}).filter(([n]) => editable.includes(n))) },
           ...('photo' in changes ? { photo: changes.photo } : 'photo' in prev ? { photo: prev.photo } : {}),
           ...(changes.gallery || prev.gallery ? { gallery: changes.gallery || prev.gallery } : {}),
           ...(changes.members || prev.members ? { members: changes.members || prev.members } : {}),
@@ -1109,7 +1199,7 @@ export class Admin extends WorkerEntrypoint {
         for (const n of Object.keys(merged.fields)) {
           const v = page.properties[n];
           before[n] = v?.type === 'multi_select' ? v.multi_select.map((o) => o.name).join(', ') : v?.type === 'select' ? v.select?.name || ''
-            : v?.type === 'checkbox' ? (v.checkbox ? 'Yes' : 'No') : v?.type === 'url' ? v.url || '' : v?.type === 'email' ? v.email || '' : plain(v);
+            : v?.type === 'checkbox' ? (v.checkbox ? 'Yes' : 'No') : v?.type === 'url' ? v.url || '' : v?.type === 'email' ? v.email || '' : v?.type === 'phone_number' ? v.phone_number || '' : plain(v);
         }
         const record = { at: new Date().toISOString(), changes: merged, before };
         await notion(this.env, `pages/${dashless(id)}`, { properties: {
@@ -1118,8 +1208,8 @@ export class Admin extends WorkerEntrypoint {
         } }, 'PATCH');
         await rebuild(this.env.PREVIEW_HOOK);
         if (!readPending(page)) {
-          await tellCharlie(this.env, `edits to approve: ${plain(page.properties[TITLE])}`, [
-            `${plain(page.properties[TITLE])} changed their live page: ${[...Object.keys(merged.fields), ...['photo', 'gallery', 'members'].filter((k) => k in merged)].join(', ')}.`,
+          await tellCharlie(this.env, `edits to approve: ${titleOf(page)}`, [
+            `${titleOf(page)} changed their live page: ${[...Object.keys(merged.fields), ...['photo', 'gallery', 'members'].filter((k) => k in merged)].join(', ')}.`,
             'Approve or discard the changes from the review queue (about 2 minutes from now).',
             '', `Notion record: ${notionLink(id)}`,
           ]);
@@ -1145,19 +1235,19 @@ export class Admin extends WorkerEntrypoint {
   // Charlie's Apply / Discard for an owner's changes to a live listing. trust: also tick Trusted Editor.
   async resolvePending(id, apply, by = '', trust = false) {
     try {
-      const { page, schema, live } = await this.#load(id);
+      const { page, schema, live, kind, editable } = await this.#load(id);
       const pending = readPending(page);
       if (!pending) return { ok: true, nothing: true };
       let props = {};
       if (apply) {
-        props = await this.#buildProps(id, page, schema, pending.changes || {});
+        props = await this.#buildProps(id, page, schema, pending.changes || {}, editable);
         await logChange(this.env, id, page, props, `${by} (applied owner edit)`);
       }
       await notion(this.env, `pages/${dashless(id)}`, { properties: {
         ...props, 'Pending Edits': { rich_text: [] }, 'Pending Edits On': { date: null },
         ...(apply && trust ? { 'Trusted Editor': { checkbox: true } } : {}),
       } }, 'PATCH');
-      if (apply && pending.changes?.members) await this.#saveMembers(id, page, pending.changes.members, 'owner link');
+      if (apply && kind === 'musician' && pending.changes?.members) await this.#saveMembers(id, page, pending.changes.members, 'owner link');
       console.log(JSON.stringify({ admin: apply ? 'applyPending' : 'discardPending', id: dashless(id), by }));
       await rebuild(this.env.PREVIEW_HOOK);
       if (apply && live) await rebuild(this.env.LIVE_HOOK);
