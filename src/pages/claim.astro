@@ -110,6 +110,15 @@ import { SITE, INTAKE_URL, TURNSTILE_SITEKEY, FORM_URL } from '../lib/site.js';
           <p>If that's the email I have for ${name.replace(/[<>&"]/g, '')}, your private edit link is on its way from Live Love Las Cruces (usually within the hour; peek in spam just in case).</p>
           <p>Different email? I'll check it's you and send the link myself, usually within a day.</p>
           <p><strong>While you wait:</strong> add your upcoming shows to the <a href="https://events.livelovelascruces.com/?utm_source=lascruceslive&utm_medium=referral&utm_campaign=directory&utm_content=claim_thanks">LLLC Events Calendar</a> so they make the Thursday Live Music issue.</p></div>`;
+        // The thank-you is much shorter than the form, so it can land above the screen. Bring it into
+        // view and move focus to it (screen readers announce it too).
+        const thanks = form.querySelector<HTMLElement>('.thanks h2');
+        if (thanks) {
+          thanks.tabIndex = -1;
+          const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          form.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+          thanks.focus({ preventScroll: true });
+        }
       } catch (err) {
         msg.className = 'msg err';
         msg.textContent = (err as Error).message;
@@ -138,6 +147,8 @@ import { SITE, INTAKE_URL, TURNSTILE_SITEKEY, FORM_URL } from '../lib/site.js';
   .msg.err { color: var(--chile); font-weight: 600; }
   .fine { font-size: .82rem; color: var(--muted); }
   .claim-form :global(.thanks) { display: flex; flex-direction: column; gap: 10px; }
+  .claim-form { scroll-margin-top: 24px; }
+  .claim-form :global(.thanks h2:focus) { outline: none; }
   .how h2 { font-size: 1.4rem; margin-bottom: 10px; }
   .how ol { display: flex; flex-direction: column; gap: 8px; padding-left: 1.2em; margin-bottom: 12px; }
   button:disabled { opacity: .55; cursor: default; }

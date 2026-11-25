@@ -15,27 +15,27 @@ const pending = pages.filter((m) => m.pendingEdits);
 const empty = !newActs.length && !claims.length && !pending.length && !comments.length && !crowd.length;
 ---
 <Layout title="Review queue" description="Waiting for approval" noindex>
-  <div class="wrap q">
+  <div class="wrap q" data-built={Date.now()}>
     {!PREVIEW ? <p>Not here.</p> : (
       <>
         <h1>Review queue</h1>
-        {empty && <p class="lede">All caught up. Nothing is waiting.</p>}
+        <p class="lede" data-empty hidden={!empty}>All caught up. Nothing is waiting.</p>
         {newActs.length > 0 && (
           <section>
             <h2>New acts ({newActs.length})</h2>
-            <ul>{newActs.map((m) => <li><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{m.siteStatus}{m.submittedOn && ` · ${m.submittedOn}`}{m.submitter && ` · ${m.submitter}`}</span></li>)}</ul>
+            <ul>{newActs.map((m) => <li data-q={`${m.notionId}:new`}><a href={`/musicians/${m.slug}/`}>{m.name}</a> <span>{m.siteStatus}{m.submittedOn && ` · ${m.submittedOn}`}{m.submitter && ` · ${m.submitter}`}</span></li>)}</ul>
           </section>
         )}
         {claims.length > 0 && (
           <section>
             <h2>Claim requests ({claims.length})</h2>
-            <ul>{claims.map((m) => <li><a href={m.href}>{m.name}</a>{m.venue && ' (venue)'} <span>{m.claimRequest.split('\n')[0]}</span></li>)}</ul>
+            <ul>{claims.map((m) => <li data-q={`${m.notionId}:claim`}><a href={m.href}>{m.name}</a>{m.venue && ' (venue)'} <span>{m.claimRequest.split('\n')[0]}</span></li>)}</ul>
           </section>
         )}
         {pending.length > 0 && (
           <section>
             <h2>Changes to live pages ({pending.length})</h2>
-            <ul>{pending.map((m) => <li><a href={m.href}>{m.name}</a>{m.venue && ' (venue)'} <span>{(m.pendingEdits.at || '').slice(0, 10)}</span></li>)}</ul>
+            <ul>{pending.map((m) => <li data-q={`${m.notionId}:pending`}><a href={m.href}>{m.name}</a>{m.venue && ' (venue)'} <span>{(m.pendingEdits.at || '').slice(0, 10)}</span></li>)}</ul>
           </section>
         )}
         {comments.length > 0 && (
@@ -43,7 +43,7 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
             <h2>New comments ({comments.length})</h2>
             <ul class="cm">
               {comments.map((c) => (
-                <li data-comment={c.id}>
+                <li data-comment={c.id} data-q={`${c.id}:comment`}>
                   <blockquote>“{c.text}”</blockquote>
                   <p class="by">{[c.firstName, c.town].filter(Boolean).join(', ')}{c.date && ` · ${c.date}`} · on {c.aboutHref ? <a href={c.aboutHref}>{c.aboutName}</a> : (c.aboutName || 'a page')}</p>
                   <div class="row">
@@ -61,7 +61,7 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
             <h2>New crowd photos ({crowd.length})</h2>
             <ul class="cm">
               {crowd.map((c) => (
-                <li data-comment={c.id}>
+                <li data-comment={c.id} data-q={`${c.id}:comment`}>
                   <div class="shots">{c.photos.map((u) => <a href={u} target="_blank" rel="noopener"><img src={u} alt="" loading="lazy" /></a>)}</div>
                   {c.caption && <blockquote>“{c.caption}”</blockquote>}
                   <p class="by">{c.by}{c.date && ` · ${c.date}`} · on {c.aboutHref ? <a href={c.aboutHref}>{c.aboutName}</a> : (c.aboutName || 'a page')}</p>
@@ -75,12 +75,33 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
             </ul>
           </section>
         )}
-        <p class="tip">Open an act to Approve it, send the edit link or apply their changes. This page refreshes about 2 minutes after anything changes.</p>
+        <p class="tip">Open an act to Approve it, send the edit link or apply their changes. Anything you handle drops off right away; the page fully refreshes about 2 minutes after a change.</p>
       </>
     )}
   </div>
 </Layout>
 <script is:inline>
+  // Hide what Charlie already handled (remembered in this browser by the preview bar and the buttons
+  // below), so it leaves the queue right away instead of after the ~2 minute rebuild. Only things
+  // handled after this page was built are hidden, so anything new still shows.
+  (function () {
+    var q = document.querySelector('.q[data-built]');
+    if (!q) return;
+    var built = Number(q.getAttribute('data-built')) || 0, h = {};
+    try { h = JSON.parse(localStorage.getItem('lclive-handled') || '{}'); } catch (e) {}
+    document.querySelectorAll('li[data-q]').forEach(function (li) { if ((h[li.getAttribute('data-q')] || 0) > built) li.hidden = true; });
+    var left = 0;
+    q.querySelectorAll('section').forEach(function (sec) {
+      var n = sec.querySelectorAll('li[data-q]:not([hidden])').length;
+      left += n;
+      if (!n) sec.hidden = true;
+      var h2 = sec.querySelector('h2'); if (h2) h2.textContent = h2.textContent.replace(/\(\d+\)/, '(' + n + ')');
+    });
+    if (!left) q.querySelector('[data-empty]').hidden = false;
+  })();
+  function rememberHandled(key) {
+    try { var h = JSON.parse(localStorage.getItem('lclive-handled') || '{}'); h[key] = Date.now(); localStorage.setItem('lclive-handled', JSON.stringify(h)); } catch (e) {}
+  }
   // Approve / Hide a comment. The preview Worker checks Charlie's login and passes it to the intake Worker.
   document.querySelectorAll('[data-comment]').forEach(function (li) {
     var msg = li.querySelector('.msg');
@@ -95,6 +116,7 @@ const empty = !newActs.length && !claims.length && !pending.length && !comments.
             if (!d.ok) throw new Error(d.error || 'Something went wrong.');
             msg.textContent = status === 'Approved' ? 'Approved. It shows on the page in about 2 minutes.' : 'Hidden. It will never show.';
             li.classList.add('done');
+            rememberHandled(li.getAttribute('data-q'));
           })
           .catch(function (e) { msg.textContent = e.message; li.querySelectorAll('button').forEach(function (x) { x.disabled = false; }); });
       });
