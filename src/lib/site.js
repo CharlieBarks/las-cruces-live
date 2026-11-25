@@ -245,8 +245,46 @@ export function musicianJsonLd(m) {
   };
 }
 
+// Venue opening hours. Notion "Hours" holds one line per day, 24-hour clock: "Mon 11:00-21:00" or
+// "Tue closed" (days Mon to Sun; a close earlier than the open means past midnight). Unknown days are
+// left out. These are the venue's business hours, never show times (those stay in the newsletter).
+export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+export function parseHours(text = '') {
+  const out = [];
+  for (const line of String(text).split(/\r?\n/)) {
+    const m = line.trim().match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+(?:(closed)|(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2}))$/i);
+    if (!m) continue;
+    const day = m[1][0].toUpperCase() + m[1].slice(1, 3).toLowerCase();
+    if (out.some((d) => d.day === day)) continue;
+    const t = (h, mi) => `${String(Number(h) % 24).padStart(2, '0')}:${mi}`;
+    out.push(m[2] ? { day, closed: true } : { day, open: t(m[3], m[4]), close: t(m[5], m[6]) });
+  }
+  return out.sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day));
+}
+// "21:00" -> "9 pm", "11:30" -> "11:30 am", "00:00" -> "midnight", "12:00" -> "noon"
+function clock(hm) {
+  const [h, mi] = hm.split(':').map(Number);
+  if (h === 0 && mi === 0) return 'midnight';
+  if (h === 12 && mi === 0) return 'noon';
+  return `${h % 12 || 12}${mi ? `:${String(mi).padStart(2, '0')}` : ''} ${h < 12 ? 'am' : 'pm'}`;
+}
+// Rows for the venue page, with neighbouring days that share hours folded together: "Mon–Thu", "11 am – 9 pm"
+export function hoursRows(text) {
+  const days = parseHours(text);
+  const rows = [];
+  for (const d of days) {
+    const when = d.closed ? 'Closed' : `${clock(d.open)} – ${clock(d.close)}`;
+    const last = rows[rows.length - 1];
+    if (last && last.when === when && DAYS.indexOf(d.day) === DAYS.indexOf(last.to) + 1) last.to = d.day;
+    else rows.push({ from: d.day, to: d.day, when });
+  }
+  return rows.map((r) => ({ days: r.from === r.to ? r.from : `${r.from}–${r.to}`, when: r.when }));
+}
+
 export function venueJsonLd(v) {
   const sameAs = Object.values(v.links).filter(Boolean);
+  const hours = parseHours(v.hours).filter((d) => !d.closed);
   return {
     '@context': 'https://schema.org',
     '@type': 'MusicVenue',
@@ -256,6 +294,7 @@ export function venueJsonLd(v) {
     ...(v.photo ? { image: absUrl(v.photo) } : {}),
     ...(v.lat ? { geo: { '@type': 'GeoCoordinates', latitude: v.lat, longitude: v.lng } } : {}),
     ...(v.phone ? { telephone: v.phone } : {}),
+    ...(hours.length ? { openingHoursSpecification: hours.map((d) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: `https://schema.org/${DAY_NAMES[d.day]}`, opens: d.open, closes: d.close })) } : {}),
     ...(sameAs.length ? { sameAs } : {}),
   };
 }

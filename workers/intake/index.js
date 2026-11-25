@@ -848,7 +848,7 @@ async function turnstileOk(env, token, ip) {
 // Fields anyone with the private link can change. Everything else stays Charlie's (in Notion).
 const EDITABLE = [TITLE, 'Type', 'Genre', 'Genres (checklist)', 'Bio', 'Website', 'Instagram', 'Facebook', 'YouTube', 'Song Link', 'Booking Link', 'Pinned Posts', 'Photo Credit', 'Image Permission'];
 // Venues can't rename themselves (the name has to match the newsletter's) or change their tier.
-const VENUE_EDITABLE = ['About', 'Address', 'Phone', 'Website Link', 'Facebook Link', 'Instagram Link', 'Pinned Posts', 'Image Permission'];
+const VENUE_EDITABLE = ['Notice', 'Notice Until', 'About', 'Hours', 'Hours Note', 'Address', 'Phone', 'Website Link', 'Facebook Link', 'Instagram Link', 'Pinned Posts', 'Image Permission'];
 // Which database a record is in decides what can be edited
 const KINDS = {
   [MUSICIANS_DB]: { kind: 'musician', editable: EDITABLE },
@@ -884,6 +884,7 @@ async function writable(env, id, p) {
     case 'url': return { url: p.url || null };
     case 'email': return { email: p.email || null };
     case 'phone_number': return { phone_number: p.phone_number || null };
+    case 'date': return { date: p.date?.start ? { start: p.date.start } : null };
     case 'files': {
       const files = [];
       for (const [i, f] of (p.files || []).entries()) {
@@ -990,7 +991,7 @@ export class Admin extends WorkerEntrypoint {
         if (!def || !v) continue;
         const t = def.type;
         let value = t === 'title' || t === 'rich_text' ? plain(v) : t === 'select' ? v.select?.name || '' : t === 'multi_select' ? (v.multi_select || []).map((o) => o.name)
-          : t === 'checkbox' ? Boolean(v.checkbox) : t === 'url' ? v.url || '' : t === 'email' ? v.email || '' : t === 'phone_number' ? v.phone_number || '' : null;
+          : t === 'checkbox' ? Boolean(v.checkbox) : t === 'url' ? v.url || '' : t === 'email' ? v.email || '' : t === 'phone_number' ? v.phone_number || '' : t === 'date' ? v.date?.start || '' : null;
         if (value === null) continue;
         if (pending?.changes?.fields && name in pending.changes.fields) value = pending.changes.fields[name];
         const options = def[t]?.options?.map((o) => o.name);
@@ -1063,13 +1064,21 @@ export class Admin extends WorkerEntrypoint {
             props[name] = { rich_text: ok.length ? chunks(ok.slice(0, 3).join('\n')) : [] };
             break;
           }
+          if (name === 'Hours') {
+            // One line per day, like "Mon 11:00-21:00" or "Tue closed" (the editor writes it this way)
+            const lines = clip(value, 600).split(/\r?\n/).map((t) => t.trim()).filter(Boolean);
+            const ok = lines.filter((t) => /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (closed|([01]\d|2[0-3]):[0-5]\d-([01]\d|2[0-3]):[0-5]\d)$/.test(t));
+            if (lines.length !== ok.length || new Set(ok.map((t) => t.slice(0, 3))).size !== ok.length) throw new UserError("The opening hours didn't come through right. Check each day and try again.");
+            props[name] = { rich_text: ok.length ? chunks(ok.join('\n')) : [] };
+            break;
+          }
           if (name === 'Booking Link') {
             const b = bookingLink(value);
             if (value && !b) throw new UserError('The booking contact should be an email address or a web link.');
             props[name] = { rich_text: b ? chunks(b) : [] };
             break;
           }
-          props[name] = { rich_text: value ? chunks(clip(value, name === 'Genre' ? 160 : name === 'Address' ? 200 : 1500)) : [] };
+          props[name] = { rich_text: value ? chunks(clip(value, name === 'Genre' || name === 'Notice' ? 160 : name === 'Address' || name === 'Hours Note' ? 200 : 1500)) : [] };
           // A new address moves the map pin: clear it so the next build looks it up again
           if (name === 'Address' && schema.Latitude && schema.Longitude && clip(value, 200).trim() !== plain(page.properties.Address).trim()) {
             props.Latitude = { number: null }; props.Longitude = { number: null };
@@ -1089,6 +1098,12 @@ export class Admin extends WorkerEntrypoint {
           const e = clip(value, 200).trim();
           if (e && !isEmail(e)) throw new UserError(`${name} doesn't look like an email address.`);
           props[name] = { email: e || null };
+          break;
+        }
+        case 'date': {
+          const d = clip(value, 20).trim();
+          if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new UserError(`${name} should be a date.`);
+          props[name] = { date: d ? { start: d } : null };
           break;
         }
         case 'phone_number': {
@@ -1199,7 +1214,7 @@ export class Admin extends WorkerEntrypoint {
         for (const n of Object.keys(merged.fields)) {
           const v = page.properties[n];
           before[n] = v?.type === 'multi_select' ? v.multi_select.map((o) => o.name).join(', ') : v?.type === 'select' ? v.select?.name || ''
-            : v?.type === 'checkbox' ? (v.checkbox ? 'Yes' : 'No') : v?.type === 'url' ? v.url || '' : v?.type === 'email' ? v.email || '' : v?.type === 'phone_number' ? v.phone_number || '' : plain(v);
+            : v?.type === 'checkbox' ? (v.checkbox ? 'Yes' : 'No') : v?.type === 'url' ? v.url || '' : v?.type === 'email' ? v.email || '' : v?.type === 'phone_number' ? v.phone_number || '' : v?.type === 'date' ? v.date?.start || '' : plain(v);
         }
         const record = { at: new Date().toISOString(), changes: merged, before };
         await notion(this.env, `pages/${dashless(id)}`, { properties: {

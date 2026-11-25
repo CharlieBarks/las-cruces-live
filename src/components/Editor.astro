@@ -30,6 +30,10 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
         <legend>The basics</legend>
         <div class="ed-fields" data-group="basics"></div>
       </fieldset>
+      {venue && <fieldset>
+        <legend>Hours &amp; notices</legend>
+        <div class="ed-fields" data-group="hours"></div>
+      </fieldset>}
       <fieldset>
         <legend>Photos</legend>
         <p class="hint">A main photo shows big at the top of your page{venue ? ' and on your venue card' : ''}. Wide (landscape) photos look best. Add up to 8 more below it.</p>
@@ -89,6 +93,10 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     'Booking Link': ['How should people book you?', 'links', 'Your booking email or a link to your booking page. It shows on your page as a big Book button.'],
   };
   if (cfg.kind === 'venue') LABELS = {
+    Hours: ['Opening hours', 'hours', 'Pick Open or Closed for each day. Leave a day on “Not listed” if you’d rather not say.'],
+    'Hours Note': ['Hours note (optional)', 'hours', 'Like: Kitchen closes at 8. Hours can change for private events.'],
+    Notice: ['Closure notice (optional)', 'hours', 'A short banner at the top of your page, like: Closed Thanksgiving Day, back Friday at 11.'],
+    'Notice Until': ['Show the notice until', 'hours', 'The banner disappears on its own after this day. Leave blank to keep it up until you remove it.'],
     About: ['About the place', 'basics', '2 to 4 sentences: the vibe, the food and drinks, what kind of music you book. Please no dates or times; those go on the Events Calendar.'],
     Address: ['Address', 'basics', 'Street, city, NM and ZIP, like: 2540 El Paseo Rd, Las Cruces, NM 88001. It moves your map pin.'],
     Phone: ['Phone', 'basics', 'The number people should call. It shows on your page.'],
@@ -110,6 +118,42 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     this.textContent = form.hidden ? 'Show editor' : 'Hide editor'; this.setAttribute('aria-expanded', String(!form.hidden));
   });
 
+  // Opening hours: one row per day (Not listed / Open / Closed, with two time pickers), saved as
+  // one line per day like "Mon 11:00-21:00" or "Tue closed".
+  var DAYS = [['Mon', 'Monday'], ['Tue', 'Tuesday'], ['Wed', 'Wednesday'], ['Thu', 'Thursday'], ['Fri', 'Friday'], ['Sat', 'Saturday'], ['Sun', 'Sunday']];
+  function hoursInput(f, wrap, id) {
+    var have = {};
+    String(f.value || '').split('\n').forEach(function (line) {
+      var m = line.trim().match(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:(closed)|(\d\d:\d\d)-(\d\d:\d\d))$/);
+      if (m) have[m[1]] = m[2] ? { state: 'closed' } : { state: 'open', open: m[3], close: m[4] };
+    });
+    var rows = {};
+    function sync() {
+      f.value = DAYS.map(function (d) {
+        var r = rows[d[0]];
+        if (r.state.value === 'closed') return d[0] + ' closed';
+        if (r.state.value === 'open' && r.open.value && r.close.value) return d[0] + ' ' + r.open.value + '-' + r.close.value;
+        return '';
+      }).filter(Boolean).join('\n');
+    }
+    var grid = el('div', { class: 'ed-hours', role: 'group', 'aria-labelledby': id + '-l' });
+    DAYS.forEach(function (d) {
+      var h = have[d[0]] || { state: '' };
+      var state = el('select', { 'aria-label': d[1] });
+      [['', 'Not listed'], ['open', 'Open'], ['closed', 'Closed']].forEach(function (o) { var op = el('option', { value: o[0], text: o[1] }); if (o[0] === h.state) op.selected = true; state.appendChild(op); });
+      var open = el('input', { type: 'time', 'aria-label': d[1] + ' opens at' }); open.value = h.open || '';
+      var close = el('input', { type: 'time', 'aria-label': d[1] + ' closes at' }); close.value = h.close || '';
+      var times = el('span', { class: 'times' }, [open, el('span', { text: 'to' }), close]);
+      function show() { times.hidden = state.value !== 'open'; if (state.value === 'open' && !open.value) { open.value = '11:00'; close.value = '21:00'; } }
+      [state, open, close].forEach(function (x) { x.addEventListener('change', function () { show(); sync(); }); x.addEventListener('input', sync); });
+      rows[d[0]] = { state: state, open: open, close: close };
+      times.hidden = h.state !== 'open';
+      grid.appendChild(el('div', { class: 'day' }, [el('strong', { text: d[1] }), state, times]));
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
   function fieldInput(f) {
     var meta = LABELS[f.name] || [f.name, 'basics'];
     var id = 'f-' + f.name.replace(/\W+/g, '-');
@@ -122,6 +166,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     }
     wrap.appendChild(el('label', { for: id, id: id + '-l', text: meta[0] }));
     if (meta[2]) wrap.appendChild(el('p', { class: 'hint', id: id + '-h', text: meta[2] }));
+    if (f.name === 'Hours') return hoursInput(f, wrap, id);
     var input;
     if (f.type === 'multi_select') {
       input = el('div', { class: 'chips', id: id, role: 'group', 'aria-labelledby': id + '-l' });
@@ -134,6 +179,10 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
         });
         input.appendChild(el('label', { class: 'chip' }, [c, el('span', { text: o })]));
       });
+    } else if (f.type === 'date') {
+      input = el('input', { type: 'date', id: id }); input.value = f.value || '';
+      input.addEventListener('input', function () { f.value = input.value; });
+      input.addEventListener('change', function () { f.value = input.value; });
     } else if (f.type === 'select') {
       input = el('select', { id: id });
       ['', ...(f.options || [])].forEach(function (o) { var op = el('option', { value: o, text: o || 'Pick one' }); if (o === f.value) op.selected = true; input.appendChild(op); });
@@ -319,7 +368,12 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   .editor .ed-field { display: grid; gap: 6px; }
   .editor .ed-field > label { font-weight: 700; }
   .editor .hint { font-size: 0.88rem; color: #c9c4de; }
-  .editor input[type=text], .editor input[type=url], .editor input[type=email], .editor input[type=tel], .editor textarea, .editor select {
+  .editor .ed-hours { display: grid; gap: 8px; }
+  .editor .ed-hours .day { display: grid; grid-template-columns: 110px 140px 1fr; gap: 10px; align-items: center; }
+  .editor .ed-hours .times { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .editor .ed-hours input[type=time] { width: auto; font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.35); background: #fff; color: var(--ink); }
+  @media (max-width: 560px) { .editor .ed-hours .day { grid-template-columns: 1fr 1fr; } .editor .ed-hours .times { grid-column: 1 / -1; } }
+  .editor input[type=text], .editor input[type=url], .editor input[type=email], .editor input[type=tel], .editor input[type=date], .editor textarea, .editor select {
     width: 100%; font: inherit; padding: 10px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.35); background: #fff; color: var(--ink);
   }
   .editor .chips { display: flex; flex-wrap: wrap; gap: 8px; }

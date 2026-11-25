@@ -9,10 +9,15 @@ import CrowdPhotos from './CrowdPhotos.astro';
 import PinnedPosts from './PinnedPosts.astro';
 import PreviewBar from './PreviewBar.astro';
 import Editor from './Editor.astro';
-import { SITE, PREVIEW, utm, out, venues, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, breadcrumbJsonLd, isFeaturedVenue, isSponsorVenue, featuredVenueFirst } from '../lib/site.js';
+import { SITE, PREVIEW, hoursRows, utm, out, venues, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, breadcrumbJsonLd, isFeaturedVenue, isSponsorVenue, featuredVenueFirst } from '../lib/site.js';
 
 const { v, share = false } = Astro.props;
 const gallery = v.gallery || [];
+const hours = hoursRows(v.hours);
+// Closure notice: shown until the day after Notice Until (Las Cruces time). The build skips expired
+// ones, and the script below hides one that expires between builds.
+const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
+const notice = v.notice && (!v.noticeUntil || v.noticeUntil >= today) ? v.notice : '';
 const claimUrl = `/claim/?id=${v.notionId}&name=${encodeURIComponent(v.name)}&kind=venue`;
 const area = AREAS[v.area];
 const w = venueWeek(v);
@@ -45,6 +50,7 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
   {share && <Editor m={v} kind="venue" />}
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
+    {notice && <p class="notice" role="status" data-until={v.noticeUntil || undefined}><strong>Heads up:</strong> {notice}</p>}
     <article class:list={['grid', { feat }]}>
       <div class="main stack">
         {v.photo && <img class="vphoto" src={v.photo} alt={`${v.name}, live music venue in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} width="1200" height="900" decoding="async" fetchpriority="high" />}
@@ -60,6 +66,7 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
         <dl class="facts">
           {v.address && <><dt>Address</dt><dd>{v.address}<br /><a href={mapsLink(v)} rel="noopener">Get directions</a></dd></>}
           {v.phone && <><dt>Phone</dt><dd><a href={`tel:${v.phone.replace(/[^\d+]/g, '')}`}>{v.phone}</a></dd></>}
+          {hours.length > 0 && <><dt>Hours</dt><dd><table class="hours"><tbody>{hours.map((h) => <tr><th scope="row">{h.days}</th><td>{h.when}</td></tr>)}</tbody></table>{v.hoursNote && <p class="hnote">{v.hoursNote}</p>}</dd></>}
         </dl>
         {links.length > 0 && <div class="btns">{links.map(([k, n]) => <a class="btn btn-line" href={out(v.links[k], v.slug)} rel="noopener">{n}</a>)}</div>}
         {v.lat && v.lng && <div class="mini"><VenueMap list={[v]} height="300px" zoom={14} /></div>}
@@ -130,7 +137,22 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
   </div>
 </Layout>
 
+<script is:inline>
+  // Hide a closure notice once its last day has passed in Las Cruces, even before the next rebuild
+  (function () {
+    var n = document.querySelector('.notice[data-until]');
+    if (!n) return;
+    try { if (new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' }) > n.getAttribute('data-until')) n.hidden = true; } catch (e) {}
+  })();
+</script>
+
 <style>
+  .notice { margin: 4px 0 0; padding: 12px 16px; border-radius: 8px; background: var(--gold); color: var(--night); font-size: 1.05rem; }
+  .notice[hidden] { display: none; }
+  .hours { border-collapse: collapse; }
+  .hours th { text-align: left; font-weight: 600; padding: 0 16px 4px 0; white-space: nowrap; }
+  .hours td { padding: 0 0 4px; }
+  .hnote { font-size: .92rem; color: var(--muted); margin-top: 4px; }
   .tags { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
   a.fpill { text-decoration: none; }
   a.fpill:hover { background: var(--night); color: var(--gold); }
