@@ -18,7 +18,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     <div class="ed-head">
       <div>
         <p class="ed-kicker">{mode === 'owner' ? 'Your private edit link' : 'Editing as Charlie'}</p>
-        <h2>{mode === 'owner' ? `Edit your page, ${m.name}` : `Edit ${m.name}`}</h2>
+        <h2>{mode === 'owner' ? (venue ? `Edit your venue page, ${m.name}` : `Edit your page, ${m.name}`) : `Edit ${m.name}`}</h2>
         {mode === 'owner' && !venue && <p class="ed-note">Only you have this link, so keep it to yourself and bookmark it to come back anytime. Add photos{m.type === 'Band' ? ', a photo and short bio for each band member' : ''}, your links and a booking contact below, then tap <strong>Save</strong>. Charlie gives changes a quick look before they go public. Your page is shown underneath.</p>}
         {mode === 'owner' && venue && <p class="ed-note">Only you have this link, so keep it to yourself and bookmark it to come back anytime. Add photos, a few lines about the place and your links below, then tap <strong>Save</strong>. Charlie gives changes a quick look before they go public. Your page is shown underneath.</p>}
       </div>
@@ -41,12 +41,12 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
         <ul class="ed-gallery"></ul>
         <label class="file btn btn-line">Add photos<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-upload="gallery" class="vh" /></label>
       </fieldset>
-      <fieldset class="ed-band" hidden>
+      {!venue && <fieldset class="ed-band" hidden>
         <legend>Band members</legend>
         <p class="hint">They show under your band on this page only. Add a small photo and a line or two about each person if you like. If someone also plays solo and has their own page here, pick it so people can find them.</p>
         <ol class="ed-members"></ol>
         <button class="btn btn-line" type="button" data-add-member>Add a band member</button>
-      </fieldset>
+      </fieldset>}
       <fieldset>
         <legend>Links</legend>
         <div class="ed-fields" data-group="links"></div>
@@ -151,7 +151,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   }
 
   function field(name) { return state.fields.find(function (f) { return f.name === name; }); }
-  function showBand() { var t = field('Type'); root.querySelector('.ed-band').hidden = !(t && t.value === 'Band'); }
+  function showBand() { var band = root.querySelector('.ed-band'); if (!band) return; var t = field('Type'); band.hidden = !(t && t.value === 'Band'); }
 
   function renderMain() {
     var box = root.querySelector('.ed-main'); box.innerHTML = '';
@@ -175,7 +175,7 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     });
   }
   function renderMembers() {
-    var ol = root.querySelector('.ed-members'); ol.innerHTML = '';
+    var ol = root.querySelector('.ed-members'); if (!ol) return; ol.innerHTML = '';
     state.members.forEach(function (p, i) {
       var who = p.name || 'band member ' + (i + 1);
       var name = el('input', { type: 'text', placeholder: 'Name', maxlength: 80, 'aria-label': 'Name of band member ' + (i + 1) }); name.value = p.name || '';
@@ -207,7 +207,8 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
     });
   }
   function confirmRemove(p) { return !p.name || window.confirm('Remove ' + p.name + ' from the band?'); }
-  root.querySelector('[data-add-member]').addEventListener('click', function () {
+  var addMember = root.querySelector('[data-add-member]');
+  if (addMember) addMember.addEventListener('click', function () {
     state.members.push({ name: '', plays: '', bio: '', photo: '', email: '', solo: '' }); renderMembers();
     var inputs = root.querySelectorAll('.ed-members li:last-child input'); if (inputs[0]) inputs[0].focus();
   });
@@ -310,6 +311,8 @@ const config = { id: m.notionId, token: mode === 'owner' ? m.shareToken : '', mo
   .editor .ed-status.bad, .editor .ed-saved.bad { color: #ffb4b4; }
   .editor .ed-status.ok, .editor .ed-saved.ok { color: #9fe3c9; }
   .editor .ed-body { margin-top: 20px; display: grid; gap: 18px; max-width: 820px; }
+  /* display: grid below would otherwise beat the hidden attribute (band members showed for solo acts and venues) */
+  .editor [hidden] { display: none !important; }
   .editor fieldset { border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 18px 20px 20px; margin: 0; display: grid; gap: 14px; }
   .editor legend { font: 800 1.4rem/1 var(--display); padding: 0 6px; color: var(--gold); }
   .editor .ed-fields { display: grid; gap: 14px; }
