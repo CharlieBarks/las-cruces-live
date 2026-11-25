@@ -85,6 +85,7 @@ Separate pull requests, in order (details in [agent-docs/acss-workflow.md](agent
 - **`btn-line` on a dark background needs light text.** It defaults to `--ink`, so on `--night` it's invisible until hover. Use `.on-night` on the section, or set the color in that component (the editor does). Nov 24, 2026: "Add a band member" only showed on hover.
 - **A new act can go live without photos.** If the live build log shows `couldn't save a photo … HTTP 403` for intake `/photo/` links, the request was blocked before reaching `lc-live-intake`; retrying the build fixed it (Nov 24, 2026, Rebel Creek Radio).
 
+- **Schema (Nov 25, 2026):** musician pages: Person / MusicGroup with genres (solo artists too), bio as description, photo; venue pages: MusicVenue with the address split into street, city, state and ZIP (`postalAddress()` in `src/lib/site.js`; an address that doesn't fit "street, city, NM 88005" stays one line) and photo; both get breadcrumbs (Home › Musicians/Venues › name). No Event schema here: shows have no dates on this site, and the Las Cruces Events calendar is the one page per show for Google (it names Las Cruces Live acts as performers and links here).
 - No dates or times on the site (see above).
 - Never rewrite an act's own description ("Genre" is the sound in their words).
 - Email and phone fields in Notion are never read or shown.
