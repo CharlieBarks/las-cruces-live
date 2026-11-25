@@ -132,8 +132,13 @@ function headingDate(line, issueDate) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(Number(m[2])).padStart(2, '0')}`;
 }
 
+// A closure line in the issue, under that day: "Blue Moon | CLOSED – Private event" (the reason after
+// a dash or colon is optional). It's not a show; the venue's page shows "Closed …" until that day passes.
+const CLOSED = /^closed\b\s*[-–—:,]?\s*(.*)$/i;
+
 export function matchLineup(text, musicians, venues, issueDate) {
   const shows = [];
+  const closures = [];
   let date = null;
   for (const raw of text.split('\n')) {
     const d = headingDate(raw, issueDate);
@@ -142,6 +147,12 @@ export function matchLineup(text, musicians, venues, issueDate) {
     if (!raw.includes('|') || raw.trim().startsWith('#')) continue;
     const parts = raw.split('|').map(stripMd);
     if (parts.length < 2 || !parts[0]) continue;
+    const closed = parts[1].trim().match(CLOSED);
+    if (closed) {
+      const where = venueFor(parts[0], venues);
+      if (where && date) closures.push({ date, venue: where.slug, reason: [closed[1], ...parts.slice(2)].map((x) => x.trim()).filter(Boolean).join(', ').slice(0, 120) });
+      continue;
+    }
     const venue = venueFor(parts[1], venues);
     const searchText = [parts[0], ...parts.slice(2)].join(' , ');
     const acts = musicians
@@ -170,5 +181,5 @@ export function matchLineup(text, musicians, venues, issueDate) {
       for (const a of s.acts) if (!venueMap[s.venue].acts.includes(a)) venueMap[s.venue].acts.push(a);
     }
   }
-  return { shows: shows.length, acts, venues: venueMap, list: shows };
+  return { shows: shows.length, acts, venues: venueMap, list: shows, closures };
 }

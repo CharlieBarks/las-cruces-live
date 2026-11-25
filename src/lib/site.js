@@ -152,6 +152,15 @@ function buildWeek() {
   return { ...thisweekRaw, shows, acts, venues, weeks: [...weeks] };
 }
 export const thisWeek = buildWeek();
+// "Blue Moon | CLOSED – Private event" lines from the Thursday issue (scripts/lib/shape.mjs), for the
+// venue page: only days that haven't passed yet in Las Cruces. Business info, not the show schedule.
+export function venueClosures(v) {
+  const now = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Denver' });
+  return (thisweekRaw.closures || [])
+    .filter((c) => c.venue === v.slug && c.date >= now)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((c) => ({ ...c, label: new Date(`${c.date}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }) }));
+}
 export const issueLink = (content) => utm(thisWeek.issueUrl || SITE.liveMusicUrl, content);
 export const subscribeLink = (content) => utm(SITE.subscribeUrl, content);
 
