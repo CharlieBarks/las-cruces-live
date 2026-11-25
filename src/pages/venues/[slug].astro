@@ -5,7 +5,7 @@ import VenueMap from '../../components/VenueMap.astro';
 import Comments from '../../components/Comments.astro';
 import CrowdPhotos from '../../components/CrowdPhotos.astro';
 import PinnedPosts from '../../components/PinnedPosts.astro';
-import { SITE, utm, out, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, isFeaturedVenue, isSponsorVenue, featuredVenueFirst } from '../../lib/site.js';
+import { SITE, utm, out, venues, venueBySlug, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, breadcrumbJsonLd, isFeaturedVenue, isSponsorVenue, featuredVenueFirst } from '../../lib/site.js';
 
 export function getStaticPaths() {
   return venues.map((v) => ({ params: { slug: v.slug } }));
@@ -37,7 +37,7 @@ const weekLists = (w.byWeek || []).map((x, i) => ({
 })).filter((x) => x.acts.length + x.others.length > 0);
 const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
 ---
-<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v)]} image={v.share} imageAlt={v.share ? `${v.name}, live music venue` : ''} searchable>
+<Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v), breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Venues', path: '/venues/' }, { name: v.name, path: `/venues/${v.slug}/` }])]} image={v.share} imageAlt={v.share ? `${v.name}, live music venue` : ''} searchable>
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>
     <article class:list={['grid', { feat }]}>

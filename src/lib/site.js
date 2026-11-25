@@ -211,6 +211,25 @@ export function listJoin(items) {
   return `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
 }
 
+// Schema helpers (Nov 25, 2026): Google wants full image URLs and addresses split into parts.
+const absUrl = (u) => (/^https?:/.test(u) ? u : `${SITE.url}${u.startsWith('/') ? '' : '/'}${u}`);
+// "402 S Melendres St, Las Cruces, NM 88005" -> street, city, state, ZIP. Anything that doesn't fit
+// that shape stays as one line, as before.
+function postalAddress(a) {
+  const m = String(a).match(/^(.+?),\s*([^,]+?),\s*([A-Z]{2})\.?\s*(\d{5})?\s*(?:,\s*(?:USA|US|United States))?$/i);
+  if (!m) return a;
+  return { '@type': 'PostalAddress', streetAddress: m[1].trim(), addressLocality: m[2].trim(), addressRegion: m[3].toUpperCase(),
+    ...(m[4] ? { postalCode: m[4] } : {}), addressCountry: 'US' };
+}
+
+export function breadcrumbJsonLd(items) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, item: `${SITE.url}${it.path}` })),
+  };
+}
+
 export function musicianJsonLd(m) {
   const sameAs = Object.values(m.links).filter(Boolean);
   return {
@@ -218,7 +237,9 @@ export function musicianJsonLd(m) {
     '@type': m.type === 'Solo Artist' ? 'Person' : 'MusicGroup',
     name: m.name,
     url: `${SITE.url}/musicians/${m.slug}/`,
-    ...(m.type !== 'Solo Artist' && m.genres.length ? { genre: m.genres.map(genreName) } : {}),
+    ...(m.genres.length ? { genre: m.genres.map(genreName) } : {}),
+    ...(m.bio ? { description: m.bio.replace(/\s+/g, ' ').trim().slice(0, 500) } : {}),
+    ...(m.photo ? { image: absUrl(m.photo) } : {}),
     ...(sameAs.length ? { sameAs } : {}),
     ...(m.type === 'Solo Artist' ? { jobTitle: 'Musician', homeLocation: { '@type': 'Place', name: 'Las Cruces, NM' } } : { foundingLocation: { '@type': 'Place', name: 'Las Cruces, NM' } }),
   };
@@ -231,7 +252,8 @@ export function venueJsonLd(v) {
     '@type': 'MusicVenue',
     name: v.name,
     url: `${SITE.url}/venues/${v.slug}/`,
-    ...(v.address ? { address: v.address } : {}),
+    ...(v.address ? { address: postalAddress(v.address) } : {}),
+    ...(v.photo ? { image: absUrl(v.photo) } : {}),
     ...(v.lat ? { geo: { '@type': 'GeoCoordinates', latitude: v.lat, longitude: v.lng } } : {}),
     ...(v.phone ? { telephone: v.phone } : {}),
     ...(sameAs.length ? { sameAs } : {}),
