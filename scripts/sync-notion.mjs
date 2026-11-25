@@ -406,6 +406,10 @@ async function main() {
       photo: vphoto, share: vshare, card: vphoto ? await keepPhoto(vsrc, `venues/${vslug}/card`, 900) : '',
       cardLine: text(v, 'Card Line').slice(0, 90),
       about: text(v, 'About').slice(0, 1500),
+      // Opening hours ("Mon 11:00-21:00" per line) and an optional note; parsed in src/lib/site.js
+      hours: text(v, 'Hours').slice(0, 400), hoursNote: text(v, 'Hours Note').slice(0, 200),
+      // Closure notice ("Closed Thanksgiving Day"), hidden after Notice Until (also in the browser)
+      notice: text(v, 'Notice').slice(0, 160), noticeUntil: date(v, 'Notice Until'),
       gallery: vgallery,
       comments: approvedComments(dashless(v.id)),
       crowd: crowdOf(dashless(v.id)),
