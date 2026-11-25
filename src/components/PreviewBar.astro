@@ -8,7 +8,7 @@ const status = m.siteStatus || 'Approved';
 const pe = m.pendingEdits;
 const notionUrl = `https://www.notion.so/${m.notionId}`;
 ---
-<section class="pbar" data-id={m.notionId} data-kind={kind} data-pagefind-ignore>
+<section class="pbar" data-id={m.notionId} data-kind={kind} data-built={Date.now()} data-pagefind-ignore>
   <div class="wrap">
     <div class="pb-row">
       <p><span class={`pill ${status.replace(/\s/g, '').toLowerCase()}`}>{status === 'Approved' ? 'Live' : status}</span>
@@ -27,14 +27,14 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
     {m.formNotes && <p class="pb-note"><strong>From the form:</strong> {m.formNotes}</p>}
     {m.hasPhotoWithoutPermission && <p class="pb-note warn">This act has photos in Notion, but Image Permission isn't ticked, so they don't show.</p>}
     {m.claimRequest && (
-      <div class="pb-box">
+      <div class="pb-box" data-q="claim">
         <p><strong>Claim request:</strong> {m.claimRequest}</p>
         <p class="meta">Their email isn't the one on file. Check them out (Instagram, website), then send the link.</p>
         <div class="pb-btns"><button class="btn btn-chile" data-owner="sendEditLink">Send them the edit link</button><button class="btn btn-line" data-owner="dismissClaim">Dismiss</button></div>
       </div>
     )}
     {pe && (
-      <div class="pb-box">
+      <div class="pb-box" data-q="pending">
         <p><strong>Waiting changes from the owner</strong>{pe.at && ` (${pe.at.slice(0, 10)})`}:</p>
         <ul>
           {pe.fields.map((f) => <li><strong>{f.name}:</strong> <s>{f.before || '(blank)'}</s> → {f.after || '(blank)'}</li>)}
@@ -70,9 +70,28 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
   var id = bar.getAttribute('data-id');
   var msg = bar.querySelector('.pb-msg');
   var venue = bar.getAttribute('data-kind') === 'venue';
+  // Remembers what Charlie just handled (this browser only), so the Review queue and this page hide
+  // it right away instead of waiting ~2 minutes for the rebuild. Anything handled before this page
+  // was built is ignored, so a new claim on the same page still shows.
+  var built = Number(bar.getAttribute('data-built')) || 0;
+  function handled() { try { return JSON.parse(localStorage.getItem('lclive-handled') || '{}'); } catch (e) { return {}; } }
+  function remember(what) {
+    try {
+      var h = handled(), now = Date.now();
+      for (var k in h) if (now - h[k] > 86400000) delete h[k];
+      h[id + ':' + what] = now;
+      localStorage.setItem('lclive-handled', JSON.stringify(h));
+    } catch (e) {}
+  }
+  bar.querySelectorAll('.pb-box[data-q]').forEach(function (box) {
+    if ((handled()[id + ':' + box.getAttribute('data-q')] || 0) > built) {
+      box.className = 'pb-box pb-done';
+      box.textContent = '✓ Handled. This page catches up in about 2 minutes.';
+    }
+  });
   // Shows the result right under the buttons. A claim or waiting-changes box that was handled turns
   // into a green "done" note, since the page itself only refreshes after the ~2 minute rebuild.
-  function post(path, body, done, btn) {
+  function post(path, body, done, btn, what) {
     var box = btn && btn.closest('.pb-box');
     var btns = box ? box.querySelectorAll('button') : btn ? [btn] : [];
     btns.forEach(function (x) { x.disabled = true; });
@@ -83,21 +102,22 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
         btns.forEach(function (x) { x.disabled = false; });
         if (!d.ok) { msg.className = 'pb-msg bad'; msg.textContent = d.error || 'That didn’t work.'; return; }
         var text = done(d);
+        if (what) remember(what);
         msg.className = 'pb-msg ok'; msg.textContent = '✓ ' + text;
-        if (box) { box.className = 'pb-box pb-done'; box.textContent = '✓ ' + text + ' It drops off the Review queue in about 2 minutes.'; }
+        if (box) { box.className = 'pb-box pb-done'; box.textContent = '✓ ' + text + ' It’s off your Review queue.'; }
       })
       .catch(function () { btns.forEach(function (x) { x.disabled = false; }); msg.className = 'pb-msg bad'; msg.textContent = 'That didn’t work. Check your connection.'; });
   }
   bar.querySelectorAll('[data-status]').forEach(function (b) {
     b.addEventListener('click', function () {
       var s = b.getAttribute('data-status');
-      post('/api/status', { status: s }, function () { return s === 'Approved' ? 'Approved. It goes live in about 2 minutes.' : 'Hidden. It comes off the site in about 2 minutes.'; }, b);
+      post('/api/status', { status: s }, function () { return s === 'Approved' ? 'Approved. It goes live in about 2 minutes.' : 'Hidden. It comes off the site in about 2 minutes.'; }, b, 'new');
     });
   });
   bar.querySelectorAll('[data-pending]').forEach(function (b) {
     b.addEventListener('click', function () {
       var k = b.getAttribute('data-pending');
-      post('/api/pending', { apply: k !== 'discard', trust: k === 'trust' }, function () { return k === 'discard' ? 'Changes discarded.' : k === 'trust' ? 'Applied, and they’re now a trusted editor. The live page updates in about 2 minutes.' : 'Applied. The live page updates in about 2 minutes.'; }, b);
+      post('/api/pending', { apply: k !== 'discard', trust: k === 'trust' }, function () { return k === 'discard' ? 'Changes discarded.' : k === 'trust' ? 'Applied, and they’re now a trusted editor. The live page updates in about 2 minutes.' : 'Applied. The live page updates in about 2 minutes.'; }, b, 'pending');
     });
   });
   bar.querySelectorAll('[data-owner]').forEach(function (b) {
@@ -109,7 +129,7 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
           : a === 'dismissClaim' ? 'Claim dismissed. No email was sent.'
           : a === 'revokeEditLink' ? 'Edit link turned off.'
           : a === 'undoLast' ? 'Undone: ' + (d.undid || []).join(', ') : 'Done.';
-      }, b);
+      }, b, a === 'sendEditLink' || a === 'dismissClaim' ? 'claim' : '');
     });
   });
   var edit = bar.querySelector('[data-edit]');
