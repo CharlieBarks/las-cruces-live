@@ -103,7 +103,7 @@ function actIn(name, text) {
 }
 
 // Venue names in the newsletter are short ("Game 1", "NM Vintage", "Blue Moon").
-const VENUE_ALIASES = { 'grounded lounge': 'grounded-cafe', 'sparkys hatch': 'sparkys-burgers-bbq-and-espresso' };
+const VENUE_ALIASES = { 'grounded lounge': 'grounded-cafe', 'sparkys hatch': 'sparkys-burgers-bbq-and-espresso', 'nmsu golf course': '1888-taphouse-and-kitchen', 'nmsu golf': '1888-taphouse-and-kitchen' };
 function venueFor(text, venues) {
   const a = words(text).filter((x) => x !== 'the').join(' ');
   if (!a) return null;
