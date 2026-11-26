@@ -477,6 +477,12 @@ async function giveEditLink(env, id, page, email, fresh = false) {
   // Same token: the page already exists, so tell Grok Bot now.
   if (token !== had) await rebuild(env.PREVIEW_HOOK);
   else await notifyAll(env);
+  // A new owner on a live page: rebuild lascruceslive.com too, so "Claim this page" turns into
+  // "Edit this page" (and the page moves up the claimed list) in a couple of minutes, not at the
+  // next scheduled rebuild.
+  const wasOwner = String(page.properties['Owner Email']?.email || '').trim().toLowerCase();
+  const live = (page.properties['Site Status']?.select?.name || 'Approved') === 'Approved';
+  if (live && wasOwner !== email.trim().toLowerCase()) await rebuild(env.LIVE_HOOK);
   return link;
 }
 
