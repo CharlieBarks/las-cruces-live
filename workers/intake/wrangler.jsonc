@@ -21,7 +21,8 @@
     // the intake hands that email to Grok Bot instead.
     { "name": "GUEST_EMAIL", "allowed_sender_addresses": ["charlie@livelovelascruces.com"] }
   ],
-  // Backup run of the Grok Bot notifications
-  "triggers": { "crons": ["*/30 * * * *"] },
+  // UTC. */30: backup run of the Grok Bot notifications. The rest rebuild lascruceslive.com on time:
+  // daily 4:15 AM MST, Thursday 3:30 PM MST after the Live Music issue, Friday 7 AM MST backup.
+  "triggers": { "crons": ["*/30 * * * *", "15 11 * * *", "30 22 * * 4", "0 14 * * 5"] },
   "ratelimits": [{ "name": "CLAIM_LIMIT", "namespace_id": "1201", "simple": { "limit": 5, "period": 60 } }]
 }

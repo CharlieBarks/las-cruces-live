@@ -88,3 +88,22 @@ Sponsor spots (home, map, genre pages, neighborhoods) are set in `SPONSORS` in `
 
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy`
+
+## Keys and tokens
+
+Names only. The values live in Cloudflare and are never committed. Added Nov 26, 2026.
+
+**Two Cloudflare accounts.** The public site (`las-cruces-live`) is in the lascruceslive.com account (Cf8). The intake (`lc-live-intake`) and the private preview (`las-cruces-live-preview`) are in the Live Love Las Cruces account (Cf2), next to the Art Trail and the Events Calendar.
+
+| Where | Name | What it's for / what breaks without it |
+|---|---|---|
+| Each account: Worker > Settings > Builds > API token | Workers Builds token | Lets Cloudflare deploy from GitHub. One per account; every Worker in that account uses it. Without it every build fails before it starts ("build token belongs to a user who has left"). Fix: create a new token there and point each Worker at it. Replaced in both accounts Nov 26, 2026. |
+| `las-cruces-live` build variables | `NOTION_TOKEN`, `BEEHIIV_API_KEY` | Pull acts/venues from Notion and the Thursday lineup from Beehiiv. Without them the build uses the saved JSON (stale). |
+| `las-cruces-live-preview` build variables | `NOTION_TOKEN`, `INTAKE_KEY`, `LIVE_PREVIEW`, `PREVIEW_SITE_URL` | Preview build: Review queue, share pages, Approve buttons. |
+| `lc-live-intake` secrets | `NOTION_TOKEN`, `INTAKE_KEY`, `LIVE_HOOK`, `PREVIEW_HOOK`, `TURNSTILE_SECRET` | Tally sign-ups, claims, comments, edits, emails. `LIVE_HOOK` / `PREVIEW_HOOK` are the deploy hook IDs below. |
+| Deploy hook "Approvals" on `las-cruces-live` | = `LIVE_HOOK` | Rebuilds lascruceslive.com (approvals, claims, scheduled rebuilds). If it's ever recreated, update `LIVE_HOOK` on the intake. |
+| Deploy hook "Rebuild preview (intake)" on `las-cruces-live-preview` | = `PREVIEW_HOOK` | Rebuilds the preview. Same rule. |
+| Tally form webhook | `?key=INTAKE_KEY` in the URL | Changing `INTAKE_KEY` means updating it in the Tally webhook and the preview build too. |
+| `wrangler.jsonc` / `workers/intake/wrangler.jsonc` | `GUEST_EMAIL` binding, KV `PHOTOS`, rate limit | Emails from charlie@ (needs Workers Paid and Email Sending on livelovelascruces.com). |
+
+`NOTION_TOKEN` is in three places: rotating it means updating all three. The GitHub Action uses GitHub's built-in token: nothing to manage.
