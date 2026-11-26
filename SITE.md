@@ -25,7 +25,7 @@ The who's who of the Las Cruces music scene: local musicians, bands and the venu
 - Builds without `NOTION_TOKEN` / `BEEHIIV_API_KEY` use the saved JSON.
 - `/directory.json` lists every act (name, page, genres) and venue (name, page) for the Las Cruces Events calendar, which reads it at build time to show genres next to shows and link here. Names and links only, never dates or times. Built Nov 15, 2026.
 - Beehiiv can answer `202` ("still rendering, try again") when asked for an issue's web HTML. `sync-lineup.mjs` waits and retries, and finds the issue by title if the tag filter comes back empty. Check the build log line starting `sync-lineup:` when "Playing this week" is missing.
-- A GitHub Action (`thursday-rebuild.yml`) rebuilds after each Thursday issue so "Playing this week" badges update. Keep it.
+- **Scheduled rebuilds come from the intake Worker** (Nov 26, 2026): its crons in `workers/intake/wrangler.jsonc` call LIVE_HOOK daily at 4:15 AM, Thursday 3:30 PM after the issue, and Friday 7 AM as a backup. The GitHub Action (`thursday-rebuild.yml`) has the same times but GitHub starts scheduled runs hours late (the 4:15 AM run was starting around 1–3 PM), so it's only the backup now. Keep it.
 - Musician listings are free. Venues are where the money is (venue promos, banners, sponsored sections). `Listing Tier` (Free / Premium / Founding) exists in Notion.
 
 ## Brand

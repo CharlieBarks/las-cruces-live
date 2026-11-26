@@ -48,6 +48,16 @@ Small fixes and content changes skip steps 1 to 4.
 - **One site at a time.** Don't copy class names, copy or design choices from another LLLC site unless asked. Shared rules live here; site choices live in `SITE.md`.
 - **Plain-language summaries.** Charlie is not a developer. When you finish, say what changed and what he should check, in a few lines. No code walkthroughs unless he asks.
 
+## Before a feature is done
+
+Added Nov 26, 2026. A claim on Las Cruces Live worked, but the live page kept saying "Claim this page" overnight: only the preview rebuilt, the scheduled rebuild ran hours late, and a dead build token stopped the fix from deploying. Nobody found out until Charlie looked. Answer these for every feature before calling it done, and write the answers in SITE.md:
+
+1. **When does the live site show it?** If a visitor, owner or Charlie does something (claims, submits, edits, approves), what rebuilds the live site, and how long until they see it? Don't count on "the next scheduled rebuild" unless you know when that is.
+2. **What if a schedule runs late or not at all?** GitHub's scheduled Actions start hours late. Put anything time-sensitive on a Worker cron, and keep any GitHub schedule only as a backup.
+3. **If it fails, who finds out?** A failed build, feed, email or rebuild should show up in the daily health check (a scheduled Claude task) or email Charlie. Silent failure doesn't count as done.
+4. **Does another site depend on it?** For example the Events Calendar reads `/directory.json` from Las Cruces Live and the Art Trail. Say so in both sites' docs.
+5. **New key, token, deploy hook or Worker?** Add it to the README's "Keys and tokens" section: what it is, where it's set, what breaks without it. A Worker that isn't deployed from the repo gets listed there too.
+
 ## Modern Web Guidance: what wins
 
 [modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance) (Chrome, Edge, Firefox and MDN teams) may be installed as a skill, or run with `npx modern-web-guidance@latest`. It's a reference for current browser features. It does not override this file.

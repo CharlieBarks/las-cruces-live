@@ -248,9 +248,15 @@ async function joinNewsletter(env, properties, medium = 'musician-form') {
 }
 
 export default {
-  // Backup for Grok Bot notifications (see notifyAll)
+  // Every 30 minutes: backup for Grok Bot notifications (see notifyAll).
+  // The other crons in wrangler.jsonc rebuild the live site on time: daily, and after the Thursday
+  // issue (GitHub's scheduled Action runs hours late, so it's only the backup now).
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(notifyAll(env).catch((err) => console.error(`notify failed: ${err.message}`)));
+    if (event.cron === '*/30 * * * *') {
+      ctx.waitUntil(notifyAll(env).catch((err) => console.error(`notify failed: ${err.message}`)));
+      return;
+    }
+    ctx.waitUntil(rebuild(env.LIVE_HOOK).then((ok) => console.log(JSON.stringify({ cron: event.cron, liveRebuild: ok }))));
   },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
