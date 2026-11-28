@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import ThisWeek from './ThisWeek.astro';
 import ActList from './ActList.astro';
 import PreviewBar from './PreviewBar.astro';
+import AdminBar from './AdminBar.astro';
 import Editor from './Editor.astro';
 import Poster from './Poster.astro';
 import Comments from './Comments.astro';
@@ -42,6 +43,7 @@ const bookExternal = m.booking && !m.booking.startsWith('mailto:');
 ---
 <Layout title={`${m.name}, ${label || 'Musician'} in Las Cruces, NM`} {description} jsonLd={[musicianJsonLd(m), breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Musicians', path: '/musicians/' }, { name: m.name, path: `/musicians/${m.slug}/` }])]} image={m.share} imageAlt={m.share ? `${m.name}, live music in Las Cruces` : ''} searchable={!share} noindex={share}>
   {PREVIEW && !share && <PreviewBar m={m} />}
+  {!PREVIEW && !share && <AdminBar m={m} />}
   {share && <Editor m={m} />}
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/musicians/">Musicians</a> / {m.name}</p>

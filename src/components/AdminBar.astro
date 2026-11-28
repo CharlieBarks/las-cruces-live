@@ -1,0 +1,79 @@
+---
+// Live site only: Charlie's slim admin bar on each act's or venue's page (Nov 28, 2026, same idea as
+// the events calendar's). Hidden for everyone until he opens any page with ?admin=on (remembered in
+// this browser; ?admin=off turns it off). It changes nothing by itself: Save opens the same page on
+// the private preview site (behind his Cloudflare login) with ?admin-save=1, where PreviewBar saves
+// it through /api/listing and closes the window. Quick links go to the preview page, Notion and the
+// Review queue.
+import { PREVIEW_URL } from '../lib/site.js';
+const { m, kind = 'musician' } = Astro.props;
+const venue = kind === 'venue';
+const path = venue ? `/venues/${m.slug}/` : `/musicians/${m.slug}/`;
+const tier = (m.tier || 'free').toLowerCase();
+// Venues: Featured = sponsor venue (Listing Tier in Notion). Acts: Premium = always in the homepage
+// lineup, labeled Featured (needs a Listing Tier field in the musicians database).
+const tiers = venue ? [['Free', 'Normal'], ['Featured', 'Featured (sponsor)']] : [['Free', 'Normal'], ['Premium', 'Featured (Premium)']];
+---
+<aside class="abar" data-abar data-preview={PREVIEW_URL} data-path={path} data-venue={venue ? '' : undefined} hidden aria-label="Admin" data-pagefind-ignore>
+  <div class="wrap abar__inner">
+    <form class="abar__form" data-abar-form>
+      <strong>Admin</strong>
+      <span class="abar__group">Show as:
+        {tiers.map(([v, l]) => <label><input type="radio" name="tier" value={v} checked={tier === v.toLowerCase()} /> {l}</label>)}
+      </span>
+      {venue && (
+        <span class="abar__group">
+          <label>Notice <input type="text" name="notice" maxlength="140" value={m.notice || ''} placeholder="Closed tonight for a private event" /></label>
+          <label>until <input type="date" name="noticeUntil" value={m.noticeUntil || ''} /></label>
+        </span>
+      )}
+      <button class="btn btn-chile abar__save">Save</button>
+    </form>
+    <p class="abar__links">
+      <a href={`${PREVIEW_URL}${path}`} target="_blank" rel="noopener">Manage on preview</a>
+      {m.notionId && <a href={`https://www.notion.so/${m.notionId}`} target="_blank" rel="noopener">Notion</a>}
+      <a href={`${PREVIEW_URL}/review/`} target="_blank" rel="noopener">Review queue</a>
+    </p>
+  </div>
+</aside>
+
+<script is:inline>
+(function () {
+  var bar = document.querySelector('[data-abar]');
+  if (!bar) return;
+  try {
+    var q = new URLSearchParams(location.search).get('admin');
+    if (q === 'on') localStorage.setItem('lclive-admin', '1');
+    if (q === 'off') localStorage.removeItem('lclive-admin');
+    if (localStorage.getItem('lclive-admin') !== '1') return;
+  } catch (e) { return; }
+  bar.hidden = false;
+  var form = bar.querySelector('[data-abar-form]');
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var u = new URL(bar.getAttribute('data-preview') + bar.getAttribute('data-path'));
+    u.searchParams.set('admin-save', '1');
+    var tier = form.querySelector('input[name="tier"]:checked');
+    if (tier) u.searchParams.set('tier', tier.value);
+    if (bar.hasAttribute('data-venue')) {
+      u.searchParams.set('notice', form.notice.value.trim());
+      u.searchParams.set('noticeUntil', form.noticeUntil.value);
+    }
+    if (!window.open(u.toString(), 'lclive-admin', 'width=560,height=360')) window.open(u.toString(), '_blank');
+  });
+})();
+</script>
+
+<style>
+  .abar { background: var(--cream); border-bottom: 2px solid var(--night); padding: 10px 0; font-size: 0.95rem; }
+  .abar[hidden] { display: none; }
+  .abar__inner { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+  .abar__form { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  .abar__group { display: inline-flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+  .abar label { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; }
+  .abar input[type="text"] { width: 16rem; max-width: 60vw; padding: 6px 8px; font: inherit; }
+  .abar input[type="date"] { padding: 5px 6px; font: inherit; }
+  .abar__save { padding: 9px 16px; font-size: 0.95rem; }
+  .abar__links { display: flex; flex-wrap: wrap; gap: 14px; margin: 0; }
+  .abar__links a { color: var(--ink); font-weight: 700; }
+</style>

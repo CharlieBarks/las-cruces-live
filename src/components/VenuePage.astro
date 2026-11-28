@@ -8,6 +8,7 @@ import Comments from './Comments.astro';
 import CrowdPhotos from './CrowdPhotos.astro';
 import PinnedPosts from './PinnedPosts.astro';
 import PreviewBar from './PreviewBar.astro';
+import AdminBar from './AdminBar.astro';
 import Editor from './Editor.astro';
 import { SITE, PREVIEW, hoursRows, venueClosures, utm, out, venues, venueWeek, musicianBySlug, AREAS, mapsLink, whenText, listJoin, venueJsonLd, breadcrumbJsonLd, isFeaturedVenue, isSponsorVenue, featuredVenueFirst } from '../lib/site.js';
 
@@ -49,6 +50,7 @@ const lllc = utm('https://livelovelascruces.com/', `venue_${v.slug}_sponsor`);
 ---
 <Layout title={`${v.name}, Live Music in ${area?.name === 'Old Mesilla' ? 'Mesilla' : 'Las Cruces'}`} description={`Live music at ${v.name}${v.address ? `, ${v.address}` : ''}. Links, directions and who's playing this week and next.`} jsonLd={[venueJsonLd(v), breadcrumbJsonLd([{ name: 'Home', path: '/' }, { name: 'Venues', path: '/venues/' }, { name: v.name, path: `/venues/${v.slug}/` }])]} image={v.share} imageAlt={v.share ? `${v.name}, live music venue` : ''} searchable={!share} noindex={share}>
   {PREVIEW && !share && <PreviewBar m={v} kind="venue" />}
+  {!PREVIEW && !share && <AdminBar m={v} kind="venue" />}
   {share && <Editor m={v} kind="venue" />}
   <div class="wrap">
     <p class="crumbs" data-pagefind-ignore><a href="/">Home</a> / <a href="/venues/">Venues</a> / {v.name}</p>

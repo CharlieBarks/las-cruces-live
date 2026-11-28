@@ -957,7 +957,10 @@ export class Admin extends WorkerEntrypoint {
       throw new UserError('This private link no longer works. Ask Charlie for a new one.');
     }
     const schema = (await notion(this.env, `databases/${db}`, undefined, 'GET')).properties;
-    return { page, schema, owner: token !== undefined, live: status === 'Approved', status, ...cfg };
+    // Charlie's own saves (preview editor, live-site admin bar) can also set Listing Tier; owners'
+    // edit links never can (Nov 28, 2026).
+    return { page, schema, owner: token !== undefined, live: status === 'Approved', status, ...cfg,
+      editable: token === undefined ? [...cfg.editable, 'Listing Tier'] : cfg.editable };
   }
 
   async setStatus(id, status, by = '') {
