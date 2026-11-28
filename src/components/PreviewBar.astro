@@ -134,6 +134,27 @@ const notionUrl = `https://www.notion.so/${m.notionId}`;
   });
   var edit = bar.querySelector('[data-edit]');
   if (edit) edit.addEventListener('click', function () { document.dispatchEvent(new Event('lc-edit')); });
+  // Save from the live site's admin bar (AdminBar.astro, Nov 28, 2026): ?admin-save=1 with tier and,
+  // for venues, notice / noticeUntil. Saved through the same /api/listing as the editor, then the
+  // small window closes itself.
+  var q = new URLSearchParams(location.search);
+  if (q.get('admin-save') === '1') {
+    history.replaceState(null, '', location.pathname);
+    var fields = {};
+    if (q.get('tier')) fields['Listing Tier'] = q.get('tier');
+    if (venue && q.has('notice')) { fields['Notice'] = q.get('notice') || ''; fields['Notice Until'] = q.get('noticeUntil') || ''; }
+    msg.className = 'pb-msg'; msg.textContent = 'Saving from the live page…';
+    bar.scrollIntoView({ block: 'start' });
+    fetch('/api/listing', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: id, changes: { fields: fields } }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) { msg.className = 'pb-msg bad'; msg.textContent = d.error || 'That didn’t work.'; return; }
+        msg.className = 'pb-msg ok';
+        msg.textContent = '✓ Saved. The live page updates in about 2 minutes.' + (q.get('tier') && !d.saved ? ' (Listing Tier isn’t set up in this Notion database yet, so the tier didn’t change.)' : '') + (window.opener ? ' This window closes by itself.' : '');
+        if (window.opener) setTimeout(function () { window.close(); }, 3000);
+      })
+      .catch(function () { msg.className = 'pb-msg bad'; msg.textContent = 'That didn’t work. Check your connection.'; });
+  }
 })();
 </script>
 
